@@ -51,8 +51,8 @@ class NumberingMap {
                 let pStyle = abstractNumElem.lvl.pStyle.val;
                 this.map.set(pStyle, abstractNum);
             }
-        } catch (e) {
-            console.warn(e);
+        } catch (_) {
+            // ignore error
         }
     }
     has(key) {
