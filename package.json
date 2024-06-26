@@ -21,7 +21,7 @@
     "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
     "docxyz": "^0.2.4",
-    "lru-cache": "^10.2.2",
+    "lru-cache": "^7.14.0",
     "next": "14.2.4",
     "object-hash": "^3.0.0",
     "react": "^18",
