@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/utils/docx/docxContext.js", "src/utils/docx/withDocx.js", "src/utils/docx/style/numbering.js"],
   "exclude": ["node_modules"]
 }
