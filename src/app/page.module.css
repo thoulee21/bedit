@@ -1,18 +1,17 @@
-.main {
-  margin-left: 6rem;
-  margin-right: 6rem;
-  padding: 1rem;
-  min-height: 100vh;
-  color: black;
-  background-color: whitesmoke;
-  border-radius: 1rem;
-  box-shadow: 0 0 1rem 0.5rem darkslateblue;
+.root {
+  background-color: ghostwhite;
 }
 
 .toolbar {
   display: flex;
-  margin: 1rem;
-  border-bottom: 0.1rem solid darkslateblue;
-  background-color: lightsteelblue;
-  border-radius: 0.5rem;
+  justify-content: center;
+  margin: 0.5rem;
+}
+
+.main {
+  padding: 2rem 4rem;
+  margin-top: 2rem;
+  min-height: 100vh;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
