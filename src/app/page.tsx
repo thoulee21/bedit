@@ -115,19 +115,16 @@ export default function Home() {
     <div className={styles.root}>
       <EditableProvider editor={editor}>
         <Header />
-        <div className={styles.toolbar}>
-          <ToggleButtonGroup
-            color='primary'
-            size='small'
-          >
-            <ToolbarComponent editor={editor} />
-          </ToggleButtonGroup>
-        </div>
+        <ToggleButtonGroup
+          color='primary'
+          size='small'
+          className={styles.toolbar}
+        >
+          <ToolbarComponent editor={editor} />
+        </ToggleButtonGroup>
 
-        <Container maxWidth="md">
-          <div className={styles.main}>
-            <ContentEditable placeholder="Waiting for input..." />
-          </div>
+        <Container maxWidth="md" className={styles.main}>
+          <ContentEditable placeholder="Waiting for input..." />
         </Container>
       </EditableProvider>
     </div>

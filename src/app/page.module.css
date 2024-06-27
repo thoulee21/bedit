@@ -1,4 +1,8 @@
 .root {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-around;
   background-color: ghostwhite;
 }
 
@@ -10,8 +14,10 @@
 
 .main {
   padding: 2rem 4rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
+  margin-bottom: 10rem;
   min-height: 100vh;
   background-color: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
