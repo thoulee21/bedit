@@ -17,7 +17,7 @@ export const Header = () => {
                         window.location.href = '/'
                     }}
                 >
-                    <Image src="/favicon.ico" alt='logo' width={30} height={30} />
+                    <Image src="/bedit/favicon.ico" alt='logo' width={30} height={30} />
                 </IconButton>
 
                 <Typography variant="body1" component="div" sx={{ flexGrow: 1 }}>
