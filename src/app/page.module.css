@@ -13,11 +13,19 @@
 }
 
 .main {
-  padding: 2rem 4rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
   margin-top: 1rem;
-  margin-bottom: 10rem;
+  margin-bottom: 3rem;
   min-height: 100vh;
+  height: fit-content;
   background-color: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  height: 10rem;
 }
