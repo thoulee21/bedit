@@ -8,15 +8,15 @@ import { ContextMenu, useContextMenuEffect, withContextMenu } from '@editablejs/
 import { withHistory } from '@editablejs/plugin-history';
 import { Toolbar as EditableToolbar, ToolbarComponent, useToolbarEffect, withToolbar } from '@editablejs/plugin-toolbar';
 import { MarkEditor, MarkFormat, withPlugins } from '@editablejs/plugins';
+import { Icon } from '@editablejs/ui';
 import CodeIcon from '@mui/icons-material/Code';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatStrikethroughIcon from '@mui/icons-material/FormatStrikethrough';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
 import SubscriptIcon from '@mui/icons-material/Subscript';
 import SuperscriptIcon from '@mui/icons-material/Superscript';
+import { Paper } from '@mui/material';
 import Container from '@mui/material/Container';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -95,7 +95,8 @@ export default function Home() {
       {
         key: 'copy',
         title: '复制',
-        icon: <ContentCopyIcon />,
+        icon: <Icon name='copy' />,
+        rightText: 'Ctrl+C',
         onSelect: () => {
           editor.copy()
         }
@@ -103,7 +104,8 @@ export default function Home() {
       {
         key: 'paste',
         title: '粘贴',
-        icon: <ContentPasteIcon />,
+        icon: <Icon name='paste' />,
+        rightText: 'Ctrl+V',
         onSelect: () => {
           editor.insertFromClipboard()
         }
@@ -127,6 +129,8 @@ export default function Home() {
           <ContentEditable placeholder="Waiting for input..." />
         </Container>
       </EditableProvider>
+
+      <Paper className={styles.footer} elevation={5} square />
     </div>
   );
 }
