@@ -17,30 +17,30 @@ export interface Mark {
 export const marks: Mark[] = [
     {
         name: 'bold',
-        icon: <FormatBold />,
+        icon: <FormatBold fontSize="small" />,
     },
     {
         name: 'italic',
-        icon: <FormatItalic />,
+        icon: <FormatItalic fontSize="small" />,
     },
     {
         name: 'underline',
-        icon: <FormatUnderlined />,
+        icon: <FormatUnderlined fontSize="small" />,
     },
     {
         name: 'strikethrough',
-        icon: <FormatStrikethrough />,
+        icon: <FormatStrikethrough fontSize="small" />,
     },
     {
         name: 'code',
-        icon: <Code />,
+        icon: <Code fontSize="small" />,
     },
     {
         name: 'sub',
-        icon: <Subscript />,
+        icon: <Subscript fontSize="small" />,
     },
     {
         name: 'sup',
-        icon: <Superscript />,
+        icon: <Superscript fontSize="small" />,
     },
 ]
