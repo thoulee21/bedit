@@ -16,14 +16,17 @@ import {
 } from '@editablejs/plugin-toolbar';
 import { MarkEditor, withPlugins } from '@editablejs/plugins';
 import { Icon } from '@editablejs/ui';
-import { Paper } from '@mui/material';
+import { CloudQueueRounded } from '@mui/icons-material';
+import { Paper, Snackbar } from '@mui/material';
 import Container from '@mui/material/Container';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { withDocx } from '../utils/docx/withDocx';
 
 export default function Home() {
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+
   const editor = useMemo(() => {
     let editable = withEditable(createEditor())
     editable = withToolbar(editable)
@@ -73,6 +76,31 @@ export default function Home() {
         onSelect: () => {
           editor.insertFromClipboard()
         }
+      },
+      {
+        key: 'ai',
+        title: 'Ask AI',
+        icon: <Icon name='blockquote' />,
+        onSelect: async () => {
+          if (editor.selection) {
+            try {
+              setSnackbarOpen(true)
+              const fragment = editor.getFragment(editor.selection)
+              //@ts-expect-error
+              const selected = fragment[0].children[0].text
+              const resp = await fetch(`http://localhost:8080/chat?prompt=${selected}&stream=true`)
+              const aiTxt = await resp.text()
+
+              setSnackbarOpen(false)
+              editor.insertText(aiTxt)
+            }
+            catch (e) {
+              console.info(e)
+            } finally {
+              setSnackbarOpen(false)
+            }
+          }
+        }
       }
     ])
   }, editor)
@@ -94,6 +122,11 @@ export default function Home() {
         </Container>
       </EditableProvider>
 
+      <Snackbar
+        open={snackbarOpen}
+        message="Loading ai response..."
+        action={<CloudQueueRounded fontSize='inherit' />}
+      />
       <Paper className={styles.footer} elevation={5} square />
     </div>
   );
