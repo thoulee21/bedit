@@ -43,11 +43,11 @@ export default function Home() {
         const fragment = editor.getFragment(editor.selection)
         //@ts-expect-error
         const selected = fragment[0].children[0].text
-        const resp = await fetch(`http://localhost:8080/chat?prompt=${selected}&stream=true`)
+        const resp = await fetch(`http://8.130.78.253/chat?prompt=${selected}`)
         const aiTxt = await resp.text()
 
         setSnackbarOpen(false)
-        editor.insertNode({ type: 'paragraph', children: [{ text: aiTxt }] })
+        editor.insertText(aiTxt)
       }
       catch (e) {
         console.info(e)
