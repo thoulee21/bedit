@@ -3,6 +3,7 @@
 import styles from './page.module.css';
 
 import { Header } from '@/components/Header';
+import { createContextMenuItems } from '@/configs/context-menu-items';
 import { createToolbarItems } from '@/configs/toolbar-items';
 import { ContentEditable, EditableProvider, withEditable } from "@editablejs/editor";
 import { createEditor } from "@editablejs/models";
@@ -17,10 +18,9 @@ import {
 import { withPlugins } from '@editablejs/plugins';
 import { Icon } from '@editablejs/ui';
 import { CloudQueueRounded } from '@mui/icons-material';
-import { Paper, Snackbar, Container } from '@mui/material';
+import { Container, Paper, Snackbar } from '@mui/material';
 import { useMemo, useState } from "react";
 import { withDocx } from '../utils/docx/withDocx';
-import { createContextMenuItems } from '@/configs/context-menu-items';
 
 export default function Home() {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
