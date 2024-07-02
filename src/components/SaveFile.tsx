@@ -3,7 +3,7 @@ import { Save } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import saveAs from "file-saver";
 
-const SaveFile = () => {
+export const SaveFile = () => {
     const editor = useEditable();
 
     const handleClick = () => {
@@ -25,5 +25,3 @@ const SaveFile = () => {
         </IconButton>
     );
 };
-
-export default SaveFile;
