@@ -20,7 +20,7 @@ import { Icon } from '@editablejs/ui';
 import { CloudQueueRounded } from '@mui/icons-material';
 import { Container, Paper, Snackbar } from '@mui/material';
 import { useMemo, useState } from "react";
-import { version } from '../../package.json';
+import packageInfo from '../../package.json';
 import { withDocx } from '../utils/docx/withDocx';
 
 export default function Home() {
