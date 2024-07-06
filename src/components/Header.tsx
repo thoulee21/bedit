@@ -1,12 +1,13 @@
-import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
+import { AppBar, Button, IconButton, Toolbar, Typography } from "@mui/material";
 import Image from 'next/image';
 import Link from 'next/link';
+import packageInfo from '../../package.json';
 import { OpenFile } from "./OpenFile";
 import { SaveFile } from "./SaveFile";
 
 export const Header = () => {
     return (
-        <AppBar position="static" color="info">
+        <AppBar position="static">
             <Toolbar>
                 <Link href="/next">
                     <IconButton
@@ -23,6 +24,14 @@ export const Header = () => {
                 <Typography variant="body1" component="div" sx={{ flexGrow: 1 }}>
                     Bedit - An AI-powered rich text editor
                 </Typography>
+
+                <Button
+                    color="inherit"
+                    size="small"
+                    variant="text"
+                >
+                    v{packageInfo.version}
+                </Button>
 
                 <OpenFile />
                 <SaveFile />
