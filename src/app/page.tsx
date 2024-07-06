@@ -6,7 +6,7 @@ import { Header } from '@/components/Header';
 import { createContextMenuItems } from '@/configs/context-menu-items';
 import { createToolbarItems } from '@/configs/toolbar-items';
 import { ContentEditable, EditableProvider, withEditable } from "@editablejs/editor";
-import { createEditor } from "@editablejs/models";
+import { Transforms, createEditor } from "@editablejs/models";
 import { ContextMenu, useContextMenuEffect, withContextMenu } from '@editablejs/plugin-context-menu';
 import { withHistory } from '@editablejs/plugin-history';
 import {
@@ -20,7 +20,6 @@ import { Icon } from '@editablejs/ui';
 import { CloudQueueRounded } from '@mui/icons-material';
 import { Container, Paper, Snackbar } from '@mui/material';
 import { useMemo, useState } from "react";
-import packageInfo from '../../package.json';
 import { withDocx } from '../utils/docx/withDocx';
 
 export default function Home() {
@@ -33,6 +32,37 @@ export default function Home() {
     editable = withHistory(editable)
     editable = withPlugins(editable)
     editable = withDocx(editable)
+
+    const { onKeydown } = editable
+
+    editable.onKeydown = ((event) => {
+      if (event.key === 'Tab') {
+        event.preventDefault()
+        Transforms.insertText(editable, '    ')
+        return
+      }
+
+      if (event.ctrlKey && event.key === 'i') {
+        askAI()
+        return
+      }
+
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault()
+        //@ts-expect-error
+        editable.saveDocx()
+        return
+      }
+
+      if (event.ctrlKey && event.key === 'o') {
+        event.preventDefault()
+        //@ts-expect-error
+        editable.openDocx()
+        return
+      }
+
+      onKeydown(event)
+    })
 
     return editable
   }, [])
@@ -48,7 +78,7 @@ export default function Home() {
         const aiTxt = await resp.text()
 
         setSnackbarOpen(false)
-        editor.insertText(aiTxt)
+        Transforms.insertText(editor, aiTxt)
       }
       catch (e) {
         console.info(e)
@@ -68,7 +98,8 @@ export default function Home() {
       key: 'ai',
       title: 'Ask AI',
       icon: <Icon name='blockquote' />,
-      onSelect: askAI
+      onSelect: askAI,
+      rightText: 'Ctrl + I'
     })
 
     ContextMenu.setItems(editor, contextMenu)
@@ -81,7 +112,9 @@ export default function Home() {
         <ToolbarComponent editor={editor} className={styles.toolbar} />
 
         <Container maxWidth="md" className={styles.main}>
-          <ContentEditable placeholder={`Bedit v${packageInfo.version} is waiting for input...`} />
+          <ContentEditable
+            placeholder="Start typing here..."
+          />
         </Container>
       </EditableProvider>
 
