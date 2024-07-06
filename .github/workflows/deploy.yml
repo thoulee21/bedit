@@ -1,4 +1,4 @@
-name: bedit Deployment
+name: Bedit Deploy to Server
  
 on:
   push:
