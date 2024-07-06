@@ -20,7 +20,6 @@ import { Icon } from '@editablejs/ui';
 import { CloudQueueRounded } from '@mui/icons-material';
 import { Container, Paper, Snackbar } from '@mui/material';
 import { useMemo, useState } from "react";
-import packageInfo from '../../package.json';
 import { withDocx } from '../utils/docx/withDocx';
 
 export default function Home() {
@@ -113,7 +112,9 @@ export default function Home() {
         <ToolbarComponent editor={editor} className={styles.toolbar} />
 
         <Container maxWidth="md" className={styles.main}>
-          <ContentEditable placeholder="Start typing here..." />
+          <ContentEditable
+            placeholder="Start typing here..."
+          />
         </Container>
       </EditableProvider>
 
