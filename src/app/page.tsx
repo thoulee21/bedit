@@ -81,7 +81,7 @@ export default function Home() {
         <ToolbarComponent editor={editor} className={styles.toolbar} />
 
         <Container maxWidth="md" className={styles.main}>
-          <ContentEditable placeholder={`Bedit v${packageInfo.version} is waiting for input...`} />
+          <ContentEditable placeholder="Start typing here..." />
         </Container>
       </EditableProvider>
 
