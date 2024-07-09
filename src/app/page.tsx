@@ -5,25 +5,32 @@ import styles from './page.module.css';
 import { Header } from '@/components/Header';
 import { createContextMenuItems } from '@/configs/context-menu-items';
 import { createToolbarItems } from '@/configs/toolbar-items';
+import { roboto } from '@/utils/fonts';
 import { ContentEditable, EditableProvider, withEditable } from "@editablejs/editor";
-import { Transforms, createEditor } from "@editablejs/models";
+import { createEditor, Transforms } from "@editablejs/models";
 import { ContextMenu, useContextMenuEffect, withContextMenu } from '@editablejs/plugin-context-menu';
 import { withHistory } from '@editablejs/plugin-history';
-import {
-  Toolbar as EditableToolbar,
-  ToolbarComponent,
-  useToolbarEffect,
-  withToolbar
-} from '@editablejs/plugin-toolbar';
+import { Toolbar as EditableToolbar, ToolbarComponent, useToolbarEffect, withToolbar } from '@editablejs/plugin-toolbar';
 import { withPlugins } from '@editablejs/plugins';
 import { Icon } from '@editablejs/ui';
 import { CloudQueueRounded } from '@mui/icons-material';
-import { Container, Paper, Snackbar } from '@mui/material';
+import { Container, createTheme, Paper, Snackbar, ThemeProvider } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { useMemo, useState } from "react";
 import { withDocx } from '../utils/docx/withDocx';
 
 export default function Home() {
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [snackbarOpen, setSnackbarOpen] = useState(false)
+
+  const appTheme = createTheme({
+    typography: {
+      fontFamily: roboto.style.fontFamily
+    },
+    palette: {
+      mode: prefersDarkMode ? 'dark' : 'light'
+    }
+  })
 
   const editor = useMemo(() => {
     let editable = withEditable(createEditor())
@@ -106,24 +113,26 @@ export default function Home() {
   }, editor)
 
   return (
-    <div className={styles.root}>
-      <EditableProvider editor={editor}>
-        <Header />
-        <ToolbarComponent editor={editor} className={styles.toolbar} />
+    <ThemeProvider theme={appTheme}>
+      <div className={styles.root}>
+        <EditableProvider editor={editor}>
+          <Header />
+          <ToolbarComponent editor={editor} className={styles.toolbar} />
 
-        <Container maxWidth="md" className={styles.main}>
-          <ContentEditable
-            placeholder="Start typing here..."
-          />
-        </Container>
-      </EditableProvider>
+          <Container maxWidth="md" className={styles.main}>
+            <ContentEditable
+              placeholder="Start typing here..."
+            />
+          </Container>
+        </EditableProvider>
 
-      <Snackbar
-        open={snackbarOpen}
-        message="Loading ai response..."
-        action={<CloudQueueRounded fontSize='inherit' />}
-      />
-      <Paper className={styles.footer} elevation={5} square />
-    </div>
+        <Snackbar
+          open={snackbarOpen}
+          message="Loading ai response..."
+          action={<CloudQueueRounded fontSize='inherit' />}
+        />
+        <Paper className={styles.footer} elevation={5} square />
+      </div>
+    </ThemeProvider>
   );
 }
