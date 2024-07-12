@@ -81,7 +81,21 @@ export default function Home() {
         const fragment = editor.getFragment(editor.selection)
         //@ts-expect-error
         const selected = fragment[0].children[0].text
-        const resp = await fetch(`//8.130.78.253:8080/chat?prompt=${selected}`)
+
+        const headersList = {
+          "Accept": "*/*",
+          "Content-Type": "application/json"
+        }
+
+        const bodyContent = JSON.stringify({
+          "prompt": selected,
+        });
+
+        const resp = await fetch("//localhost:8080/chat", {
+          method: "POST",
+          body: bodyContent,
+          headers: headersList
+        })
         const aiTxt = await resp.text()
 
         setSnackbarOpen(false)
