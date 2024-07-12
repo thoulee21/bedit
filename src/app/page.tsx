@@ -91,7 +91,7 @@ export default function Home() {
           "prompt": selected,
         });
 
-        const resp = await fetch("//8.130.78.253:8080/chat", {
+        const resp = await fetch("//localhost:8080/chat", {
           method: "POST",
           body: bodyContent,
           headers: headersList
