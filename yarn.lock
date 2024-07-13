@@ -467,6 +467,15 @@
     styled-components "5.3.6"
     zustand "4.1.4"
 
+"@editablejs/plugin-title@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/@editablejs/plugin-title/-/plugin-title-1.0.2.tgz#64bea9a1532ad016a45976c4ab6018d2f4932529"
+  integrity sha512-VCn+pMP3/GFdsUOdlMr9BThYU2+HidNJ2eORiFew3teHxbd4TEubQCkN8c50I4yE7u6jrux6ppPUQ5DojfR3jA==
+  dependencies:
+    "@editablejs/deserializer" "1.0.0"
+    "@editablejs/serializer" "1.0.1"
+    styled-components "5.3.6"
+
 "@editablejs/plugin-toolbar@^1.0.2":
   version "1.0.2"
   resolved "https://registry.npmmirror.com/@editablejs/plugin-toolbar/-/plugin-toolbar-1.0.2.tgz#db6b7ecfd19680a434b44bffc23f8d948d9bf297"
