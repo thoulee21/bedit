@@ -14,7 +14,6 @@ import { SaveFile } from "./SaveFile";
 
 const DarkModeSwitch = () => {
     const { prefersDarkMode, setPrefersDarkMode } = usePreferences();
-
     return (
         <MaterialUISwitch
             checked={prefersDarkMode}
