@@ -38,12 +38,9 @@ import { Icon } from '@editablejs/ui';
 import { CloudQueueRounded } from '@mui/icons-material';
 import { Container, createTheme, Paper, Snackbar, ThemeProvider } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { createContext, useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { withDocx } from '../utils/docx/withDocx';
-
-const Preferences = createContext({ prefersDarkMode: true, setPrefersDarkMode: (value: boolean) => { } })
-
-export const usePreferences = () => useContext(Preferences)
+import { Preferences } from './PreferenceProvider';
 
 export default function Home() {
   const systemPrefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
@@ -167,8 +164,13 @@ export default function Home() {
     ContextMenu.setItems(editor, contextMenu)
   }, editor)
 
+  const preferences = {
+    prefersDarkMode,
+    setPrefersDarkMode
+  }
+
   return (
-    <Preferences.Provider value={{ prefersDarkMode, setPrefersDarkMode }}>
+    <Preferences.Provider value={preferences}>
       <ThemeProvider theme={appTheme}>
         <EditableProvider editor={editor} value={initialValue}>
           <Paper className={styles.root} color={appTheme.palette.background.paper}>

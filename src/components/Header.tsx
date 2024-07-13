@@ -1,4 +1,4 @@
-import { usePreferences } from "@/app/page";
+import { usePreferences } from "@/app/PreferenceProvider";
 import {
     AppBar,
     IconButton,
