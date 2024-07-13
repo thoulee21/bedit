@@ -1,4 +1,4 @@
-import { usePreferences } from "@/app/page";
+import { usePreferences } from "@/app/PreferenceProvider";
 import {
     AppBar,
     IconButton,
@@ -14,6 +14,7 @@ import { SaveFile } from "./SaveFile";
 
 const DarkModeSwitch = () => {
     const { prefersDarkMode, setPrefersDarkMode } = usePreferences();
+
     return (
         <MaterialUISwitch
             checked={prefersDarkMode}
