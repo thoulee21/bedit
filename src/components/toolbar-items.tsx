@@ -24,9 +24,44 @@ import {
   UnorderedListEditor
 } from '@editablejs/plugins'
 import { DropdownItemProps, Icon, IconMap } from '@editablejs/ui'
-import { FormatAlignCenter, FormatAlignJustify, FormatAlignLeft, FormatAlignRight, Redo, Undo } from '@mui/icons-material'
+import {
+  CheckBox,
+  Code,
+  FormatAlignCenter,
+  FormatAlignJustify,
+  FormatAlignLeft,
+  FormatAlignRight,
+  FormatListBulleted,
+  FormatListNumbered,
+  FormatQuote,
+  Image,
+  Link,
+  Redo,
+  Undo
+} from '@mui/icons-material'
 import { MenuItem, Select, ToggleButton, ToggleButtonGroup, useTheme } from '@mui/material'
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useState } from 'react'
+
+const fontSizes = [
+  {
+    value: '14px',
+  },
+  {
+    value: '16px',
+  },
+  {
+    value: '20px',
+  },
+  {
+    value: '22px',
+  },
+  {
+    value: '24px',
+  },
+  {
+    value: '28px',
+  },
+]
 
 export const DropDown = ({ values, onValueChange }: {
   values: DropdownItemProps[],
@@ -89,7 +124,11 @@ export const ToolButton = ({ children, onClick, disabled, selected }: {
 const MUIcon = ({ name }: { name: keyof typeof IconMap }) => {
   const appTheme = useTheme()
   return (
-    <Icon name={name} color={appTheme.palette.text.secondary} />
+    <Icon
+      name={name}
+      color={appTheme.palette.text.secondary}
+      style={{ fontSize: '20px' }}
+    />
   )
 }
 
@@ -97,19 +136,19 @@ export const AlignDropdown: FC = () => {
   const alignKeys = [
     {
       value: 'left',
-      icon: <FormatAlignLeft fontSize='inherit' />,
+      icon: <FormatAlignLeft fontSize='small' />,
     },
     {
       value: 'center',
-      icon: <FormatAlignCenter fontSize='inherit' />,
+      icon: <FormatAlignCenter fontSize='small' />,
     },
     {
       value: 'right',
-      icon: <FormatAlignRight fontSize='inherit' />,
+      icon: <FormatAlignRight fontSize='small' />,
     },
     {
       value: 'justify',
-      icon: <FormatAlignJustify fontSize='inherit' />
+      icon: <FormatAlignJustify fontSize='small' />
     }
   ]
 
@@ -153,7 +192,7 @@ export const createToolbarItems = (editor: Editable) => {
           }}
           disabled={!HistoryEditor.canUndo(editor)}
         >
-          <Undo fontSize='inherit' />
+          <Undo fontSize='small' />
         </ToolButton>
       ),
     },
@@ -165,7 +204,7 @@ export const createToolbarItems = (editor: Editable) => {
           }}
           disabled={!HistoryEditor.canRedo(editor)}
         >
-          <Redo fontSize='inherit' />
+          <Redo fontSize='small' />
         </ToolButton>
       )
     },
@@ -220,30 +259,11 @@ export const createToolbarItems = (editor: Editable) => {
           onValueChange={(value) => {
             FontSizeEditor.toggle(editor, value)
           }}
-          values={[
-            {
-              value: '14px',
-
-            },
-            {
-              value: '16px',
-            },
-            {
-              value: '20px',
-            },
-            {
-              value: '22px',
-            },
-            {
-              value: '24px',
-            },
-            {
-              value: '28px',
-            },
-          ]}
+          values={fontSizes}
         />
       )
     },
+    'separator',
     {
       content: (
         <DropDown
@@ -287,121 +307,150 @@ export const createToolbarItems = (editor: Editable) => {
   items.push(
     'separator',
     {
-      type: 'button',
-      title: 'Link',
-      active: LinkEditor.isActive(editor),
-      onToggle: () => {
-        LinkEditor.open(editor)
-      },
-      icon: <MUIcon name="link" />,
+      content: (
+        <ToolButton
+          onClick={() => {
+            LinkEditor.open(editor)
+          }}
+          selected={LinkEditor.isActive(editor)}
+        >
+          <Link fontSize='small' />
+        </ToolButton>
+      )
     },
     {
-      type: 'button',
-      title: 'Image',
-      active: ImageEditor.isActive(editor),
-      onToggle: () => {
-        ImageEditor.open(editor)
-      },
-      icon: <MUIcon name="image" />,
+      content: (
+        <ToolButton
+          onClick={() => {
+            ImageEditor.open(editor)
+          }}
+          selected={ImageEditor.isActive(editor)}
+        >
+          <Image fontSize='small' />
+        </ToolButton>
+      )
     },
     {
-      type: 'button',
-      title: 'Blockquote',
-      active: BlockquoteEditor.isActive(editor),
-      onToggle: () => {
-        BlockquoteEditor.toggle(editor)
-      },
-      icon: <MUIcon name="blockquote" />,
+      content: (
+        <ToolButton
+          onClick={() => {
+            BlockquoteEditor.toggle(editor)
+          }}
+          selected={BlockquoteEditor.isActive(editor)}
+        >
+          <FormatQuote fontSize="small" />
+        </ToolButton>
+      )
     },
     {
-      type: 'button',
-      title: 'Unordered List',
-      active: !!UnorderedListEditor.queryActive(editor),
-      onToggle: () => {
-        UnorderedListEditor.toggle(editor)
-      },
-      icon: <MUIcon name="unorderedList" />,
+      content: (
+        <ToolButton
+          onClick={() => {
+            UnorderedListEditor.toggle(editor)
+          }}
+          selected={!!UnorderedListEditor.queryActive(editor)}
+        >
+          <FormatListBulleted fontSize="small" />
+        </ToolButton>
+      )
     },
     {
-      type: 'button',
-      title: 'Ordered List',
-      active: !!OrderedListEditor.queryActive(editor),
-      onToggle: () => {
-        OrderedListEditor.toggle(editor)
-      },
-      icon: <MUIcon name="orderedList" />,
+      content: (
+        <ToolButton
+          onClick={() => {
+            OrderedListEditor.toggle(editor)
+          }}
+          selected={!!OrderedListEditor.queryActive(editor)}
+        >
+          <FormatListNumbered fontSize="small" />
+        </ToolButton>
+      )
     },
     {
-      type: 'button',
-      title: 'Task List',
-      active: !!TaskListEditor.queryActive(editor),
-      onToggle: () => {
-        TaskListEditor.toggle(editor)
-      },
-      icon: <MUIcon name="taskList" />,
+      content: (
+        <ToolButton
+          onClick={() => {
+            TaskListEditor.toggle(editor)
+          }}
+          selected={!!TaskListEditor.queryActive(editor)}
+        >
+          <CheckBox fontSize="small" />
+        </ToolButton>
+      )
     },
     {
-      type: 'button',
-      title: 'Table',
-      disabled: !!TableEditor.isActive(editor),
-      onToggle: () => {
-        TableEditor.insert(editor)
-      },
-      icon: <MUIcon name="table" />,
+      content: (
+        <ToolButton
+          onClick={() => {
+            TableEditor.insert(editor)
+          }}
+          selected={TableEditor.isActive(editor)}
+        >
+          <MUIcon name="table" />
+        </ToolButton>
+      )
     },
     'separator',
     {
       content: <AlignDropdown />
     },
+    'separator',
     {
-      type: 'dropdown',
-      title: 'Leading',
-      items: [
-        {
-          value: 'default',
-          content: 'Default',
-        },
-        {
-          value: '1',
-        },
-        {
-          value: '1.15',
-        },
-        {
-          value: '1.5',
-        },
-        {
-          value: '2',
-        },
-        {
-          value: '3',
-        },
-      ],
-      value: LeadingEditor.queryActive(editor) ?? 'default',
-      children: <MUIcon name="leading" />,
-      onSelect: value => {
-        LeadingEditor.toggle(editor, value === 'default' ? undefined : value)
-      },
-    },
-    {
-      type: 'button',
-      title: 'Horizontal Rule',
-      active: HrEditor.isActive(editor),
-      onToggle: () => {
-        HrEditor.insert(editor)
-      },
-      icon: <MUIcon name="hr" />,
+      content: (
+        <DropDown
+          values={[
+            {
+              value: 'default',
+              content: 'Leading',
+            },
+            {
+              value: '1',
+            },
+            {
+              value: '1.15',
+            },
+            {
+              value: '1.5',
+            },
+            {
+              value: '2',
+            },
+            {
+              value: '3',
+            },
+          ]}
+          onValueChange={value => {
+            LeadingEditor.toggle(editor, value === 'default' ? undefined : value)
+          }}
+        />
+      )
     },
     'separator',
     {
-      type: 'button',
-      title: 'Code Block',
-      active: CodeBlockEditor.isActive(editor),
-      onToggle: () => {
-        CodeBlockEditor.insert(editor)
-      },
-      icon: <MUIcon name="codeBlock" />,
+      content: (
+        <ToolButton
+          onClick={() => {
+            HrEditor.insert(editor)
+          }}
+          selected={HrEditor.isActive(editor)}
+        >
+          <MUIcon name="hr" />
+        </ToolButton>
+      )
     },
+    'separator',
+    {
+      content: (
+        <ToolButton
+          onClick={() => {
+            CodeBlockEditor.insert(editor)
+          }}
+          selected={CodeBlockEditor.isActive(editor)}
+        >
+          <Code fontSize='small' />
+        </ToolButton>
+      )
+    }
   )
 
   const grid = Grid.above(editor)
