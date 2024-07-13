@@ -7,6 +7,7 @@ import { createContextMenuItems } from '@/components/context-menu-items';
 import { createSideToolbarItems } from '@/components/side-toolbar-items';
 import { createToolbarItems } from '@/components/toolbar-items';
 import { roboto } from '@/utils/fonts';
+import { initialValue } from '@/utils/initial-value';
 import {
   ContentEditable,
   EditableProvider,
@@ -169,7 +170,7 @@ export default function Home() {
   return (
     <Preferences.Provider value={{ prefersDarkMode, setPrefersDarkMode }}>
       <ThemeProvider theme={appTheme}>
-        <EditableProvider editor={editor}>
+        <EditableProvider editor={editor} value={initialValue}>
           <Paper className={styles.root} color={appTheme.palette.background.paper}>
             <Header />
 
