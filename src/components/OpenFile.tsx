@@ -11,10 +11,8 @@ export const OpenFile = () => {
     return (
         <IconButton
             size='large'
-            edge='end'
             color='inherit'
-            aria-label='upload'
-            sx={{ mr: 2 }}
+            sx={{ ml: 2 }}
             onClick={() => {
                 fileRef.current?.click();
             }}
