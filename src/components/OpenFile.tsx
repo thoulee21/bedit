@@ -12,7 +12,6 @@ export const OpenFile = () => {
         <IconButton
             size='large'
             color='inherit'
-            sx={{ ml: 2 }}
             onClick={() => {
                 fileRef.current?.click();
             }}

@@ -16,7 +16,9 @@ export const SaveFile = () => {
     return (
         <IconButton
             size='large'
-            edge='end'
+            style={{
+                marginRight: "0.5vw",
+            }}
             color='inherit'
             aria-label='download'
             onClick={handleClick}

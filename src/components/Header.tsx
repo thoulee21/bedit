@@ -1,6 +1,7 @@
 import { usePreferences } from "@/app/PreferenceProvider";
 import {
     AppBar,
+    Divider,
     IconButton,
     Toolbar,
     Typography
@@ -17,6 +18,7 @@ const DarkModeSwitch = () => {
     return (
         <MaterialUISwitch
             checked={prefersDarkMode}
+            edge='end'
             onChange={() => setPrefersDarkMode(!prefersDarkMode)}
             color="primary"
         />
@@ -25,7 +27,7 @@ const DarkModeSwitch = () => {
 
 export const Header = () => {
     return (
-        <AppBar position="static">
+        <AppBar>
             <Toolbar variant="dense">
                 <Link href="/next">
                     <IconButton
@@ -45,10 +47,10 @@ export const Header = () => {
                     </Link>
                 </Typography>
 
-                <DarkModeSwitch />
-
                 <OpenFile />
                 <SaveFile />
+
+                <DarkModeSwitch />
             </Toolbar>
         </AppBar>
     )

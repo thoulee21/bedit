@@ -1,7 +1,5 @@
 'use client'
 
-import styles from './page.module.css';
-
 import { Header } from '@/components/Header';
 import { createContextMenuItems } from '@/components/context-menu-items';
 import { createSideToolbarItems } from '@/components/side-toolbar-items';
@@ -248,15 +246,52 @@ export default function Home() {
     <Preferences.Provider value={preferences}>
       <ThemeProvider theme={appTheme}>
         <EditableProvider editor={editor} value={initialValue}>
-          <Paper className={styles.root} color={appTheme.palette.background.paper}>
+          <Paper
+            style={{
+              backgroundColor: appTheme.palette.background.paper,
+              display: 'flex',
+              flex: 1,
+              flexDirection: 'column',
+              justifyContent: 'space-around'
+            }}
+          >
             <Header />
 
-            <ToolbarComponent editor={editor} className={styles.toolbar} />
-            <Container maxWidth="md" className={styles.main}>
-              <ContentEditable
-                lang='en-US'
-                placeholder="Start typing here..."
-              />
+            <ToolbarComponent
+              editor={editor}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                margin: '0.5rem',
+                marginTop: '7vh',
+                flexWrap: 'wrap',
+              }}
+            />
+
+            <Container maxWidth="md">
+              <Paper
+                style={{
+                  paddingLeft: '3vw',
+                  paddingRight: '3vw',
+                  paddingTop: '1vh',
+                  paddingBottom: '1vh',
+                  marginTop: '1vh',
+                  marginBottom: '5vh',
+                  borderRadius: '10px'
+                }}
+                elevation={3}
+              >
+                <ContentEditable
+                  lang='en-US'
+                  placeholder="Start typing here..."
+                  style={{
+                    height: 'fit-content',
+                    minHeight: '100vh',
+                    marginTop: '5vh',
+                    marginBottom: '5vh',
+                  }}
+                />
+              </Paper>
             </Container>
 
             <Snackbar
@@ -264,7 +299,6 @@ export default function Home() {
               message="Loading ai response..."
               action={<CloudQueueRounded fontSize='inherit' />}
             />
-            <Paper className={styles.footer} elevation={5} square />
           </Paper>
         </EditableProvider>
       </ThemeProvider>
