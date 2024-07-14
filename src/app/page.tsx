@@ -164,10 +164,10 @@ export default function Home() {
     ContextMenu.setItems(editor, contextMenu)
   }, editor)
 
-  const preferences = {
+  const preferences = useMemo(() => ({
     prefersDarkMode,
     setPrefersDarkMode
-  }
+  }), [prefersDarkMode])
 
   return (
     <Preferences.Provider value={preferences}>
