@@ -34,6 +34,11 @@ import {
   withToolbar
 } from '@editablejs/plugin-toolbar';
 import {
+  InlineToolbar,
+  useInlineToolbarEffect,
+  withInlineToolbar
+} from '@editablejs/plugin-toolbar/inline';
+import {
   SideToolbar,
   useSideToolbarMenuEffect,
   withSideToolbar
@@ -93,6 +98,7 @@ export default function Home() {
 
     editable = withTitle(editable)
     editable = withToolbar(editable)
+    editable = withInlineToolbar(editable)
     editable = withContextMenu(editable)
     editable = withDocx(editable)
 
@@ -218,6 +224,10 @@ export default function Home() {
 
   useToolbarEffect(() => {
     EditableToolbar.setItems(editor, createToolbarItems(editor))
+  }, editor)
+
+  useInlineToolbarEffect(() => {
+    InlineToolbar.setItems(editor, createToolbarItems(editor).slice(3, 15))
   }, editor)
 
   useSideToolbarMenuEffect((...a) => {
