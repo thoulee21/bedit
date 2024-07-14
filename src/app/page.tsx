@@ -6,15 +6,20 @@ import { Header } from '@/components/Header';
 import { createContextMenuItems } from '@/components/context-menu-items';
 import { createSideToolbarItems } from '@/components/side-toolbar-items';
 import { createToolbarItems } from '@/components/toolbar-items';
+import { checkMarkdownSyntax } from '@/config/check-markdown-syntax';
 import { roboto } from '@/utils/fonts';
 import { initialValue } from '@/utils/initial-value';
+import { HTMLDeserializer } from '@editablejs/deserializer/html';
+import { MarkdownDeserializer } from '@editablejs/deserializer/markdown';
 import {
   ContentEditable,
   EditableProvider,
   isTouchDevice,
+  parseDataTransfer,
+  useIsomorphicLayoutEffect,
   withEditable
 } from "@editablejs/editor";
-import { createEditor, Transforms } from "@editablejs/models";
+import { createEditor, Range, Transforms } from "@editablejs/models";
 import {
   ContextMenu,
   useContextMenuEffect,
@@ -22,6 +27,8 @@ import {
 } from '@editablejs/plugin-context-menu';
 import { withHistory } from '@editablejs/plugin-history';
 import { TitleEditor, withTitle } from '@editablejs/plugin-title';
+import { withTitleHTMLDeserializerTransform } from '@editablejs/plugin-title/deserializer/html';
+import { withTitleHTMLSerializerTransform } from '@editablejs/plugin-title/serializer/html';
 import {
   Toolbar as EditableToolbar,
   ToolbarComponent,
@@ -34,6 +41,18 @@ import {
   withSideToolbar
 } from '@editablejs/plugin-toolbar/side';
 import { withPlugins } from '@editablejs/plugins';
+import { withHTMLDeserializerTransform } from '@editablejs/plugins/deserializer/html';
+import {
+  withMarkdownDeserializerPlugin,
+  withMarkdownDeserializerTransform
+} from '@editablejs/plugins/deserializer/markdown';
+import { withHTMLSerializerTransform } from '@editablejs/plugins/serializer/html';
+import {
+  withMarkdownSerializerPlugin,
+  withMarkdownSerializerTransform
+} from '@editablejs/plugins/serializer/markdown';
+import { withTextSerializerTransform } from '@editablejs/plugins/serializer/text';
+import { HTMLSerializer } from '@editablejs/serializer/html';
 import { Icon } from '@editablejs/ui';
 import { CloudQueueRounded } from '@mui/icons-material';
 import { Container, createTheme, Paper, Snackbar, ThemeProvider } from '@mui/material';
@@ -133,7 +152,10 @@ export default function Home() {
         const aiTxt = await resp.text()
 
         setSnackbarOpen(false)
-        Transforms.insertText(editor, aiTxt)
+
+        const madst = MarkdownDeserializer.toMdastWithEditor(editor, aiTxt)
+        const content = MarkdownDeserializer.transformWithEditor(editor, madst)
+        editor.insertFragment(content)
       }
       catch (e) {
         console.info(e)
@@ -142,6 +164,51 @@ export default function Home() {
       }
     }
   }
+
+  useIsomorphicLayoutEffect(() => {
+    withMarkdownDeserializerPlugin(editor) // Adds a markdown deserializer plugin to the editor
+    withMarkdownSerializerPlugin(editor) // Adds a markdown serializer plugin to the editor
+    withTextSerializerTransform(editor) // Adds a text serializer transform to the editor
+    withHTMLSerializerTransform(editor) // Adds an HTML serializer transform to the editor
+    withMarkdownSerializerTransform(editor) // Adds a markdown serializer transform to the editor
+    withHTMLDeserializerTransform(editor) // Adds an HTML deserializer transform to the editor
+    withMarkdownDeserializerTransform(editor) // Adds a markdown deserializer transform to the editor
+    HTMLDeserializer.withEditor(editor, withTitleHTMLDeserializerTransform, {})
+    HTMLSerializer.withEditor(editor, withTitleHTMLSerializerTransform, {})
+    const { onPaste } = editor
+
+    editor.onPaste = event => {
+      const { clipboardData, type } = event
+      if (!clipboardData || !editor.selection) return onPaste(event)
+      const { text, fragment, html, files } = parseDataTransfer(clipboardData)
+      const isPasteText = type === 'pasteText'
+      if (!isPasteText && (fragment.length > 0 || files.length > 0)) {
+        return onPaste(event)
+      }
+      if (Range.isExpanded(editor.selection)) {
+        Transforms.delete(editor)
+      }
+      const anchor = Range.start(editor.selection)
+      onPaste(event)
+      // check markdown syntax
+      if (checkMarkdownSyntax(text, html) && editor.selection) {
+        const focus = Range.end(editor.selection)
+        Promise.resolve().then(() => {
+          const madst = MarkdownDeserializer.toMdastWithEditor(editor, text)
+          const content = MarkdownDeserializer.transformWithEditor(editor, madst)
+          editor.selection = {
+            anchor,
+            focus,
+          }
+          editor.insertFragment(content)
+        })
+      }
+    }
+
+    return () => {
+      editor.onPaste = onPaste
+    }
+  }, [editor])
 
   useToolbarEffect(() => {
     EditableToolbar.setItems(editor, createToolbarItems(editor))
