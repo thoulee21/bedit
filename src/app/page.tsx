@@ -9,9 +9,6 @@ import { createToolbarItems } from '@/components/toolbar-items';
 import { checkMarkdownSyntax } from '@/config/check-markdown-syntax';
 import { roboto } from '@/utils/fonts';
 import { initialValue } from '@/utils/initial-value';
-import { css as codemirrorCss } from '@codemirror/lang-css';
-import { html as codemirrorHtml } from '@codemirror/lang-html';
-import { javascript as codemirrorJavascript } from '@codemirror/lang-javascript';
 import { HTMLDeserializer } from '@editablejs/deserializer/html';
 import { MarkdownDeserializer } from '@editablejs/deserializer/markdown';
 import {
@@ -25,7 +22,6 @@ import {
   withEditable
 } from "@editablejs/editor";
 import { createEditor, Editor, Range, Transforms } from "@editablejs/models";
-import { withCodeBlock } from '@editablejs/plugin-codeblock';
 import {
   ContextMenu,
   useContextMenuEffect,
@@ -62,15 +58,12 @@ import { HTMLSerializer } from '@editablejs/serializer/html';
 import { Icon } from '@editablejs/ui';
 import { CloudQueueRounded } from '@mui/icons-material';
 import { Container, createTheme, Paper, Snackbar, ThemeProvider } from '@mui/material';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import { useMemo, useState } from "react";
 import { withDocx } from '../utils/docx/withDocx';
 import { Preferences } from './PreferenceProvider';
 
 export default function Home() {
-  const systemPrefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
-  const [prefersDarkMode, setPrefersDarkMode] = useState(systemPrefersDarkMode);
-
+  const [prefersDarkMode, setPrefersDarkMode] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false)
 
   const appTheme = createTheme({
@@ -106,30 +99,6 @@ export default function Home() {
     editable = withToolbar(editable)
     editable = withContextMenu(editable)
     editable = withDocx(editable)
-
-    editable = withCodeBlock(editable, {
-      languages: [
-        {
-          value: 'plain',
-          content: 'Plain text',
-        },
-        {
-          value: 'javascript',
-          content: 'JavaScript',
-          plugin: codemirrorJavascript(),
-        },
-        {
-          value: 'html',
-          content: 'HTML',
-          plugin: codemirrorHtml(),
-        },
-        {
-          value: 'css',
-          content: 'CSS',
-          plugin: codemirrorCss(),
-        },
-      ],
-    })
 
     if (!isTouchDevice) {
       editable = withSideToolbar(editable, {
