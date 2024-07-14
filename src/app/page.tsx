@@ -9,17 +9,23 @@ import { createToolbarItems } from '@/components/toolbar-items';
 import { checkMarkdownSyntax } from '@/config/check-markdown-syntax';
 import { roboto } from '@/utils/fonts';
 import { initialValue } from '@/utils/initial-value';
+import { css as codemirrorCss } from '@codemirror/lang-css';
+import { html as codemirrorHtml } from '@codemirror/lang-html';
+import { javascript as codemirrorJavascript } from '@codemirror/lang-javascript';
 import { HTMLDeserializer } from '@editablejs/deserializer/html';
 import { MarkdownDeserializer } from '@editablejs/deserializer/markdown';
 import {
   ContentEditable,
+  Editable,
   EditableProvider,
   isTouchDevice,
   parseDataTransfer,
+  Placeholder,
   useIsomorphicLayoutEffect,
   withEditable
 } from "@editablejs/editor";
-import { createEditor, Range, Transforms } from "@editablejs/models";
+import { createEditor, Editor, Range, Transforms } from "@editablejs/models";
+import { withCodeBlock } from '@editablejs/plugin-codeblock';
 import {
   ContextMenu,
   useContextMenuEffect,
@@ -40,7 +46,7 @@ import {
   useSideToolbarMenuEffect,
   withSideToolbar
 } from '@editablejs/plugin-toolbar/side';
-import { withPlugins } from '@editablejs/plugins';
+import { MentionUser, withMention, withPlugins } from '@editablejs/plugins';
 import { withHTMLDeserializerTransform } from '@editablejs/plugins/deserializer/html';
 import {
   withMarkdownDeserializerPlugin,
@@ -79,14 +85,59 @@ export default function Home() {
   const editor = useMemo(() => {
     let editable = withEditable(createEditor())
 
-    editable = withToolbar(editable)
-    editable = withContextMenu(editable)
     editable = withHistory(editable)
     editable = withPlugins(editable)
+    editable = withMention(editable, {
+      onSearch: _ => {
+        return new Promise<MentionUser[]>(resolve => {
+          const users: MentionUser[] = [{
+            id: '1',
+            name: 'John Doe',
+            avatar: 'https://i.pravatar.cc/150?img=1',
+          }]
+
+          resolve(users)
+        })
+      },
+      match: () => !Editor.above(editor, { match: n => TitleEditor.isTitle(editor, n) }),
+    })
+
+    editable = withTitle(editable)
+    editable = withToolbar(editable)
+    editable = withContextMenu(editable)
     editable = withDocx(editable)
 
-    const { onKeydown } = editable
+    editable = withCodeBlock(editable, {
+      languages: [
+        {
+          value: 'plain',
+          content: 'Plain text',
+        },
+        {
+          value: 'javascript',
+          content: 'JavaScript',
+          plugin: codemirrorJavascript(),
+        },
+        {
+          value: 'html',
+          content: 'HTML',
+          plugin: codemirrorHtml(),
+        },
+        {
+          value: 'css',
+          content: 'CSS',
+          plugin: codemirrorCss(),
+        },
+      ],
+    })
 
+    if (!isTouchDevice) {
+      editable = withSideToolbar(editable, {
+        match: n => !TitleEditor.isTitle(editable, n),
+      })
+    }
+
+    const { onKeydown } = editable
     editable.onKeydown = ((event) => {
       if (event.key === 'Tab') {
         event.preventDefault()
@@ -115,14 +166,6 @@ export default function Home() {
 
       onKeydown(event)
     })
-
-    if (!isTouchDevice) {
-      editable = withSideToolbar(editable, {
-        match: n => !TitleEditor.isTitle(editable, n),
-      })
-    }
-
-    editable = withTitle(editable)
 
     return editable
   }, [])
@@ -166,6 +209,18 @@ export default function Home() {
   }
 
   useIsomorphicLayoutEffect(() => {
+    const unsubscribe = Placeholder.subscribe(editor, ([node]) => {
+      if (
+        Editable.isFocused(editor) &&
+        Editor.isBlock(editor, node) &&
+        !TitleEditor.isTitle(editor, node)
+      )
+        return () => "Type / evoke more"
+    })
+    return () => unsubscribe()
+  }, [editor])
+
+  useIsomorphicLayoutEffect(() => {
     withMarkdownDeserializerPlugin(editor) // Adds a markdown deserializer plugin to the editor
     withMarkdownSerializerPlugin(editor) // Adds a markdown serializer plugin to the editor
     withTextSerializerTransform(editor) // Adds a text serializer transform to the editor
@@ -173,10 +228,11 @@ export default function Home() {
     withMarkdownSerializerTransform(editor) // Adds a markdown serializer transform to the editor
     withHTMLDeserializerTransform(editor) // Adds an HTML deserializer transform to the editor
     withMarkdownDeserializerTransform(editor) // Adds a markdown deserializer transform to the editor
+
     HTMLDeserializer.withEditor(editor, withTitleHTMLDeserializerTransform, {})
     HTMLSerializer.withEditor(editor, withTitleHTMLSerializerTransform, {})
-    const { onPaste } = editor
 
+    const { onPaste } = editor
     editor.onPaste = event => {
       const { clipboardData, type } = event
       if (!clipboardData || !editor.selection) return onPaste(event)
@@ -196,10 +252,7 @@ export default function Home() {
         Promise.resolve().then(() => {
           const madst = MarkdownDeserializer.toMdastWithEditor(editor, text)
           const content = MarkdownDeserializer.transformWithEditor(editor, madst)
-          editor.selection = {
-            anchor,
-            focus,
-          }
+          editor.selection = { anchor, focus }
           editor.insertFragment(content)
         })
       }
