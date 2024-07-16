@@ -56,8 +56,7 @@ import {
 } from '@editablejs/plugins/serializer/markdown';
 import { withTextSerializerTransform } from '@editablejs/plugins/serializer/text';
 import { HTMLSerializer } from '@editablejs/serializer/html';
-import { Icon } from '@editablejs/ui';
-import { Close } from '@mui/icons-material';
+import { Close, SmartToy } from '@mui/icons-material';
 import { Button, CircularProgress, Container, createTheme, Paper, Snackbar, ThemeProvider } from '@mui/material';
 import { useMemo, useState } from "react";
 import { withDocx } from '../utils/docx/withDocx';
@@ -145,25 +144,29 @@ export default function Home() {
     return editable
   }, [])
 
+  const selectedText = useMemo(() => {
+    if (!editor.selection) { return '' }
+    const fragments = editor.getFragment(editor.selection)
+    let selected = ''
+    for (let index = 0; index < fragments.length; index++) {
+      //@ts-expect-error
+      const children = fragments[index].children;
+      for (let i = 0; i < children.length; i++) {
+        const item = children[i];
+        selected += item.text
+      }
+    }
+    return selected
+  }, [editor.selection])
+
   const askAI = async (type?: string) => {
-    if (editor.selection) {
+    if (selectedText) {
       setSnackMsg(aiLoadingPlaceHolder)
       setLoading(true)
       setSnackbarOpen(true)
 
       try {
-        const fragments = editor.getFragment(editor.selection)
-
-        let selected = ''
-        for (let index = 0; index < fragments.length; index++) {
-          //@ts-expect-error
-          const children = fragments[index].children;
-          for (let i = 0; i < children.length; i++) {
-            const item = children[i];
-            selected += item.text
-          }
-        }
-
+        const selected = selectedText.trim()
         const headersList = {
           "Accept": "*/*",
           "Content-Type": "application/json"
@@ -174,9 +177,24 @@ export default function Home() {
           case 'abstract':
             prompt = `请为以下文本写摘要："${selected}"，注意：只需要返回摘要内容，不需要返回多余的信息`
             break;
-
+          case 'polish':
+            prompt = `请为以下文本进行润色："${selected}"，注意：只需要返回润色后的内容，不需要返回多余的信息`
+            break;
+          case 'translate':
+            prompt = `请将以下文本翻译成中文："${selected}"，注意：只需要返回翻译后的内容，不需要返回多余的信息`
+            break;
+          case 'continuation':
+            prompt = `请续写以下文本："${selected}"，注意：只需要返回续写后的内容，不需要返回多余的信息`
+            break;
+          case 'correct':
+            prompt = `请修正以下文本："${selected}"，注意：只需要返回修正后的内容，不需要返回多余的信息`
+            break;
           default:
             prompt = selected;
+        }
+
+        if (!prompt) {
+          throw new Error(`No text selected`)
         }
 
         const bodyContent = JSON.stringify({
@@ -194,7 +212,7 @@ export default function Home() {
       }
       catch (e) {
         console.error(e)
-        setSnackMsg(`Error: ${e}`)
+        setSnackMsg(JSON.stringify(e))
       }
       finally {
         setLoading(false)
@@ -265,10 +283,47 @@ export default function Home() {
 
     contextMenu.push({
       key: 'ai',
-      title: 'Ask AI: Abstract',
-      icon: <Icon name='blockquote' />,
-      onSelect: () => { askAI('abstract') },
+      title: 'Ask AI',
+      icon: <SmartToy fontSize='inherit' />,
+      disabled: loading || !selectedText,
+      onSelect: () => askAI(),
       rightText: 'Ctrl + I'
+    })
+
+    contextMenu.push({
+      key: 'ai-abstract',
+      title: 'Ask AI: Abstract',
+      icon: <SmartToy fontSize='inherit' />,
+      disabled: loading || !selectedText,
+      onSelect: () => { askAI('abstract') },
+    })
+    contextMenu.push({
+      key: 'ai-polish',
+      title: 'Ask AI: Polish',
+      icon: <SmartToy fontSize='inherit' />,
+      disabled: loading || !selectedText,
+      onSelect: () => { askAI('polish') },
+    })
+    contextMenu.push({
+      key: 'ai-translate',
+      title: 'Ask AI: Translate',
+      icon: <SmartToy fontSize='inherit' />,
+      disabled: loading || !selectedText,
+      onSelect: () => { askAI('translate') },
+    })
+    contextMenu.push({
+      key: 'ai-continuation',
+      title: 'Ask AI: Continuation',
+      icon: <SmartToy fontSize='inherit' />,
+      disabled: loading || !selectedText,
+      onSelect: () => { askAI('continuation') },
+    })
+    contextMenu.push({
+      key: 'ai-correct',
+      title: 'Ask AI: Correct',
+      icon: <SmartToy fontSize='inherit' />,
+      disabled: loading || !selectedText,
+      onSelect: () => { askAI('correct') },
     })
 
     ContextMenu.setItems(editor, contextMenu)
