@@ -2,7 +2,6 @@ name: Bedit Deploy to Server
  
 on:
   push:
-    branches: master
     tags: [ 'v*' ] 
  
 jobs:
@@ -18,8 +17,4 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |           # 这里根据自己项目写自己实际需要执行的脚本，其实就是pull代码启动server
             cd /root/repos/bedit
-            git checkout master
             git pull
-            yarn install
-            yarn build
-            systemctl restart uwsgi.service
