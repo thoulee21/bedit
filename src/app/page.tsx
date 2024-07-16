@@ -416,8 +416,10 @@ export default function Home() {
                 vertical: 'bottom',
                 horizontal: 'center',
               }}
-              draggable
-              sx={{ maxWidth: '20vw' }}
+              sx={{
+                maxWidth: '40vw',
+                maxHeight: '40vh',
+              }}
               action={snackbarAction}
             />
           </Paper>
