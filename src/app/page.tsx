@@ -57,15 +57,19 @@ import {
 import { withTextSerializerTransform } from '@editablejs/plugins/serializer/text';
 import { HTMLSerializer } from '@editablejs/serializer/html';
 import { Icon } from '@editablejs/ui';
-import { CloudQueueRounded } from '@mui/icons-material';
-import { Container, createTheme, Paper, Snackbar, ThemeProvider } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import { Button, CircularProgress, Container, createTheme, Paper, Snackbar, ThemeProvider } from '@mui/material';
 import { useMemo, useState } from "react";
 import { withDocx } from '../utils/docx/withDocx';
 import { Preferences } from './PreferenceProvider';
 
 export default function Home() {
+  const aiLoadingPlaceHolder = 'Loading ai response...'
   const [prefersDarkMode, setPrefersDarkMode] = useState(false);
+
   const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackMsg, setSnackMsg] = useState(aiLoadingPlaceHolder)
+  const [loading, setLoading] = useState(false)
 
   const appTheme = createTheme({
     typography: {
@@ -141,21 +145,42 @@ export default function Home() {
     return editable
   }, [])
 
-  const askAI = async () => {
+  const askAI = async (type?: string) => {
     if (editor.selection) {
+      setSnackMsg(aiLoadingPlaceHolder)
+      setLoading(true)
+      setSnackbarOpen(true)
+
       try {
-        setSnackbarOpen(true)
-        const fragment = editor.getFragment(editor.selection)
-        //@ts-expect-error
-        const selected = fragment[0].children[0].text
+        const fragments = editor.getFragment(editor.selection)
+
+        let selected = ''
+        for (let index = 0; index < fragments.length; index++) {
+          //@ts-expect-error
+          const children = fragments[index].children;
+          for (let i = 0; i < children.length; i++) {
+            const item = children[i];
+            selected += item.text
+          }
+        }
 
         const headersList = {
           "Accept": "*/*",
           "Content-Type": "application/json"
         }
 
+        let prompt = ''
+        switch (type) {
+          case 'abstract':
+            prompt = `请为以下文本写摘要："${selected}"，注意：只需要返回摘要内容，不需要返回多余的信息`
+            break;
+
+          default:
+            prompt = selected;
+        }
+
         const bodyContent = JSON.stringify({
-          "prompt": selected,
+          "prompt": prompt,
         });
 
         const resp = await fetch("//8.130.78.253:8080/chat", {
@@ -165,16 +190,14 @@ export default function Home() {
         })
         const aiTxt = await resp.text()
 
-        setSnackbarOpen(false)
-
-        const madst = MarkdownDeserializer.toMdastWithEditor(editor, aiTxt)
-        const content = MarkdownDeserializer.transformWithEditor(editor, madst)
-        editor.insertFragment(content)
+        setSnackMsg(aiTxt);
       }
       catch (e) {
-        console.info(e)
-      } finally {
-        setSnackbarOpen(false)
+        console.error(e)
+        setSnackMsg(`Error: ${e}`)
+      }
+      finally {
+        setLoading(false)
       }
     }
   }
@@ -237,10 +260,14 @@ export default function Home() {
   useContextMenuEffect(() => {
     const contextMenu = createContextMenuItems(editor)
     contextMenu.push({
+      type: 'separator'
+    })
+
+    contextMenu.push({
       key: 'ai',
-      title: 'Ask AI',
+      title: 'Ask AI: Abstract',
       icon: <Icon name='blockquote' />,
-      onSelect: askAI,
+      onSelect: () => { askAI('abstract') },
       rightText: 'Ctrl + I'
     })
 
@@ -251,6 +278,35 @@ export default function Home() {
     prefersDarkMode,
     setPrefersDarkMode
   }), [prefersDarkMode])
+
+  const snackbarAction = useMemo(() => {
+    return (
+      loading
+        ? <CircularProgress color="inherit" size={15} />
+        : (<>
+          <Button
+            disabled={snackMsg === aiLoadingPlaceHolder}
+            onClick={() => {
+              setSnackbarOpen(false);
+
+              const madst = MarkdownDeserializer.toMdastWithEditor(editor, snackMsg)
+              const content = MarkdownDeserializer.transformWithEditor(editor, madst)
+              editor.insertFragment(content)
+
+              setSnackMsg('');
+            }}
+          >
+            Insert
+          </Button>
+          <Button
+            aria-label="close"
+            onClick={() => setSnackbarOpen(false)}
+          >
+            <Close fontSize="small" />
+          </Button>
+        </>)
+    )
+  }, [snackMsg, loading, editor])
 
   return (
     <Preferences.Provider value={preferences}>
@@ -306,8 +362,15 @@ export default function Home() {
 
             <Snackbar
               open={snackbarOpen}
-              message="Loading ai response..."
-              action={<CloudQueueRounded fontSize='inherit' />}
+              message={snackMsg}
+              onClose={() => setSnackbarOpen(false)}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center',
+              }}
+              draggable
+              sx={{ maxWidth: '20vw' }}
+              action={snackbarAction}
             />
           </Paper>
         </EditableProvider>
