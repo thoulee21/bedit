@@ -126,12 +126,12 @@ export default function Home() {
         return
       }
 
-      if (event.ctrlKey && event.key === 'o') {
-        event.preventDefault()
-        //@ts-expect-error
-        editable.openDocx()
-        return
-      }
+      // if (event.ctrlKey && event.key === 'o') {
+      //   event.preventDefault()
+      //   //@ts-expect-error
+      //   editable.openDocx()
+      //   return
+      // }
 
       onKeydown(event)
     })

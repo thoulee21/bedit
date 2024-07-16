@@ -1,7 +1,6 @@
 import { usePreferences } from "@/app/PreferenceProvider";
 import {
     AppBar,
-    Divider,
     IconButton,
     Toolbar,
     Typography
@@ -11,7 +10,7 @@ import Link from "next/link";
 import packageInfo from '../../package.json';
 import { MaterialUISwitch } from "./MaterialUISwitch";
 import { OpenFile } from "./OpenFile";
-import { SaveFile } from "./SaveFile";
+// import { SaveFile } from "./SaveFile";
 
 const DarkModeSwitch = () => {
     const { prefersDarkMode, setPrefersDarkMode } = usePreferences();
@@ -48,7 +47,7 @@ export const Header = () => {
                 </Typography>
 
                 <OpenFile />
-                <SaveFile />
+                {/* <SaveFile /> */}
 
                 <DarkModeSwitch />
             </Toolbar>
