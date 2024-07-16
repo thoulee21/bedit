@@ -119,11 +119,6 @@ export default function Home() {
         return
       }
 
-      if (event.ctrlKey && event.key === 'i') {
-        askAI()
-        return
-      }
-
       if (event.ctrlKey && event.key === 's') {
         event.preventDefault()
         //@ts-expect-error
@@ -287,7 +282,6 @@ export default function Home() {
       icon: <SmartToy fontSize='inherit' />,
       disabled: loading || !selectedText,
       onSelect: () => askAI(),
-      rightText: 'Ctrl + I'
     })
 
     contextMenu.push({
@@ -418,7 +412,6 @@ export default function Home() {
             <Snackbar
               open={snackbarOpen}
               message={snackMsg}
-              onClose={() => setSnackbarOpen(false)}
               anchorOrigin={{
                 vertical: 'bottom',
                 horizontal: 'center',
