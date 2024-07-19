@@ -63,6 +63,59 @@ const fontSizes = [
   },
 ]
 
+const headings = [
+  {
+    value: 'paragraph',
+    content: 'Paragraph',
+  },
+  {
+    value: 'heading-one',
+    content: 'Heading 1',
+  },
+  {
+    value: 'heading-two',
+    content: 'Heading 2',
+  },
+  {
+    value: 'heading-three',
+    content: 'Heading 3',
+  },
+  {
+    value: 'heading-four',
+    content: 'Heading 4',
+  },
+  {
+    value: 'heading-five',
+    content: 'Heading 5',
+  },
+  {
+    value: 'heading-six',
+    content: 'Heading 6',
+  },
+]
+
+const leadings = [
+  {
+    value: 'default',
+    content: 'Leading',
+  },
+  {
+    value: '1',
+  },
+  {
+    value: '1.15',
+  },
+  {
+    value: '1.5',
+  },
+  {
+    value: '2',
+  },
+  {
+    value: '3',
+  },
+]
+
 export const DropDown = ({ values, onValueChange }: {
   values: DropdownItemProps[],
   onValueChange: (value: string) => void
@@ -105,6 +158,7 @@ export const ToolButton = ({ children, onClick, disabled, selected }: {
     <ToggleButton
       size="small"
       value=""
+      key={children?.toString()}
       disabled={disabled}
       selected={selected}
       color="primary"
@@ -126,6 +180,7 @@ const MUIcon = ({ name }: { name: keyof typeof IconMap }) => {
   return (
     <Icon
       name={name}
+      key={name}
       color={appTheme.palette.text.secondary}
       style={{ fontSize: '20px' }}
     />
@@ -187,6 +242,7 @@ export const createToolbarItems = (editor: Editable) => {
     {
       content: (
         <ToolButton
+          key='undo'
           onClick={() => {
             HistoryEditor.undo(editor)
           }}
@@ -199,6 +255,7 @@ export const createToolbarItems = (editor: Editable) => {
     {
       content: (
         <ToolButton
+          key='redo'
           onClick={() => {
             HistoryEditor.redo(editor)
           }}
@@ -212,6 +269,7 @@ export const createToolbarItems = (editor: Editable) => {
   const markItems: ToolbarItem[] = marks.map(mark => ({
     content: (
       <ToolButton
+        key={mark}
         onClick={() => {
           MarkEditor.toggle(editor, mark)
         }}
@@ -256,6 +314,7 @@ export const createToolbarItems = (editor: Editable) => {
     {
       content: (
         <DropDown
+          key='font-size'
           onValueChange={(value) => {
             FontSizeEditor.toggle(editor, value)
           }}
@@ -267,36 +326,8 @@ export const createToolbarItems = (editor: Editable) => {
     {
       content: (
         <DropDown
-          values={[
-            {
-              value: 'paragraph',
-              content: 'Paragraph',
-            },
-            {
-              value: 'heading-one',
-              content: 'Heading 1',
-            },
-            {
-              value: 'heading-two',
-              content: 'Heading 2',
-            },
-            {
-              value: 'heading-three',
-              content: 'Heading 3',
-            },
-            {
-              value: 'heading-four',
-              content: 'Heading 4',
-            },
-            {
-              value: 'heading-five',
-              content: 'Heading 5',
-            },
-            {
-              value: 'heading-six',
-              content: 'Heading 6',
-            },
-          ]}
+          key='heading'
+          values={headings}
           onValueChange={(value) => {
             HeadingEditor.toggle(editor, value as HeadingType)
           }}
@@ -391,34 +422,13 @@ export const createToolbarItems = (editor: Editable) => {
       )
     },
     'separator',
-    {
-      content: <AlignDropdown />
-    },
+    { content: <AlignDropdown /> },
     'separator',
     {
       content: (
         <DropDown
-          values={[
-            {
-              value: 'default',
-              content: 'Leading',
-            },
-            {
-              value: '1',
-            },
-            {
-              value: '1.15',
-            },
-            {
-              value: '1.5',
-            },
-            {
-              value: '2',
-            },
-            {
-              value: '3',
-            },
-          ]}
+          key='leading'
+          values={leadings}
           onValueChange={value => {
             LeadingEditor.toggle(editor, value === 'default' ? undefined : value)
           }}
