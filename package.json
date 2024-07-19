@@ -27,6 +27,7 @@
     "docxyz": "^0.2.4",
     "file-saver": "^2.0.5",
     "lru-cache": "^7.14.0",
+    "mui-chat-box": "^0.0.3",
     "next": "14.2.4",
     "object-hash": "^3.0.0",
     "react": "^18",

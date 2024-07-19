@@ -1,10 +1,11 @@
 'use client'
 
+import { Chat } from '@/components/Chat';
 import { Header } from '@/components/Header';
 import { createContextMenuItems } from '@/components/context-menu-items';
 import { createSideToolbarItems } from '@/components/side-toolbar-items';
 import { createToolbarItems } from '@/components/toolbar-items';
-import { checkMarkdownSyntax } from '@/config/check-markdown-syntax';
+import { checkMarkdownSyntax } from '@/utils/check-markdown-syntax';
 import { roboto } from '@/utils/fonts';
 import { initialValue } from '@/utils/initial-value';
 import { HTMLDeserializer } from '@editablejs/deserializer/html';
@@ -57,7 +58,7 @@ import {
 import { withTextSerializerTransform } from '@editablejs/plugins/serializer/text';
 import { HTMLSerializer } from '@editablejs/serializer/html';
 import { Close, SmartToy } from '@mui/icons-material';
-import { Button, CircularProgress, Container, createTheme, Paper, Snackbar, ThemeProvider } from '@mui/material';
+import { Button, CircularProgress, createTheme, Paper, Snackbar, Stack, ThemeProvider } from '@mui/material';
 import { useMemo, useState } from "react";
 import { withDocx } from '../utils/docx/withDocx';
 import { Preferences } from './PreferenceProvider';
@@ -367,7 +368,7 @@ export default function Home() {
               display: 'flex',
               flex: 1,
               flexDirection: 'column',
-              justifyContent: 'space-around'
+              justifyContent: 'space-around',
             }}
           >
             <Header />
@@ -383,7 +384,12 @@ export default function Home() {
               }}
             />
 
-            <Container maxWidth="md">
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent="flex-start"
+            >
+              <Chat />
               <Paper
                 style={{
                   paddingLeft: '3vw',
@@ -391,23 +397,21 @@ export default function Home() {
                   paddingTop: '1vh',
                   paddingBottom: '1vh',
                   marginTop: '1vh',
-                  marginBottom: '5vh',
+                  marginBottom: '4vh',
                   borderRadius: '10px'
                 }}
                 elevation={3}
               >
                 <ContentEditable
-                  lang='en-US'
                   placeholder="Start typing here..."
                   style={{
-                    height: 'fit-content',
-                    minHeight: '100vh',
+                    width: '44vw',
                     marginTop: '5vh',
                     marginBottom: '5vh',
                   }}
                 />
               </Paper>
-            </Container>
+            </Stack>
 
             <Snackbar
               open={snackbarOpen}
