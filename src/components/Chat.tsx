@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { ChatBox, ReceiverMessage, SenderMessage } from "mui-chat-box";
 import { useState } from "react";
+import { v7 as uuid } from 'uuid';
 import initMsgs from "../utils/initial-chats.json";
 
 export interface MessageItem {
@@ -28,7 +29,7 @@ export const Chat = ({ hidden }: { hidden?: boolean }) => {
             case 'user':
                 return (
                     <SenderMessage
-                        key={crypto.randomUUID()}
+                        key={uuid()}
                         avatar={<Avatar>U</Avatar>}
                     >
                         {msgItem.content}
@@ -37,7 +38,7 @@ export const Chat = ({ hidden }: { hidden?: boolean }) => {
             case 'assistant':
                 return (
                     <ReceiverMessage
-                        key={crypto.randomUUID()}
+                        key={uuid()}
                         avatar={<Avatar>AI</Avatar>}
                     >
                         {msgItem.content}
@@ -79,7 +80,7 @@ export const Chat = ({ hidden }: { hidden?: boolean }) => {
             ]);
         }
     };
-    
+
     if (hidden) return null
     return (
         <Paper
