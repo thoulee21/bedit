@@ -155,7 +155,7 @@ export default function Home() {
       }
     }
     return selected
-  }, [editor.selection])
+  }, [editor])
 
   const askAI = async (type?: string) => {
     if (selectedText) {

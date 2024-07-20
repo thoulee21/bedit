@@ -34,7 +34,7 @@ import {
   FormatListBulleted,
   FormatListNumbered,
   FormatQuote,
-  Image,
+  Image as ImageIcon,
   Link,
   Redo,
   Undo
@@ -357,7 +357,7 @@ export const createToolbarItems = (editor: Editable) => {
           }}
           selected={ImageEditor.isActive(editor)}
         >
-          <Image fontSize='small' />
+          <ImageIcon fontSize='small'/>
         </ToolButton>
       )
     },
