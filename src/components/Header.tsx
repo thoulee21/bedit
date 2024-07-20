@@ -1,10 +1,5 @@
 import { usePreferences } from "@/app/PreferenceProvider";
-import {
-    AppBar,
-    IconButton,
-    Toolbar,
-    Typography
-} from "@mui/material";
+import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import packageInfo from '../../package.json';
@@ -17,9 +12,7 @@ const DarkModeSwitch = () => {
     return (
         <MaterialUISwitch
             checked={prefersDarkMode}
-            edge='end'
             onChange={() => setPrefersDarkMode(!prefersDarkMode)}
-            color="primary"
         />
     )
 }
