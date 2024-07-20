@@ -1536,7 +1536,7 @@ kleur@^4.0.3:
   resolved "https://registry.npmmirror.com/kleur/-/kleur-4.1.5.tgz"
   integrity sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==
 
-lib0@^0.2.52, lib0@^0.2.86:
+lib0@^0.2.52:
   version "0.2.94"
   resolved "https://registry.npmmirror.com/lib0/-/lib0-0.2.94.tgz"
   integrity sha512-hZ3p54jL4Wpu7IOg26uC7dnEWiMyNlUrb9KoG7+xYs45WkQwpVvKFndVq2+pqLYKe1u8Fp3+zAfZHVvTK34PvQ==
@@ -2403,13 +2403,6 @@ yaml@^1.10.0:
   version "1.10.2"
   resolved "https://registry.npmmirror.com/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"
   integrity sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==
-
-yjs@^13.6.18:
-  version "13.6.18"
-  resolved "https://registry.npmmirror.com/yjs/-/yjs-13.6.18.tgz"
-  integrity sha512-GBTjO4QCmv2HFKFkYIJl7U77hIB1o22vSCSQD1Ge8ZxWbIbn8AltI4gyXbtL+g5/GJep67HCMq3Y5AmNwDSyEg==
-  dependencies:
-    lib0 "^0.2.86"
 
 zustand@4.1.4:
   version "4.1.4"
