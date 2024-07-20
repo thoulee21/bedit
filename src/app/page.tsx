@@ -12,9 +12,11 @@ import { HTMLDeserializer } from '@editablejs/deserializer/html';
 import { MarkdownDeserializer } from '@editablejs/deserializer/markdown';
 import {
   ContentEditable,
+  Editable,
   EditableProvider,
   isTouchDevice,
   parseDataTransfer,
+  Placeholder,
   useIsomorphicLayoutEffect,
   withEditable
 } from "@editablejs/editor";
@@ -216,6 +218,18 @@ export default function Home() {
     }
   }
 
+  useIsomorphicLayoutEffect(() => {
+    const unsubscribe = Placeholder.subscribe(editor, ([node]) => {
+      if (
+        Editable.isFocused(editor) &&
+        Editor.isBlock(editor, node) &&
+        !TitleEditor.isTitle(editor, node)
+      )
+        return () => 'Waiting for input...'
+    })
+    return () => unsubscribe()
+  }, [editor])
+  
   useIsomorphicLayoutEffect(() => {
     withMarkdownDeserializerPlugin(editor) // Adds a markdown deserializer plugin to the editor
     withMarkdownSerializerPlugin(editor) // Adds a markdown serializer plugin to the editor
