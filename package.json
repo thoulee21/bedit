@@ -42,6 +42,8 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.5",
     "original-fs": "^1.2.0",
     "typescript": "^5"
   }
