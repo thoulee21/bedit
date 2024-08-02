@@ -229,7 +229,7 @@ export default function Home() {
     })
     return () => unsubscribe()
   }, [editor])
-  
+
   useIsomorphicLayoutEffect(() => {
     withMarkdownDeserializerPlugin(editor) // Adds a markdown deserializer plugin to the editor
     withMarkdownSerializerPlugin(editor) // Adds a markdown serializer plugin to the editor
@@ -286,55 +286,54 @@ export default function Home() {
   }, editor)
 
   useContextMenuEffect(() => {
-    const contextMenu = createContextMenuItems(editor)
-    contextMenu.push({
-      type: 'separator'
-    })
-
-    contextMenu.push({
-      key: 'ai',
-      title: 'Ask AI',
-      icon: <SmartToy fontSize='inherit' />,
-      disabled: loading || !selectedText,
-      onSelect: () => askAI(),
-    })
-
-    contextMenu.push({
-      key: 'ai-abstract',
-      title: 'Ask AI: Abstract',
-      icon: <SmartToy fontSize='inherit' />,
-      disabled: loading || !selectedText,
-      onSelect: () => { askAI('abstract') },
-    })
-    contextMenu.push({
-      key: 'ai-polish',
-      title: 'Ask AI: Polish',
-      icon: <SmartToy fontSize='inherit' />,
-      disabled: loading || !selectedText,
-      onSelect: () => { askAI('polish') },
-    })
-    contextMenu.push({
-      key: 'ai-translate',
-      title: 'Ask AI: Translate',
-      icon: <SmartToy fontSize='inherit' />,
-      disabled: loading || !selectedText,
-      onSelect: () => { askAI('translate') },
-    })
-    contextMenu.push({
-      key: 'ai-continuation',
-      title: 'Ask AI: Continuation',
-      icon: <SmartToy fontSize='inherit' />,
-      disabled: loading || !selectedText,
-      onSelect: () => { askAI('continuation') },
-    })
-    contextMenu.push({
-      key: 'ai-correct',
-      title: 'Ask AI: Correct',
-      icon: <SmartToy fontSize='inherit' />,
-      disabled: loading || !selectedText,
-      onSelect: () => { askAI('correct') },
-    })
-
+    let contextMenu = createContextMenuItems(editor)
+    contextMenu = contextMenu.concat([
+      {
+        type: 'separator'
+      },
+      {
+        key: 'ai',
+        title: 'Ask AI',
+        icon: <SmartToy fontSize='inherit' />,
+        disabled: loading || !selectedText,
+        onSelect: () => askAI(),
+      },
+      {
+        key: 'ai-abstract',
+        title: 'Ask AI: Abstract',
+        icon: <SmartToy fontSize='inherit' />,
+        disabled: loading || !selectedText,
+        onSelect: () => { askAI('abstract') },
+      },
+      {
+        key: 'ai-polish',
+        title: 'Ask AI: Polish',
+        icon: <SmartToy fontSize='inherit' />,
+        disabled: loading || !selectedText,
+        onSelect: () => { askAI('polish') },
+      },
+      {
+        key: 'ai-translate',
+        title: 'Ask AI: Translate',
+        icon: <SmartToy fontSize='inherit' />,
+        disabled: loading || !selectedText,
+        onSelect: () => { askAI('translate') },
+      },
+      {
+        key: 'ai-continuation',
+        title: 'Ask AI: Continuation',
+        icon: <SmartToy fontSize='inherit' />,
+        disabled: loading || !selectedText,
+        onSelect: () => { askAI('continuation') },
+      },
+      {
+        key: 'ai-correct',
+        title: 'Ask AI: Correct',
+        icon: <SmartToy fontSize='inherit' />,
+        disabled: loading || !selectedText,
+        onSelect: () => { askAI('correct') },
+      }
+    ])
     ContextMenu.setItems(editor, contextMenu)
   }, editor)
 
