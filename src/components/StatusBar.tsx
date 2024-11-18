@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Stack, Typography, Divider } from '@mui/material';
-import { Editor, Node, Element, Path } from 'slate';
-import { CustomEditor } from '@/types/slate';
+import { Editor, Element as SlateElement, Node } from 'slate';
+import { CustomEditor, CustomElement } from '@/types/slate';
 import { ReactEditor } from 'slate-react';
 
 interface StatusBarProps {
@@ -23,30 +23,43 @@ export const StatusBar = ({ editor }: StatusBarProps) => {
   // 更新字数统计
   React.useEffect(() => {
     const updateWordCount = () => {
+      // 获取所有文本节点
       const nodes = Array.from(
         Editor.nodes(editor, {
           at: [],
-          match: n => Element.isElement(n),
+          match: n => Node.isNode(n),
         })
       );
 
-      const text = Editor.string(editor, []);
+      // 计算总字符数和词数
+      let text = '';
+      nodes.forEach(([node]) => {
+        if (Node.string(node)) {
+          text += Node.string(node);
+        }
+      });
+
       const characters = text.length;
       const words = text.trim().split(/\s+/).filter(Boolean).length;
+
+      // 计算行数
       const lines = nodes.filter(([node]) => 
-        Element.isElement(node) && 
-        (!Node.string(node).trim() || Node.string(node).includes('\n'))
-      ).length + 1;
+        !Editor.isEditor(node) && 
+        SlateElement.isElement(node) &&
+        Editor.isBlock(editor, node)
+      ).length;
 
       setWordCount({
         characters,
         words,
-        lines,
+        lines: Math.max(1, lines), // 至少有一行
       });
     };
 
+    // 初始更新
     updateWordCount();
 
+    // 监听编辑器变化
     const { onChange } = editor;
     editor.onChange = (...args) => {
       onChange(...args);
@@ -66,26 +79,21 @@ export const StatusBar = ({ editor }: StatusBarProps) => {
         return;
       }
 
-      // 获取当前光标所在的路径
-      const path = editor.selection.focus.path;
-      
-      // 计算行数
+      const path = editor.selection.anchor.path;
       const blockEntries = Array.from(Editor.nodes(editor, {
         at: [],
-        match: n => Element.isElement(n) && Editor.isBlock(editor, n),
+        match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && Editor.isBlock(editor, n),
       }));
-      
+
       const currentBlockIndex = blockEntries.findIndex(([, p]) => 
-        Path.isAncestor(p, path) || Path.equals(p, path)
+        p.every((value, index) => path[index] === value)
       );
 
-      // 计算列数
-      const blockPath = blockEntries[currentBlockIndex][1];
-      const blockStart = Editor.start(editor, blockPath);
-      const offset = editor.selection.focus.offset;
+      const blockStart = Editor.start(editor, path.slice(0, 1));
+      const offset = editor.selection.anchor.offset;
       const beforeText = Editor.string(editor, {
         anchor: blockStart,
-        focus: editor.selection.focus,
+        focus: editor.selection.anchor,
       });
 
       setCursorPosition({

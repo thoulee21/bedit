@@ -1,18 +1,17 @@
-import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Box,
-  Typography,
-  useTheme,
-  FormControlLabel,
-  Switch,
-} from '@mui/material';
 import { Link as LinkIcon } from '@mui/icons-material';
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControlLabel,
+    Switch,
+    TextField,
+    Typography
+} from '@mui/material';
+import React from 'react';
 
 interface LinkDialogProps {
   open: boolean;
@@ -21,7 +20,6 @@ interface LinkDialogProps {
 }
 
 export const LinkDialog = ({ open, onClose, onConfirm }: LinkDialogProps) => {
-  const theme = useTheme();
   const [url, setUrl] = React.useState('');
   const [linkText, setLinkText] = React.useState('');
   const [useCustomText, setUseCustomText] = React.useState(false);
@@ -65,13 +63,22 @@ export const LinkDialog = ({ open, onClose, onConfirm }: LinkDialogProps) => {
       PaperProps={{
         sx: {
           borderRadius: 2,
+          bgcolor: 'background.paper',
         },
       }}
     >
       <DialogTitle>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <LinkIcon color="primary" />
-          <Typography variant="h6">插入链接</Typography>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              color: 'primary.main',
+              fontWeight: 600,
+            }}
+          >
+            插入链接
+          </Typography>
         </Box>
       </DialogTitle>
       <DialogContent>
@@ -87,12 +94,16 @@ export const LinkDialog = ({ open, onClose, onConfirm }: LinkDialogProps) => {
           }}
           error={!!error}
           helperText={error}
-          sx={{ mt: 2 }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && canSubmit) {
-              e.preventDefault();
-              handleConfirm();
-            }
+          sx={{
+            mt: 2,
+            '& .MuiInputLabel-root': {
+              color: 'text.secondary',
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: 'divider',
+              },
+            },
           }}
         />
         
@@ -108,7 +119,11 @@ export const LinkDialog = ({ open, onClose, onConfirm }: LinkDialogProps) => {
               }}
             />
           }
-          label="自定义链接文字"
+          label={
+            <Typography color="text.primary">
+              自定义链接文字
+            </Typography>
+          }
           sx={{ mt: 2 }}
         />
 
@@ -119,22 +134,33 @@ export const LinkDialog = ({ open, onClose, onConfirm }: LinkDialogProps) => {
             placeholder="请输入显示的文字"
             value={linkText}
             onChange={(e) => setLinkText(e.target.value)}
-            sx={{ mt: 2 }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && canSubmit) {
-                e.preventDefault();
-                handleConfirm();
-              }
+            sx={{
+              mt: 2,
+              '& .MuiInputLabel-root': {
+                color: 'text.secondary',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'divider',
+                },
+              },
             }}
           />
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={handleClose}>取消</Button>
         <Button 
-          variant="contained" 
+          onClick={handleClose}
+          color="inherit"
+          sx={{ color: 'text.primary' }}
+        >
+          取消
+        </Button>
+        <Button 
+          variant="contained"
           onClick={handleConfirm}
           disabled={!canSubmit}
+          color="primary"
         >
           确认
         </Button>

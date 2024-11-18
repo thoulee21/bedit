@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  Typography,
-  useTheme,
-  Grid,
-} from '@mui/material';
 import { TableChart } from '@mui/icons-material';
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Grid,
+    Typography,
+    useTheme,
+} from '@mui/material';
+import { useState } from 'react';
 
 interface TableDialogProps {
   open: boolean;

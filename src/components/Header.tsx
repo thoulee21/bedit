@@ -1,16 +1,15 @@
-import { AppBar, Box, Toolbar, useTheme, Stack, Divider, Typography, Tooltip } from '@mui/material'
-import { useContext, useState } from 'react'
-import { Preferences } from '@/app/PreferenceProvider'
-import { Editor, Descendant } from 'slate'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { toggleDarkMode } from '@/store/preferencesSlice'
+import { insertLink, insertTable } from '@/utils/editor-utils'
+import { Edit } from '@mui/icons-material'
+import { AppBar, Box, Divider, IconButton, Stack, Toolbar, Tooltip, Typography, useTheme } from '@mui/material'
+import { useState } from 'react'
+import { Descendant, Editor } from 'slate'
 import { ReactEditor } from 'slate-react'
+import { LinkDialog } from './dialogs/LinkDialog'
+import { TableDialog } from './dialogs/TableDialog'
 import { MaterialUISwitch } from './MaterialUISwitch'
 import { createToolbarItems, ToolbarEvents } from './toolbar-items'
-import { IconButton } from '@mui/material'
-import { Edit } from '@mui/icons-material'
-import { LinkDialog } from './dialogs/LinkDialog'
-import { insertLink } from '@/utils/editor-utils'
-import { TableDialog } from './dialogs/TableDialog'
-import { insertTable } from '@/utils/editor-utils'
 
 interface HeaderProps {
   editor: Editor & ReactEditor;
@@ -19,7 +18,8 @@ interface HeaderProps {
 
 export const Header = ({ editor, setValue }: HeaderProps) => {
   const theme = useTheme()
-  const preferences = useContext(Preferences)
+  const dispatch = useAppDispatch()
+  const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode)
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [tableDialogOpen, setTableDialogOpen] = useState(false);
 
@@ -31,12 +31,12 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
   const toolbarItems = createToolbarItems(editor, toolbarEvents)
 
   return (
-    <AppBar 
-      position="fixed" 
-      color="default" 
+    <AppBar
+      position="fixed"
+      color="default"
       elevation={0}
       sx={{
-        backgroundColor: theme.palette.mode === 'dark' 
+        backgroundColor: theme.palette.mode === 'dark'
           ? 'rgba(30, 30, 30, 0.8)'
           : 'rgba(255, 255, 255, 0.8)',
         backdropFilter: 'blur(8px)',
@@ -79,7 +79,7 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
             },
           }}
         >
-          {toolbarItems.map((item) => 
+          {toolbarItems.map((item) =>
             item.type === 'separator' ? (
               <Box
                 key={item.key}
@@ -91,7 +91,7 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
                 }}
               />
             ) : (
-              <Tooltip 
+              <Tooltip
                 key={item.key}
                 title={item.commandKey ? `${item.title} (${item.commandKey})` : item.title}
                 arrow
@@ -112,9 +112,9 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
 
         {/* 主题切换 */}
         <Box sx={{ ml: 'auto' }}>
-          <MaterialUISwitch 
-            checked={preferences.prefersDarkMode}
-            onChange={() => preferences.setPrefersDarkMode(!preferences.prefersDarkMode)}
+          <MaterialUISwitch
+            checked={prefersDarkMode}
+            onChange={() => dispatch(toggleDarkMode())}
           />
         </Box>
       </Toolbar>

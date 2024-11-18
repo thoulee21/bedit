@@ -91,7 +91,7 @@ const StyledEditable = styled(Editable)(({ theme }) => ({
   },
 }));
 
-const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChange }) => {
+export const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChange }) => {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = React.useState(false);
   const [tableDialogOpen, setTableDialogOpen] = React.useState(false);

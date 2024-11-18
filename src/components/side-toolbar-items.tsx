@@ -1,28 +1,23 @@
-import React from 'react';
-import { Editor, Element as SlateElement, Transforms, Range } from 'slate';
-import { CustomEditor, CustomElement } from '@/types/slate';
+import { CustomEditor } from '@/types/slate';
+import { isAlignActive, isBlockActive, toggleAlign, toggleBlock } from '@/utils/editor-utils';
 import {
-  FormatBold,
-  FormatItalic,
-  FormatUnderlined,
-  FormatStrikethrough,
-  Code,
-  FormatQuote,
+  ContentCopy,
+  ContentCut,
+  ContentPaste,
+  DeleteOutline,
+  FormatAlignCenter,
+  FormatAlignJustify,
+  FormatAlignLeft,
+  FormatAlignRight,
   FormatListBulleted,
   FormatListNumbered,
-  FormatAlignLeft,
-  FormatAlignCenter,
-  FormatAlignRight,
-  FormatAlignJustify,
-  DeleteOutline,
-  ContentCopy,
-  ContentPaste,
-  ContentCut,
-  Undo,
+  FormatQuote,
   Redo,
   SelectAll,
+  Undo
 } from '@mui/icons-material';
-import { toggleMark, toggleBlock, toggleAlign, isMarkActive, isBlockActive, isAlignActive } from '@/utils/editor-utils';
+import React from 'react';
+import { Editor, Range, Transforms } from 'slate';
 
 interface SideToolbarItem {
   key: string;
