@@ -3,6 +3,7 @@ import { RenderElementProps } from 'slate-react'
 import { Box, Table, TableBody, TableCell, TableContainer, TableRow, useTheme } from '@mui/material'
 import { CustomElement } from '@/types/slate'
 import Image from 'next/image'
+import { Editor } from 'slate'
 
 export const Element = ({ attributes, children, element }: RenderElementProps) => {
   const theme = useTheme()
@@ -139,7 +140,9 @@ export const Element = ({ attributes, children, element }: RenderElementProps) =
             ...style,
             margin: '1.5em 0',
             padding: '1em',
-            backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : '#f5f5f5',
+            backgroundColor: theme.palette.mode === 'dark' 
+              ? 'rgba(255, 255, 255, 0.05)'
+              : '#f5f5f5',
             borderRadius: '4px',
             overflow: 'auto',
             fontSize: '0.9em',
@@ -148,49 +151,62 @@ export const Element = ({ attributes, children, element }: RenderElementProps) =
           }}
           {...attributes}
         >
-          <code style={{ color: theme.palette.text.primary }}>{children}</code>
+          <code style={{ 
+            color: theme.palette.mode === 'dark'
+              ? theme.palette.primary.light
+              : theme.palette.text.primary,
+          }}>
+            {children}
+          </code>
         </pre>
       )
     case 'bulleted-list':
       return (
-        <ul 
-          style={{
-            ...style,
+        <Box
+          component="ul"
+          sx={{
             margin: '1em 0',
             paddingLeft: '2em',
-            listStyleType: 'disc',
-          }} 
+            listStyleType: 'disc !important',
+            '& > li': {
+              display: 'list-item !important',
+            },
+          }}
           {...attributes}
         >
           {children}
-        </ul>
+        </Box>
       )
     case 'numbered-list':
       return (
-        <ol 
-          style={{
-            ...style,
+        <Box
+          component="ol"
+          sx={{
             margin: '1em 0',
             paddingLeft: '2em',
-            listStyleType: 'decimal',
-          }} 
+            listStyleType: 'decimal !important',
+            '& > li': {
+              display: 'list-item !important',
+            },
+          }}
           {...attributes}
         >
           {children}
-        </ol>
+        </Box>
       )
     case 'list-item':
       return (
-        <li 
-          style={{
-            ...style,
+        <Box
+          component="li"
+          sx={{
+            display: 'list-item !important',
             marginBottom: '0.5em',
             lineHeight: 1.6,
-          }} 
+          }}
           {...attributes}
         >
           {children}
-        </li>
+        </Box>
       )
     case 'link':
       return (

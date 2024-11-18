@@ -1,34 +1,113 @@
 import React from 'react';
 import { Box, Stack, Typography, Divider } from '@mui/material';
-import { Editor } from 'slate';
+import { Editor, Node, Element, Path } from 'slate';
 import { CustomEditor } from '@/types/slate';
+import { ReactEditor } from 'slate-react';
 
 interface StatusBarProps {
   editor: CustomEditor;
 }
 
 export const StatusBar = ({ editor }: StatusBarProps) => {
-  // 计算字数
-  const wordCount = React.useMemo(() => {
-    const text = Editor.string(editor, []);
-    return {
-      characters: text.length,
-      words: text.trim().split(/\s+/).filter(Boolean).length,
-      lines: text.split('\n').length,
+  const [wordCount, setWordCount] = React.useState({
+    characters: 0,
+    words: 0,
+    lines: 0,
+  });
+
+  const [cursorPosition, setCursorPosition] = React.useState({
+    line: 1,
+    column: 1,
+  });
+
+  // 更新字数统计
+  React.useEffect(() => {
+    const updateWordCount = () => {
+      const nodes = Array.from(
+        Editor.nodes(editor, {
+          at: [],
+          match: n => Element.isElement(n),
+        })
+      );
+
+      const text = Editor.string(editor, []);
+      const characters = text.length;
+      const words = text.trim().split(/\s+/).filter(Boolean).length;
+      const lines = nodes.filter(([node]) => 
+        Element.isElement(node) && 
+        (!Node.string(node).trim() || Node.string(node).includes('\n'))
+      ).length + 1;
+
+      setWordCount({
+        characters,
+        words,
+        lines,
+      });
+    };
+
+    updateWordCount();
+
+    const { onChange } = editor;
+    editor.onChange = (...args) => {
+      onChange(...args);
+      updateWordCount();
+    };
+
+    return () => {
+      editor.onChange = onChange;
     };
   }, [editor]);
 
-  // 获取当前光标位置
-  const cursorPosition = React.useMemo(() => {
-    if (!editor.selection) return { line: 1, column: 1 };
-    
-    const text = Editor.string(editor, []);
-    const offset = Editor.start(editor, editor.selection).offset;
-    
-    const lines = text.slice(0, offset).split('\n');
-    return {
-      line: lines.length,
-      column: lines[lines.length - 1].length + 1,
+  // 更新光标位置
+  React.useEffect(() => {
+    const updateCursorPosition = () => {
+      if (!editor.selection) {
+        setCursorPosition({ line: 1, column: 1 });
+        return;
+      }
+
+      // 获取当前光标所在的路径
+      const path = editor.selection.focus.path;
+      
+      // 计算行数
+      const blockEntries = Array.from(Editor.nodes(editor, {
+        at: [],
+        match: n => Element.isElement(n) && Editor.isBlock(editor, n),
+      }));
+      
+      const currentBlockIndex = blockEntries.findIndex(([, p]) => 
+        Path.isAncestor(p, path) || Path.equals(p, path)
+      );
+
+      // 计算列数
+      const blockPath = blockEntries[currentBlockIndex][1];
+      const blockStart = Editor.start(editor, blockPath);
+      const offset = editor.selection.focus.offset;
+      const beforeText = Editor.string(editor, {
+        anchor: blockStart,
+        focus: editor.selection.focus,
+      });
+
+      setCursorPosition({
+        line: currentBlockIndex + 1,
+        column: beforeText.length + 1,
+      });
+    };
+
+    // 初始更新
+    updateCursorPosition();
+
+    // 监听选择变化
+    const onSelectionChange = () => {
+      if (ReactEditor.isFocused(editor)) {
+        updateCursorPosition();
+      }
+    };
+
+    document.addEventListener('selectionchange', onSelectionChange);
+
+    return () => {
+      document.removeEventListener('selectionchange', onSelectionChange);
     };
   }, [editor]);
 

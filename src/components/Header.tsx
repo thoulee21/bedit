@@ -27,12 +27,25 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
       elevation={0}
       sx={{
         backgroundColor: theme.palette.mode === 'dark' 
-          ? 'rgba(30, 30, 30, 0.8)'
-          : 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(8px)',
+          ? 'rgba(18, 18, 18, 0.7)'
+          : 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(20px) saturate(180%)',
         borderBottom: '1px solid',
-        borderColor: 'divider',
+        borderColor: theme.palette.mode === 'dark'
+          ? 'rgba(255, 255, 255, 0.1)'
+          : 'rgba(0, 0, 0, 0.1)',
         zIndex: 1300,
+        mb: 1,
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backdropFilter: 'blur(10px)',
+          zIndex: -1,
+        },
       }}
     >
       <Toolbar
@@ -41,6 +54,7 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
           minHeight: '64px',
           display: 'flex',
           gap: 2,
+          pb: 0.5,
         }}
       >
         {/* 文件操作区 */}
@@ -74,7 +88,9 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
                 sx={{
                   height: 24,
                   borderLeft: '1px solid',
-                  borderColor: 'divider',
+                  borderColor: theme.palette.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.1)',
                   mx: 0.5,
                 }}
               />
@@ -93,7 +109,9 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
                     p: 0.75,
                     borderRadius: 1,
                     '&:hover': {
-                      backgroundColor: 'action.hover',
+                      backgroundColor: theme.palette.mode === 'dark'
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'rgba(0, 0, 0, 0.05)',
                     },
                     '&.Mui-disabled': {
                       opacity: 0.5,

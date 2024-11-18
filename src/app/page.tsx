@@ -84,7 +84,7 @@ export default function Home() {
                 sx={{ 
                   flex: 1,
                   px: 1.5,
-                  py: 1,
+                  py: 0.5,
                   overflow: 'hidden',
                 }}
               >
@@ -92,7 +92,7 @@ export default function Home() {
                 <Paper
                   elevation={3}
                   sx={{
-                    width: '200px',
+                    width: '280px',
                     height: '100%',
                     overflow: 'auto',
                     overscrollBehavior: 'none',
@@ -158,7 +158,7 @@ export default function Home() {
                 <Paper
                   elevation={3}
                   sx={{
-                    width: '260px',
+                    width: '320px',
                     height: '100%',
                     overflow: 'auto',
                     overscrollBehavior: 'none',
