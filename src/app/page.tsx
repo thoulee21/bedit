@@ -171,6 +171,7 @@ export default function Home() {
                       theme.palette.mode === 'dark'
                         ? theme.palette.background.paper
                         : 'background.paper',
+                    pb: 3,
                   }}
                 >
                   <Chat />
