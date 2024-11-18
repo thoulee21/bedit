@@ -1,5 +1,6 @@
 import { CustomEditor, CustomElement } from '@/types/slate';
-import { Box, IconButton, Stack } from '@mui/material';
+import { Box, IconButton, Paper, Stack } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import isHotkey from 'is-hotkey';
 import React, { useCallback } from 'react';
 import { Descendant, Editor, Element as SlateElement, Transforms } from 'slate';
@@ -36,8 +37,60 @@ interface SlateEditorProps {
   onChange: (value: Descendant[]) => void;
 }
 
+// 创建自定义样式的 Editable 组件
+const StyledEditable = styled(Editable)(({ theme }) => ({
+  minHeight: '100%',
+  padding: '25.4mm 31.7mm', // A4 纸张标准边距
+  outline: 'none',
+  fontSize: '12pt', // 标准字号
+  lineHeight: 1.5,
+  fontFamily: theme.typography.fontFamily,
+  color: theme.palette.text.primary,
+  '&': {
+    position: 'relative',
+  },
+  '& > [data-slate-placeholder]': {
+    position: 'absolute',
+    left: '31.7mm',
+    top: '25.4mm',
+    color: theme.palette.text.disabled,
+    pointerEvents: 'none',
+    userSelect: 'none',
+    display: 'inline-block',
+    zIndex: 1,
+  },
+  '& > *': {
+    position: 'relative',
+  },
+  // 标题样式
+  '& h1': { fontSize: '24pt', marginTop: '1em', marginBottom: '0.5em' },
+  '& h2': { fontSize: '20pt', marginTop: '1em', marginBottom: '0.5em' },
+  '& h3': { fontSize: '16pt', marginTop: '1em', marginBottom: '0.5em' },
+  '& h4': { fontSize: '14pt', marginTop: '1em', marginBottom: '0.5em' },
+  '& h5': { fontSize: '12pt', marginTop: '1em', marginBottom: '0.5em' },
+  '& h6': { fontSize: '10pt', marginTop: '1em', marginBottom: '0.5em' },
+  // 段落样式
+  '& p': { marginBottom: '1em' },
+  // 列表样式
+  '& ul, & ol': { marginBottom: '1em', paddingLeft: '2em' },
+  // 引用样式
+  '& blockquote': { margin: '1em 0', padding: '0.5em 1em' },
+  // 代码块样式
+  '& pre': { margin: '1em 0', padding: '1em', borderRadius: '4px' },
+  // 表格样式
+  '& table': { 
+    width: '100%',
+    borderCollapse: 'collapse',
+    marginBottom: '1em',
+  },
+  '& th, & td': {
+    border: `1px solid ${theme.palette.divider}`,
+    padding: '0.5em',
+  },
+}));
+
 const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChange }) => {
-  const toolbarItems = createToolbarItems(editor);
+  const [isScrolled, setIsScrolled] = React.useState(false);
 
   const renderElement = useCallback((props: any) => <Element {...props} />, []);
   const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
@@ -87,84 +140,68 @@ const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChange }) =>
     setContextMenu(null);
   };
 
+  // 监听滚动事件
+  React.useEffect(() => {
+    const handleScroll = (e: Event) => {
+      const target = e.target as HTMLElement;
+      setIsScrolled(target.scrollTop > 10);
+    };
+
+    const editorElement = document.querySelector('.editor-content');
+    if (editorElement) {
+      editorElement.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      if (editorElement) {
+        editorElement.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
+
   return (
     <Slate 
       editor={editor} 
       initialValue={value} 
       onChange={onChange}
     >
-      {/* 工具栏 */}
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{
-          p: 1.5,
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          flexWrap: 'wrap',
-          backgroundColor: 'background.paper',
-        }}
-      >
-        {toolbarItems.map((item) => 
-          item.type === 'separator' ? (
-            <Box
-              key={item.key}
-              sx={{
-                height: 24,
-                borderLeft: '1px solid',
-                borderColor: 'divider',
-                mx: 0.5,
-              }}
-            />
-          ) : (
-            <ToolbarTooltip
-              key={item.key}
-              title={item.title}
-              commandKey={item.key}
-            >
-              <IconButton
-                size="small"
-                onClick={item.onSelect}
-                disabled={item.disabled}
-                color={item.active ? 'primary' : 'default'}
-                sx={{ 
-                  p: 0.75,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                  },
-                }}
-              >
-                {item.icon}
-              </IconButton>
-            </ToolbarTooltip>
-          )
-        )}
-      </Stack>
-
       <Box 
         sx={{ 
-          height: 'calc(100% - 56px)', 
+          height: '100%',
+          minHeight: '297mm',
           overflow: 'auto',
+          overscrollBehavior: 'none',
           backgroundColor: 'background.paper',
           position: 'relative',
+          '&::-webkit-scrollbar': {
+            width: '8px',
+            height: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: theme => theme.palette.divider,
+            borderRadius: '4px',
+            '&:hover': {
+              background: theme => theme.palette.action.hover,
+            },
+          },
+          marginRight: '-8px',
+          paddingRight: '8px',
         }}
         onContextMenu={handleContextMenu}
       >
-        <Editable 
+        <StyledEditable 
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           placeholder="开始输入..."
           onKeyDown={handleKeyDown}
-          style={{
-            minHeight: '100%',
-            padding: '2rem',
-            outline: 'none',
-          }}
         />
         <SideToolbar />
       </Box>
 
-      {/* 添加右键菜单 */}
+      {/* 右键菜单 */}
       <ContextMenu
         editor={editor}
         anchorPosition={

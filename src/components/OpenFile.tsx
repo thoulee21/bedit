@@ -1,8 +1,8 @@
+import { FolderOpen } from '@mui/icons-material'
 import { Button } from '@mui/material'
 import { ChangeEvent, useRef } from 'react'
-import { Editor, Transforms, Element as SlateElement, Descendant } from 'slate'
+import { Descendant, Editor } from 'slate'
 import { ReactEditor } from 'slate-react'
-import { FolderOpen } from '@mui/icons-material'
 
 interface OpenFileProps {
   editor: Editor & ReactEditor;

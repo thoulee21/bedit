@@ -13,13 +13,16 @@ import { createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
 import { withReact } from 'slate-react';
 import { Preferences } from './PreferenceProvider';
+import { DEV_INITIAL_CONTENT } from '@/utils/dev-content';
+import { StatusBar } from '@/components/StatusBar';
+import { Global } from '@emotion/react';
+import { globalStyles } from '@/styles/global';
+import { motion, AnimatePresence } from 'framer-motion';
+import { pageTransition, hoverCard } from '@/styles/animations';
 
-const initialValue: Descendant[] = [
-  {
-    type: 'paragraph',
-    children: [{ text: '' }],
-  },
-] as const;
+const initialValue: Descendant[] = process.env.NODE_ENV === 'development' 
+  ? DEV_INITIAL_CONTENT 
+  : [{ type: 'paragraph', children: [{ text: '' }] }];
 
 export default function Home() {
   const [prefersDarkMode, setPrefersDarkMode] = useState(false);
@@ -55,76 +58,128 @@ export default function Home() {
     <StrictMode>
       <Preferences.Provider value={preferences}>
         <ThemeProvider theme={appTheme}>
-          <Header editor={editor} setValue={setValue} />
-          <Box sx={{ display: 'flex' }}>
-            <Sidebar />
-            <Stack
-              direction="row"
-              spacing={3}
-              sx={{ 
-                px: 4,
-                py: 2,
-                height: 'calc(100vh - 64px)',
-                overflow: 'hidden',
-                backgroundColor: 'background.default',
-                flex: 1,
-              }}
-            >
-              {/* 左侧目录 */}
-              <Paper
-                elevation={3}
-                sx={{
-                  width: '250px',
-                  height: '100%',
-                  overflow: 'auto',
-                  borderRadius: 2,
-                  transition: 'box-shadow 0.3s ease-in-out',
-                  '&:hover': {
-                    boxShadow: 6,
-                  },
-                }}
-              >
-                <DocumentOutline editor={editor} />
-              </Paper>
-
-              {/* 中间编辑区 */}
-              <Paper
-                elevation={3}
-                sx={{
+          <Global styles={globalStyles(prefersDarkMode)} />
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            height: '100vh',
+            overflow: 'hidden',
+            pt: '64px',
+          }}>
+            <Header editor={editor} setValue={setValue} />
+            <Box sx={{ 
+              display: 'flex',
+              flex: 1,
+              overflow: 'hidden',
+              position: 'relative',
+              backgroundColor: theme => 
+                theme.palette.mode === 'dark' 
+                  ? theme.palette.background.default
+                  : 'grey.100',
+            }}>
+              <Sidebar />
+              <Stack
+                direction="row"
+                spacing={1.5}
+                sx={{ 
                   flex: 1,
-                  height: '100%',
+                  px: 1.5,
+                  py: 1,
                   overflow: 'hidden',
-                  borderRadius: 2,
-                  transition: 'box-shadow 0.3s ease-in-out',
-                  '&:hover': {
-                    boxShadow: 6,
-                  },
                 }}
               >
-                <SlateEditor 
-                  editor={editor}
-                  value={value}
-                  onChange={setValue}
-                />
-              </Paper>
+                {/* 左侧大纲 */}
+                <Paper
+                  elevation={3}
+                  sx={{
+                    width: '200px',
+                    height: '100%',
+                    overflow: 'auto',
+                    overscrollBehavior: 'none',
+                    borderRadius: 1.5,
+                    transition: 'box-shadow 0.3s ease-in-out',
+                    '&:hover': {
+                      boxShadow: 6,
+                    },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    backgroundColor: theme => 
+                      theme.palette.mode === 'dark'
+                        ? theme.palette.background.paper
+                        : 'background.paper',
+                  }}
+                >
+                  <DocumentOutline editor={editor} />
+                </Paper>
 
-              {/* 右侧聊天区 */}
-              <Paper
-                elevation={3}
-                sx={{
-                  width: '300px',
-                  height: '100%',
-                  overflow: 'auto',
-                  borderRadius: 2,
-                  transition: 'box-shadow 0.3s ease-in-out',
-                  '&:hover': {
-                    boxShadow: 6,
-                  },
-                }}
-              >
-                <Chat />
-              </Paper>
-            </Stack>
+                {/* 中间编辑区 */}
+                <Box
+                  sx={{
+                    flex: 1,
+                    height: '100%',
+                    overflow: 'auto',
+                    overscrollBehavior: 'none',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    position: 'relative',
+                  }}
+                >
+                  <Paper
+                    elevation={3}
+                    sx={{
+                      width: '210mm',
+                      minHeight: '297mm',
+                      height: 'fit-content',
+                      borderRadius: 1.5,
+                      transition: theme => theme.transitions.create(
+                        ['box-shadow', 'background-color'],
+                        {
+                          duration: theme.transitions.duration.standard,
+                        }
+                      ),
+                      '&:hover': {
+                        boxShadow: 6,
+                      },
+                      display: 'flex',
+                      flexDirection: 'column',
+                      backgroundColor: 'background.paper',
+                      my: 2,
+                    }}
+                  >
+                    <SlateEditor 
+                      editor={editor}
+                      value={value}
+                      onChange={setValue}
+                    />
+                  </Paper>
+                </Box>
+
+                {/* 右侧聊天区 */}
+                <Paper
+                  elevation={3}
+                  sx={{
+                    width: '260px',
+                    height: '100%',
+                    overflow: 'auto',
+                    overscrollBehavior: 'none',
+                    borderRadius: 1.5,
+                    transition: 'box-shadow 0.3s ease-in-out',
+                    '&:hover': {
+                      boxShadow: 6,
+                    },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    backgroundColor: theme => 
+                      theme.palette.mode === 'dark'
+                        ? theme.palette.background.paper
+                        : 'background.paper',
+                  }}
+                >
+                  <Chat />
+                </Paper>
+              </Stack>
+            </Box>
+            <StatusBar editor={editor} />
           </Box>
 
           <Snackbar
@@ -134,6 +189,9 @@ export default function Home() {
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'center',
+            }}
+            sx={{
+              mb: '24px',
             }}
           />
         </ThemeProvider>

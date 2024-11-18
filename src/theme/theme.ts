@@ -1,26 +1,34 @@
 import { createTheme } from '@mui/material/styles';
 import { roboto } from '@/utils/fonts';
 
-// 定义主题色
+// 定义主题色 - 使用更鲜艳的绿色
 const primaryGreen = {
-  50: '#e8f5e9',
-  100: '#c8e6c9',
-  200: '#a5d6a7',
-  300: '#81c784',
-  400: '#66bb6a',
-  500: '#4caf50',  // main
-  600: '#43a047',
-  700: '#388e3c',
-  800: '#2e7d32',
-  900: '#1b5e20',
-  A100: '#b9f6ca',
-  A200: '#69f0ae',
-  A400: '#00e676',
-  A700: '#00c853',
-  light: '#4caf50',
-  main: '#2e7d32',
-  dark: '#1b5e20',
+  50: '#E8F5E9',
+  100: '#C8E6C9',
+  200: '#A5D6A7',
+  300: '#81C784',
+  400: '#66BB6A',
+  500: '#4CAF50',
+  600: '#43A047',
+  700: '#388E3C',
+  800: '#2E7D32',
+  900: '#1B5E20',
+  A100: '#B9F6CA',
+  A200: '#69F0AE',
+  A400: '#00E676',
+  A700: '#00C853',
+  light: '#69F0AE',  // 更亮的绿色
+  main: '#00E676',   // 鲜艳的绿色
+  dark: '#00C853',   // 深绿色
   contrastText: '#fff',
+};
+
+// 定义强调色
+const accentColors = {
+  purple: '#9C27B0',
+  blue: '#2196F3',
+  orange: '#FF9800',
+  pink: '#E91E63',
 };
 
 // 创建亮色主题
@@ -71,27 +79,41 @@ export const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: primaryGreen,
+    secondary: {
+      main: accentColors.purple,
+    },
     background: {
-      default: '#f8f9fa',
-      paper: '#ffffff',
+      default: '#FAFAFA',
+      paper: '#FFFFFF',
     },
     divider: 'rgba(0, 0, 0, 0.08)',
     text: {
-      primary: '#1a1a1a',
+      primary: '#1A1A1A',
       secondary: '#666666',
     },
-  },
-  shape: {
-    borderRadius: 8,
+    success: {
+      main: primaryGreen.A400,
+      light: primaryGreen.A200,
+      dark: primaryGreen.A700,
+    },
+    info: {
+      main: accentColors.blue,
+    },
+    warning: {
+      main: accentColors.orange,
+    },
+    error: {
+      main: accentColors.pink,
+    },
   },
   components: {
     MuiPaper: {
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          transition: 'box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+          transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
           '&:hover': {
-            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0px 8px 24px rgba(0, 230, 118, 0.15)',  // 绿色阴影
           },
         },
       },
@@ -100,17 +122,24 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          padding: '6px 16px',
+          borderRadius: 8,
           transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
           '&:hover': {
-            transform: 'translateY(-1px)',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 4px 12px rgba(0, 230, 118, 0.2)',
           },
         },
         outlined: {
-          borderColor: primaryGreen[300],
+          borderColor: primaryGreen.A200,
           '&:hover': {
-            borderColor: primaryGreen[500],
-            backgroundColor: 'rgba(76, 175, 80, 0.04)',
+            borderColor: primaryGreen.A400,
+            backgroundColor: 'rgba(0, 230, 118, 0.08)',
+          },
+        },
+        contained: {
+          background: `linear-gradient(45deg, ${primaryGreen.main}, ${primaryGreen.light})`,
+          '&:hover': {
+            background: `linear-gradient(45deg, ${primaryGreen.A400}, ${primaryGreen.A200})`,
           },
         },
       },
@@ -120,8 +149,8 @@ export const lightTheme = createTheme({
         root: {
           transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
           '&:hover': {
-            backgroundColor: 'rgba(76, 175, 80, 0.04)',
-            transform: 'scale(1.1)',
+            backgroundColor: 'rgba(0, 230, 118, 0.08)',
+            transform: 'scale(1.1) rotate(8deg)',
           },
         },
       },
@@ -131,8 +160,9 @@ export const lightTheme = createTheme({
         root: {
           transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
           '&:hover': {
-            backgroundColor: 'rgba(76, 175, 80, 0.04)',
+            backgroundColor: 'rgba(0, 230, 118, 0.08)',
             transform: 'translateX(4px)',
+            color: primaryGreen.main,
           },
         },
       },
@@ -140,15 +170,9 @@ export const lightTheme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#ffffff',
+          background: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(8px)',
           borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
-        },
-      },
-    },
-    MuiToolbar: {
-      styleOverrides: {
-        root: {
-          minHeight: '56px !important',
         },
       },
     },
@@ -161,14 +185,17 @@ export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: primaryGreen,
+    secondary: {
+      main: accentColors.purple,
+    },
     background: {
       default: '#121212',
-      paper: '#1e1e1e',
+      paper: '#1E1E1E',
     },
     divider: 'rgba(255, 255, 255, 0.08)',
     text: {
-      primary: '#ffffff',
-      secondary: '#b0b0b0',
+      primary: '#FFFFFF',
+      secondary: '#B0B0B0',
     },
   },
   components: {
@@ -177,10 +204,10 @@ export const darkTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          transition: 'box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
-          backgroundColor: '#1e1e1e',
+          backgroundColor: '#1E1E1E',
+          transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
           '&:hover': {
-            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.5)',
+            boxShadow: '0px 8px 24px rgba(0, 230, 118, 0.15)',
           },
         },
       },
@@ -188,7 +215,8 @@ export const darkTheme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#1e1e1e',
+          background: 'rgba(30, 30, 30, 0.9)',
+          backdropFilter: 'blur(8px)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         },
       },

@@ -2,6 +2,7 @@ import { Editor, Element as SlateElement, Text, Transforms } from 'slate'
 import { List, ListItem, ListItemButton, ListItemText, Typography, Stack } from "@mui/material"
 import { useCallback, useEffect, useState } from "react"
 import { CustomEditor, CustomElement } from '@/types/slate'
+import { ReactEditor } from 'slate-react'
 
 interface OutlineItem {
   id: string
@@ -72,17 +73,32 @@ export const DocumentOutline = ({ editor }: { editor: CustomEditor }) => {
   }, [editor, generateOutline])
 
   const handleClick = (item: OutlineItem) => {
-    if (item.path) {
+    try {
+      // 获取目标元素的 DOM 节点
+      const domNode = ReactEditor.toDOMNode(editor, Editor.node(editor, item.path)[0])
+      
+      // 找到中间编辑区的滚动容器
+      const editorContainer = document.querySelector('[role="textbox"]')?.closest('.MuiBox-root')?.parentElement?.parentElement
+      if (!editorContainer || !domNode) return
+
+      // 设置选区并聚焦
       const range = Editor.range(editor, item.path)
-      
-      // 使用 Transforms 来设置选择范围
       Transforms.select(editor, range)
-      
-      // 滚动到选中位置
-      const domNode = document.querySelector(
-        `[data-slate-path="${item.path.join(',')}"]`
-      )
-      domNode?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      ReactEditor.focus(editor)
+
+      // 计算滚动位置
+      const containerRect = editorContainer.getBoundingClientRect()
+      const elementRect = domNode.getBoundingClientRect()
+      const relativeTop = elementRect.top - containerRect.top + editorContainer.scrollTop
+      const offset = 100 // 顶部偏移量
+
+      // 平滑滚动
+      editorContainer.scrollTo({
+        top: Math.max(0, relativeTop - offset),
+        behavior: 'smooth'
+      })
+    } catch (error) {
+      console.error('Error scrolling to heading:', error)
     }
   }
 

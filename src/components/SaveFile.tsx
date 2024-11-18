@@ -1,8 +1,8 @@
+import { Save } from '@mui/icons-material'
 import { Button } from '@mui/material'
 import { saveAs } from 'file-saver'
-import { Editor, Element as SlateElement, Node, Text } from 'slate'
+import { Editor, Element as SlateElement, Text } from 'slate'
 import { ReactEditor } from 'slate-react'
-import { Save } from '@mui/icons-material'
 
 interface SaveFileProps {
   editor: Editor & ReactEditor;

@@ -21,6 +21,7 @@
     "date-fns": "^4.1.0",
     "docxyz": "^0.2.4",
     "file-saver": "^2.0.5",
+    "framer-motion": "^11.11.17",
     "is-hotkey": "^0.2.0",
     "lru-cache": "^7.14.0",
     "mui-chat-box": "^0.0.3",
