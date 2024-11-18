@@ -21,6 +21,7 @@
     "@mui/material": "^5.15.20",
     "@mui/material-nextjs": "^5.15.11",
     "@reduxjs/toolkit": "^2.3.0",
+    "@stylexjs/stylex": "^0.9.3",
     "date-fns": "^4.1.0",
     "docxyz": "^0.2.4",
     "file-saver": "^2.0.5",
@@ -41,6 +42,9 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.25.9",
+    "@stylexjs/babel-plugin": "^0.9.3",
+    "@stylexjs/webpack-plugin": "^0.9.3",
     "@testing-library/dom": "^9.3.4",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",

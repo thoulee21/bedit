@@ -1,3 +1,5 @@
+const StylexPlugin = require('@stylexjs/webpack-plugin');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -15,6 +17,20 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  webpack: (config, { isServer }) => {
+    // StyleX plugin
+    config.plugins.push(
+      new StylexPlugin({
+        filename: 'stylex-bundle.css',
+        get: (prop) => {
+          // 这里可以添加自定义的主题变量
+          return prop;
+        },
+      })
+    );
+
+    return config;
   },
 };
 

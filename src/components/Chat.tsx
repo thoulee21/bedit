@@ -1,16 +1,128 @@
-import React, { useState } from 'react';
+import { useAppSelector } from '@/store/hooks';
+import { Send, SmartToy } from '@mui/icons-material';
 import {
+  Avatar,
   Box,
-  TextField,
+  CircularProgress,
   IconButton,
   Paper,
-  Typography,
   Stack,
-  Avatar,
-  CircularProgress,
-  useTheme,
+  TextField,
+  Typography,
 } from '@mui/material';
-import { Send, SmartToy } from '@mui/icons-material';
+import * as stylex from '@stylexjs/stylex';
+import { useState } from 'react';
+
+const styles = stylex.create({
+  container: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: 'var(--background-paper)',
+  },
+  header: {
+    padding: '16px',
+    borderBottom: '1px solid var(--divider-color)',
+  },
+  headerDark: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  headerLight: {
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+  },
+  title: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    color: 'var(--text-primary)',
+  },
+  messageList: {
+    flex: 1,
+    overflow: 'auto',
+    padding: '16px',
+  },
+  messageListDark: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3) !important',
+  },
+  messageListLight: {
+    backgroundColor: 'rgba(0, 0, 0, 0.03) !important',
+  },
+  emptyState: {
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'var(--text-secondary)',
+    textAlign: 'center',
+    padding: '24px',
+    fontStyle: 'italic',
+  },
+  messageRow: {
+    marginBottom: '16px',
+  },
+  botMessage: {
+    justifyContent: 'flex-start',
+  },
+  userMessage: {
+    justifyContent: 'flex-end',
+  },
+  botAvatar: {
+    backgroundColor: '#e3f2fd !important',
+    width: '32px',
+    height: '32px',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+  },
+  botAvatarIcon: {
+    color: '#1565c0 !important',
+  },
+  messageBubble: {
+    padding: '12px',
+    maxWidth: '80%',
+    borderRadius: '16px',
+    position: 'relative',
+    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+  },
+  botBubbleDark: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15) !important',
+    color: '#fff !important',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+  },
+  botBubbleLight: {
+    backgroundColor: 'rgba(0, 0, 0, 0.08) !important',
+    color: 'rgba(0, 0, 0, 0.87) !important',
+    border: '1px solid rgba(0, 0, 0, 0.05)',
+  },
+  userBubbleDark: {
+    backgroundColor: '#90caf9 !important',
+    color: '#000 !important',
+  },
+  userBubbleLight: {
+    backgroundColor: '#1976d2 !important',
+    color: '#fff !important',
+  },
+  inputContainer: {
+    padding: '16px',
+    paddingBottom: '32px',
+    borderTop: '1px solid var(--divider-color)',
+  },
+  inputContainerDark: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  inputContainerLight: {
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+  },
+  input: {
+    borderRadius: '16px',
+    backgroundColor: 'var(--background-paper)',
+  },
+  sendButton: {
+    alignSelf: 'flex-end',
+    transition: 'transform 0.2s',
+    ':hover': {
+      transform: 'scale(1.1)',
+    },
+  },
+});
 
 interface Message {
   id: string;
@@ -20,10 +132,10 @@ interface Message {
 }
 
 export const Chat = () => {
-  const theme = useTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -51,65 +163,24 @@ export const Chat = () => {
   };
 
   return (
-    <Box sx={{ 
-      height: '100%', 
-      display: 'flex', 
-      flexDirection: 'column',
-      backgroundColor: theme.palette.mode === 'dark' 
-        ? 'rgba(0, 0, 0, 0.3)' 
-        : theme.palette.background.paper,
-    }}>
-      {/* 聊天标题 */}
-      <Box
-        sx={{
-          p: 2,
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          backgroundColor: theme.palette.mode === 'dark' 
-            ? 'rgba(255, 255, 255, 0.03)' 
-            : 'rgba(0, 0, 0, 0.02)',
-        }}
-      >
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1,
-            color: theme.palette.mode === 'dark' 
-              ? theme.palette.primary.light
-              : theme.palette.primary.main,
-          }}
-        >
-          <SmartToy color="inherit" />
+    <Box {...stylex.props(styles.container)}>
+      <Box {...stylex.props(
+        styles.header,
+        prefersDarkMode ? styles.headerDark : styles.headerLight
+      )}>
+        <Typography variant="h6" {...stylex.props(styles.title)}>
+          <SmartToy color="primary" />
           AI Assistant
         </Typography>
       </Box>
 
-      {/* 消息列表 */}
-      <Box
-        sx={{
-          flex: 1,
-          overflow: 'auto',
-          p: 2,
-          backgroundColor: theme.palette.mode === 'dark' 
-            ? 'rgba(0, 0, 0, 0.2)' 
-            : 'rgba(0, 0, 0, 0.02)',
-        }}
-      >
+      <Box {...stylex.props(
+        styles.messageList,
+        prefersDarkMode ? styles.messageListDark : styles.messageListLight
+      )}>
         {messages.length === 0 ? (
-          <Box
-            sx={{
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: theme.palette.text.secondary,
-              textAlign: 'center',
-              p: 3,
-            }}
-          >
-            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+          <Box {...stylex.props(styles.emptyState)}>
+            <Typography variant="body2">
               开始与 AI 助手对话...
             </Typography>
           </Box>
@@ -119,73 +190,29 @@ export const Chat = () => {
               key={message.id}
               direction="row"
               spacing={1}
-              sx={{
-                mb: 2,
-                justifyContent: message.isBot ? 'flex-start' : 'flex-end',
-              }}
+              {...stylex.props(
+                styles.messageRow,
+                message.isBot ? styles.botMessage : styles.userMessage
+              )}
             >
               {message.isBot && (
-                <Avatar
-                  sx={{
-                    bgcolor: theme.palette.primary.main,
-                    width: 32,
-                    height: 32,
-                  }}
-                >
-                  <SmartToy sx={{ fontSize: 20 }} />
+                <Avatar {...stylex.props(styles.botAvatar)}>
+                  <SmartToy
+                    sx={{ fontSize: 20 }}
+                    {...stylex.props(styles.botAvatarIcon)}
+                  />
                 </Avatar>
               )}
               <Paper
                 elevation={0}
-                sx={{
-                  p: 1.5,
-                  maxWidth: '80%',
-                  borderRadius: 2,
-                  position: 'relative',
-                  backgroundColor: message.isBot
-                    ? theme.palette.mode === 'dark'
-                      ? 'rgba(255, 255, 255, 0.08)'
-                      : 'rgba(0, 0, 0, 0.04)'
-                    : theme.palette.primary.main,
-                  color: message.isBot
-                    ? theme.palette.mode === 'dark'
-                      ? theme.palette.primary.light
-                      : theme.palette.text.primary
-                    : '#fff',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 8,
-                    ...(message.isBot
-                      ? {
-                          left: -8,
-                          borderRight: '8px solid',
-                          borderRightColor: theme.palette.mode === 'dark'
-                            ? 'rgba(255, 255, 255, 0.08)'
-                            : 'rgba(0, 0, 0, 0.04)',
-                        }
-                      : {
-                          right: -8,
-                          borderLeft: '8px solid',
-                          borderLeftColor: theme.palette.primary.main,
-                        }),
-                    borderTop: '8px solid transparent',
-                    borderBottom: '8px solid transparent',
-                  },
-                }}
+                {...stylex.props(
+                  styles.messageBubble,
+                  message.isBot
+                    ? prefersDarkMode ? styles.botBubbleDark : styles.botBubbleLight
+                    : prefersDarkMode ? styles.userBubbleDark : styles.userBubbleLight
+                )}
               >
-                <Typography 
-                  variant="body1"
-                  sx={{
-                    color: message.isBot
-                      ? theme.palette.mode === 'dark'
-                        ? theme.palette.primary.light
-                        : theme.palette.text.primary
-                      : '#fff',
-                  }}
-                >
-                  {message.content}
-                </Typography>
+                <Typography variant="body1">{message.content}</Typography>
               </Paper>
             </Stack>
           ))
@@ -197,17 +224,10 @@ export const Chat = () => {
         )}
       </Box>
 
-      {/* 输入框 */}
-      <Box
-        sx={{
-          p: 2,
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          backgroundColor: theme.palette.mode === 'dark' 
-            ? 'rgba(255, 255, 255, 0.03)' 
-            : 'rgba(0, 0, 0, 0.02)',
-        }}
-      >
+      <Box {...stylex.props(
+        styles.inputContainer,
+        prefersDarkMode ? styles.inputContainerDark : styles.inputContainerLight
+      )}>
         <Stack direction="row" spacing={1}>
           <TextField
             fullWidth
@@ -223,44 +243,13 @@ export const Chat = () => {
             }}
             multiline
             maxRows={4}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                backgroundColor: theme.palette.mode === 'dark'
-                  ? 'rgba(255, 255, 255, 0.05)'
-                  : theme.palette.background.paper,
-                '& fieldset': {
-                  borderColor: theme.palette.mode === 'dark'
-                    ? 'rgba(255, 255, 255, 0.1)'
-                    : 'rgba(0, 0, 0, 0.1)',
-                },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.mode === 'dark'
-                    ? 'rgba(255, 255, 255, 0.2)'
-                    : 'rgba(0, 0, 0, 0.2)',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.primary.main,
-                },
-              },
-              '& .MuiInputBase-input': {
-                color: theme.palette.mode === 'dark'
-                  ? theme.palette.primary.light
-                  : theme.palette.text.primary,
-              },
-            }}
+            {...stylex.props(styles.input)}
           />
           <IconButton
             color="primary"
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            sx={{
-              alignSelf: 'flex-end',
-              transition: 'transform 0.2s',
-              '&:hover': {
-                transform: 'scale(1.1)',
-              },
-            }}
+            {...stylex.props(styles.sendButton)}
           >
             <Send />
           </IconButton>
