@@ -1,13 +1,16 @@
-import { AppBar, Box, Toolbar, useTheme, Stack, Divider, Typography } from '@mui/material'
-import { useContext } from 'react'
+import { AppBar, Box, Toolbar, useTheme, Stack, Divider, Typography, Tooltip } from '@mui/material'
+import { useContext, useState } from 'react'
 import { Preferences } from '@/app/PreferenceProvider'
 import { Editor, Descendant } from 'slate'
 import { ReactEditor } from 'slate-react'
 import { MaterialUISwitch } from './MaterialUISwitch'
-import { createToolbarItems } from './toolbar-items'
-import { ToolbarTooltip } from './ToolbarTooltip'
+import { createToolbarItems, ToolbarEvents } from './toolbar-items'
 import { IconButton } from '@mui/material'
 import { Edit } from '@mui/icons-material'
+import { LinkDialog } from './dialogs/LinkDialog'
+import { insertLink } from '@/utils/editor-utils'
+import { TableDialog } from './dialogs/TableDialog'
+import { insertTable } from '@/utils/editor-utils'
 
 interface HeaderProps {
   editor: Editor & ReactEditor;
@@ -17,7 +20,15 @@ interface HeaderProps {
 export const Header = ({ editor, setValue }: HeaderProps) => {
   const theme = useTheme()
   const preferences = useContext(Preferences)
-  const toolbarItems = createToolbarItems(editor)
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [tableDialogOpen, setTableDialogOpen] = useState(false);
+
+  const toolbarEvents: ToolbarEvents = {
+    openLinkDialog: () => setLinkDialogOpen(true),
+    openTableDialog: () => setTableDialogOpen(true),
+  };
+
+  const toolbarItems = createToolbarItems(editor, toolbarEvents)
 
   return (
     <AppBar 
@@ -80,30 +91,21 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
                 }}
               />
             ) : (
-              <ToolbarTooltip
+              <Tooltip 
                 key={item.key}
-                title={item.title}
-                commandKey={item.key}
+                title={item.commandKey ? `${item.title} (${item.commandKey})` : item.title}
+                arrow
               >
                 <IconButton
                   size="small"
                   onClick={item.onSelect}
                   disabled={item.disabled}
                   color={item.active ? 'primary' : 'default'}
-                  sx={{ 
-                    p: 0.75,
-                    borderRadius: 1,
-                    '&:hover': {
-                      backgroundColor: 'action.hover',
-                    },
-                    '&.Mui-disabled': {
-                      opacity: 0.5,
-                    },
-                  }}
+                  sx={item.sx}
                 >
                   {item.icon}
                 </IconButton>
-              </ToolbarTooltip>
+              </Tooltip>
             )
           )}
         </Stack>
@@ -116,6 +118,23 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
           />
         </Box>
       </Toolbar>
+
+      <LinkDialog
+        open={linkDialogOpen}
+        onClose={() => setLinkDialogOpen(false)}
+        onConfirm={(url, text) => {
+          insertLink(editor, url, text);
+          setLinkDialogOpen(false);
+        }}
+      />
+      <TableDialog
+        open={tableDialogOpen}
+        onClose={() => setTableDialogOpen(false)}
+        onConfirm={(rows, cols) => {
+          insertTable(editor, rows, cols);
+          setTableDialogOpen(false);
+        }}
+      />
     </AppBar>
   )
 }

@@ -1,14 +1,18 @@
 import { CustomEditor, CustomElement } from '@/types/slate';
+import { handleHotkeys, handleFileDrop, insertLink, insertTable } from '@/utils/editor-utils';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import isHotkey from 'is-hotkey';
 import React, { useCallback } from 'react';
-import { Descendant, Editor, Element as SlateElement, Transforms } from 'slate';
+import { Editor, Element as SlateElement, Transforms, type Descendant } from 'slate';
 import { Editable, Slate } from 'slate-react';
 import { ContextMenu } from './ContextMenu';
 import { Element } from './elements/Element';
 import { Leaf } from './elements/Leaf';
 import { SideToolbar } from './SideToolbar';
+import { LinkDialog } from './dialogs/LinkDialog';
+import { TableDialog } from './dialogs/TableDialog';
+import { createToolbarItems, ToolbarEvents } from './toolbar-items';
 
 // 定义编辑器快捷键
 const EDITOR_HOTKEYS = {
@@ -76,7 +80,7 @@ const StyledEditable = styled(Editable)(({ theme }) => ({
   // 代码块样式
   '& pre': { margin: '1em 0', padding: '1em', borderRadius: '4px' },
   // 表格样式
-  '& table': { 
+  '& table': {
     width: '100%',
     borderCollapse: 'collapse',
     marginBottom: '1em',
@@ -89,30 +93,39 @@ const StyledEditable = styled(Editable)(({ theme }) => ({
 
 const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChange }) => {
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const [linkDialogOpen, setLinkDialogOpen] = React.useState(false);
+  const [tableDialogOpen, setTableDialogOpen] = React.useState(false);
+
+  const toolbarEvents: ToolbarEvents = {
+    openLinkDialog: () => setLinkDialogOpen(true),
+    openTableDialog: () => setTableDialogOpen(true),
+  };
+
+  const toolbarItems = createToolbarItems(editor, toolbarEvents);
 
   const renderElement = useCallback((props: any) => <Element {...props} />, []);
   const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
 
   // 处理快捷键
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      for (const hotkey in EDITOR_HOTKEYS) {
-        if (isHotkey(hotkey, event as any)) {
-          event.preventDefault();
-          const mark = EDITOR_HOTKEYS[hotkey as keyof typeof EDITOR_HOTKEYS];
-          
-          if (mark.startsWith('heading-')) {
-            toggleBlock(editor, mark);
-          } else if (['numbered-list', 'bulleted-list', 'code-block', 'blockquote'].includes(mark)) {
-            toggleBlock(editor, mark);
-          } else {
-            toggleMark(editor, mark);
-          }
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (handleHotkeys(editor, event)) {
+      return;
+    }
+    for (const hotkey in EDITOR_HOTKEYS) {
+      if (isHotkey(hotkey, event as any)) {
+        event.preventDefault();
+        const mark = EDITOR_HOTKEYS[hotkey as keyof typeof EDITOR_HOTKEYS];
+
+        if (mark.startsWith('heading-')) {
+          toggleBlock(editor, mark);
+        } else if (['numbered-list', 'bulleted-list', 'code-block', 'blockquote'].includes(mark)) {
+          toggleBlock(editor, mark);
+        } else {
+          toggleMark(editor, mark);
         }
       }
-    },
-    [editor]
-  );
+    }
+  };
 
   // 添加右键菜单状态
   const [contextMenu, setContextMenu] = React.useState<{
@@ -126,9 +139,9 @@ const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChange }) =>
     setContextMenu(
       contextMenu === null
         ? {
-            mouseX: event.clientX,
-            mouseY: event.clientY,
-          }
+          mouseX: event.clientX,
+          mouseY: event.clientY,
+        }
         : null,
     );
   }, [contextMenu]);
@@ -158,15 +171,15 @@ const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChange }) =>
   }, []);
 
   return (
-    <Slate 
-      editor={editor} 
-      initialValue={value} 
+    <Slate
+      editor={editor}
+      initialValue={value}
       onChange={onChange}
     >
-      <Box 
-        sx={{ 
+      <Box
+        className="editor-content"
+        sx={{
           height: '100%',
-          minHeight: '297mm',
           overflow: 'auto',
           overscrollBehavior: 'none',
           backgroundColor: 'background.paper',
@@ -185,12 +198,12 @@ const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChange }) =>
               background: theme => theme.palette.action.hover,
             },
           },
-          marginRight: '-8px',
-          paddingRight: '8px',
         }}
         onContextMenu={handleContextMenu}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => handleFileDrop(editor, e)}
       >
-        <StyledEditable 
+        <StyledEditable
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           placeholder="开始输入..."
@@ -208,6 +221,24 @@ const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChange }) =>
             : null
         }
         onClose={handleCloseContextMenu}
+      />
+
+      <LinkDialog
+        open={linkDialogOpen}
+        onClose={() => setLinkDialogOpen(false)}
+        onConfirm={(url, text) => {
+          insertLink(editor, url, text);
+          setLinkDialogOpen(false);
+        }}
+      />
+
+      <TableDialog
+        open={tableDialogOpen}
+        onClose={() => setTableDialogOpen(false)}
+        onConfirm={(rows, cols) => {
+          insertTable(editor, rows, cols);
+          setTableDialogOpen(false);
+        }}
       />
     </Slate>
   );
@@ -248,7 +279,10 @@ const toggleMark = (editor: CustomEditor, format: string) => {
 
 const isBlockActive = (editor: CustomEditor, format: string) => {
   const [match] = Editor.nodes(editor, {
-    match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format,
+    match: n =>
+      !Editor.isEditor(n) &&
+      SlateElement.isElement(n) &&
+      (n as CustomElement).type === format,
   });
   return !!match;
 };
