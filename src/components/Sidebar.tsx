@@ -1,36 +1,36 @@
-import React from 'react';
+import {
+  BookmarkBorder,
+  CloudDownload,
+  CloudUpload,
+  Description,
+  Folder,
+  GitHub,
+  History,
+  Info,
+  Menu as MenuIcon,
+  Settings
+} from '@mui/icons-material';
 import {
   Box,
+  Divider,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
-  IconButton,
-  Tooltip,
   Stack,
+  Tooltip,
   useTheme,
 } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Description,
-  Folder,
-  Settings,
-  Info,
-  GitHub,
-  BookmarkBorder,
-  History,
-  CloudUpload,
-  CloudDownload,
-} from '@mui/icons-material';
-import { SettingsDialog } from './dialogs/SettingsDialog';
+import React from 'react';
 import { AboutDialog } from './dialogs/AboutDialog';
-import { RecentDocsDialog } from './dialogs/RecentDocsDialog';
-import { FolderDialog } from './dialogs/FolderDialog';
 import { BookmarkDialog } from './dialogs/BookmarkDialog';
+import { FolderDialog } from './dialogs/FolderDialog';
 import { ImportExportDialog } from './dialogs/ImportExportDialog';
+import { RecentDocsDialog } from './dialogs/RecentDocsDialog';
+import { SettingsDialog } from './dialogs/SettingsDialog';
 
 const DRAWER_WIDTH = 240;
 
@@ -188,13 +188,13 @@ export const Sidebar = () => {
                     }}
                     onClick={item.onClick}
                   >
-                    <ListItemIcon sx={{ 
+                    <ListItemIcon sx={{
                       minWidth: 40,
                       color: theme.palette.text.primary,
                     }}>
                       {item.icon}
                     </ListItemIcon>
-                    <ListItemText 
+                    <ListItemText
                       primary={item.title}
                       sx={{
                         '& .MuiTypography-root': {
@@ -209,9 +209,9 @@ export const Sidebar = () => {
           </List>
         </Box>
 
-        <Box sx={{ 
-          p: 2, 
-          borderTop: '1px solid', 
+        <Box sx={{
+          p: 2,
+          borderTop: '1px solid',
           borderColor: 'divider',
           backgroundColor: 'background.paper',
         }}>
