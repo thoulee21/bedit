@@ -5,7 +5,11 @@ import { DocumentOutline } from '@/components/DocumentOutline';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import SlateEditor from '@/components/SlateEditor';
+import { StatusBar } from '@/components/StatusBar';
+import { globalStyles } from '@/styles/global';
 import { darkTheme, lightTheme } from '@/theme/theme';
+import { DEV_INITIAL_CONTENT } from '@/utils/dev-content';
+import { Global } from '@emotion/react';
 import { Close } from '@mui/icons-material';
 import { Box, Button, CircularProgress, Paper, Snackbar, Stack, ThemeProvider } from '@mui/material';
 import { StrictMode, useMemo, useState } from "react";
@@ -13,12 +17,6 @@ import { createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
 import { withReact } from 'slate-react';
 import { Preferences } from './PreferenceProvider';
-import { DEV_INITIAL_CONTENT } from '@/utils/dev-content';
-import { StatusBar } from '@/components/StatusBar';
-import { Global } from '@emotion/react';
-import { globalStyles } from '@/styles/global';
-import { motion, AnimatePresence } from 'framer-motion';
-import { pageTransition, hoverCard } from '@/styles/animations';
 
 const initialValue: Descendant[] = process.env.NODE_ENV === 'development' 
   ? DEV_INITIAL_CONTENT 

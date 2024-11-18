@@ -1,6 +1,5 @@
-import { Editor, Transforms, Element as SlateElement, Path, Range, Node } from 'slate'
-import { ReactEditor } from 'slate-react'
 import { CustomEditor, CustomElement } from '@/types/slate'
+import { Editor, Path, Range, Element as SlateElement, Transforms } from 'slate'
 
 // 插入链接
 export const insertLink = (editor: CustomEditor, url: string) => {

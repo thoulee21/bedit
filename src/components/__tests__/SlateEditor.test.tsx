@@ -1,10 +1,10 @@
-import { render, screen, fireEvent, act } from '@testing-library/react'
-import SlateEditor from '../SlateEditor'
-import { createEditor, Descendant } from 'slate'
-import { withReact } from 'slate-react'
-import { withHistory } from 'slate-history'
-import { ThemeProvider } from '@mui/material'
 import { lightTheme } from '@/theme/theme'
+import { ThemeProvider } from '@mui/material'
+import { act, fireEvent, render, screen } from '@testing-library/react'
+import { createEditor } from 'slate'
+import { withHistory } from 'slate-history'
+import { withReact } from 'slate-react'
+import SlateEditor from '../SlateEditor'
 
 // 模拟 Portal 组件
 jest.mock('@mui/material', () => ({

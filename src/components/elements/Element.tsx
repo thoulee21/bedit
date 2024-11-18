@@ -1,9 +1,7 @@
-import React from 'react'
-import { RenderElementProps } from 'slate-react'
-import { Box, Table, TableBody, TableCell, TableContainer, TableRow, useTheme } from '@mui/material'
 import { CustomElement } from '@/types/slate'
+import { Box, Table, TableBody, TableCell, TableContainer, TableRow, useTheme } from '@mui/material'
 import Image from 'next/image'
-import { Editor } from 'slate'
+import { RenderElementProps } from 'slate-react'
 
 export const Element = ({ attributes, children, element }: RenderElementProps) => {
   const theme = useTheme()

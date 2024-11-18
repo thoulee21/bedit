@@ -1,5 +1,5 @@
 import { CustomEditor, CustomElement } from '@/types/slate';
-import { Box, IconButton, Paper, Stack } from '@mui/material';
+import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import isHotkey from 'is-hotkey';
 import React, { useCallback } from 'react';
@@ -9,8 +9,6 @@ import { ContextMenu } from './ContextMenu';
 import { Element } from './elements/Element';
 import { Leaf } from './elements/Leaf';
 import { SideToolbar } from './SideToolbar';
-import { createToolbarItems } from './toolbar-items';
-import { ToolbarTooltip } from './ToolbarTooltip';
 
 // 定义编辑器快捷键
 const EDITOR_HOTKEYS = {

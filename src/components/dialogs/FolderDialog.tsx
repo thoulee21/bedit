@@ -1,36 +1,35 @@
-import React from 'react';
 import {
+  ArrowBack,
+  CreateNewFolder,
+  Delete,
+  Description,
+  Folder,
+  FolderOpen,
+  NavigateNext,
+  Search,
+} from '@mui/icons-material';
+import {
+  Box,
+  Breadcrumbs,
   Dialog,
-  DialogTitle,
   DialogContent,
+  DialogTitle,
+  IconButton,
+  InputAdornment,
+  Link,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  ListItemSecondaryAction,
-  IconButton,
-  Typography,
-  Box,
-  Tooltip,
-  Breadcrumbs,
-  Link,
   Stack,
   TextField,
-  InputAdornment,
+  Tooltip,
+  Typography
 } from '@mui/material';
-import {
-  Folder,
-  FolderOpen,
-  Description,
-  CreateNewFolder,
-  Delete,
-  Search,
-  ArrowBack,
-  NavigateNext,
-} from '@mui/icons-material';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import React from 'react';
 
 interface FolderItem {
   id: string;
