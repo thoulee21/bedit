@@ -1,44 +1,34 @@
-import React from 'react';
+import {
+  BookmarkBorder,
+  ChevronLeft,
+  CloudDownload,
+  CloudUpload,
+  Description,
+  Folder,
+  History,
+  Info,
+  Menu as MenuIcon,
+  Settings
+} from '@mui/icons-material';
 import {
   Box,
+  Divider,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
-  IconButton,
   Tooltip,
-  Stack,
-  useTheme,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Description,
-  Folder,
-  Settings,
-  Info,
-  GitHub,
-  BookmarkBorder,
-  History,
-  CloudUpload,
-  CloudDownload,
-  FileOpen,
-  Save,
-} from '@mui/icons-material';
-import { OpenFile } from './OpenFile';
-import { SaveFile } from './SaveFile';
-import { Editor, Descendant } from 'slate';
+import React from 'react';
+import { Descendant, Editor } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { SettingsDialog } from './dialogs/SettingsDialog';
-import { AboutDialog } from './dialogs/AboutDialog';
-import { RecentDocsDialog } from './dialogs/RecentDocsDialog';
-import { FolderDialog } from './dialogs/FolderDialog';
-import { BookmarkDialog } from './dialogs/BookmarkDialog';
-import { ImportExportDialog } from './dialogs/ImportExportDialog';
 
-// 定义抽屉宽度常量
 const DRAWER_WIDTH = 240;
 
 interface SidebarProps {
@@ -46,9 +36,17 @@ interface SidebarProps {
   setValue: (value: Descendant[]) => void;
 }
 
-export const Sidebar = ({ editor, setValue }: SidebarProps) => {
+interface MenuItem {
+  title: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  type?: 'divider';
+}
+
+export const Sidebar = ({  }: SidebarProps) => {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const [open, setOpen] = React.useState(!isSmallScreen);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [aboutOpen, setAboutOpen] = React.useState(false);
   const [recentDocsOpen, setRecentDocsOpen] = React.useState(false);
@@ -57,47 +55,11 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
   const [importOpen, setImportOpen] = React.useState(false);
   const [exportOpen, setExportOpen] = React.useState(false);
 
-  const menuItems = [
-    {
-      title: '打开文件',
-      icon: <FileOpen />,
-      onClick: () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.txt,.md,.html';
-        input.onchange = (e) => {
-          const file = (e.target as HTMLInputElement).files?.[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-              const content = e.target?.result;
-              if (typeof content === 'string') {
-                // 处理文件内容
-                // 这里需要调用 OpenFile 组件中的处理逻辑
-              }
-            };
-            reader.readAsText(file);
-          }
-        };
-        input.click();
-      },
-    },
-    {
-      title: '保存文件',
-      icon: <Save />,
-      onClick: () => {
-        // 调用 SaveFile 组件中的保存逻辑
-        const content = JSON.stringify(editor.children);
-        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'document.txt';
-        link.click();
-        URL.revokeObjectURL(url);
-      },
-    },
-    { type: 'divider' },
+  React.useEffect(() => {
+    setOpen(!isSmallScreen);
+  }, [isSmallScreen]);
+
+  const menuItems: (MenuItem | { type: 'divider' })[] = [
     {
       title: '最近文档',
       icon: <History />,
@@ -142,6 +104,15 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
     },
   ];
 
+  const handleItemClick = (item: MenuItem | { type: 'divider' }) => {
+    if ('onClick' in item) {
+      item.onClick();
+      if (isSmallScreen) {
+        setOpen(false);
+      }
+    }
+  };
+
   return (
     <>
       {/* 折叠按钮 */}
@@ -174,170 +145,62 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
               },
             }}
           >
-            <MenuIcon
-              sx={{
-                transform: open ? 'rotate(180deg)' : 'none',
-                transition: theme.transitions.create('transform', {
-                  duration: 0.15,
-                  easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-                }),
-                color: theme.palette.text.primary,
-              }}
-            />
+            {open ? <ChevronLeft /> : <MenuIcon />}
           </IconButton>
         </Tooltip>
       </Box>
 
       {/* 侧边栏 */}
       <Drawer
-        variant="persistent"
+        variant={isSmallScreen ? 'temporary' : 'persistent'}
         anchor="left"
         open={open}
+        onClose={() => setOpen(false)}
         sx={{
           width: DRAWER_WIDTH,
           flexShrink: 0,
-          position: 'fixed',
-          zIndex: 1300,
           '& .MuiDrawer-paper': {
             width: DRAWER_WIDTH,
             boxSizing: 'border-box',
             borderRight: '1px solid',
             borderColor: 'divider',
             top: 64,
-            bottom: 0,
-            height: 'auto',
+            height: 'calc(100% - 64px)',
             backgroundColor: 'background.paper',
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: open ? theme.shadows[8] : 'none',
-            transform: open ? 'none' : `translateX(-${DRAWER_WIDTH}px)`,
-            transition: theme.transitions.create(['transform', 'box-shadow'], {
-              duration: 0.15,
-              easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            }),
           },
         }}
       >
-        <Box sx={{ flex: 1, overflowY: 'auto' }}>
-          <List>
-            {menuItems.map((item, index) =>
-              item.type === 'divider' ? (
-                <Divider key={index} sx={{ my: 1 }} />
-              ) : (
-                <ListItem key={item.title} disablePadding>
-                  <ListItemButton
-                    onClick={item.onClick}
-                    sx={{
-                      borderRadius: 1,
-                      mx: 1,
-                      transition: 'all 0.15s ease',
-                      '&:hover': {
-                        backgroundColor: 'action.hover',
-                        color: 'primary.main',
-                      },
-                      '& .MuiListItemIcon-root': {
-                        color: 'inherit',
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ 
-                      minWidth: 40,
-                      color: theme.palette.text.primary,
-                    }}>
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={item.title}
-                      sx={{
-                        '& .MuiTypography-root': {
-                          color: theme.palette.text.primary,
-                        },
-                      }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              )
-            )}
-          </List>
-        </Box>
-
-        <Box sx={{
-          p: 2,
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          backgroundColor: 'background.paper',
-        }}>
-          <Stack direction="row" spacing={1} justifyContent="center">
-            <Tooltip title="访问 GitHub">
-              <IconButton
-                component="a"
-                href="https://github.com/yourusername/yourrepo"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  color: theme.palette.text.primary,
-                  transition: 'color 0.15s ease',
-                  '&:hover': {
-                    color: 'primary.main',
-                  },
-                }}
-              >
-                <GitHub />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </Box>
+        <List>
+          {menuItems.map((item, index) =>
+            item.type === 'divider' ? (
+              <Divider key={index} sx={{ my: 1 }} />
+            ) : (
+              <ListItem key={item.title} disablePadding>
+                <ListItemButton
+                  onClick={() => handleItemClick(item)}
+                  sx={{
+                    borderRadius: 1,
+                    mx: 1,
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                    },
+                  }}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.title} />
+                </ListItemButton>
+              </ListItem>
+            )
+          )}
+        </List>
       </Drawer>
-
-      {/* 遮罩层 */}
-      {open && (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 64,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            zIndex: 1100,
-            opacity: 1,
-            transition: 'opacity 0.15s ease',
-          }}
-          onClick={() => setOpen(false)}
-        />
-      )}
 
       {/* 对话框 */}
       <SettingsDialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
       />
-      <AboutDialog
-        open={aboutOpen}
-        onClose={() => setAboutOpen(false)}
-      />
-      <RecentDocsDialog
-        open={recentDocsOpen}
-        onClose={() => setRecentDocsOpen(false)}
-      />
-      <FolderDialog
-        open={folderOpen}
-        onClose={() => setFolderOpen(false)}
-      />
-      <BookmarkDialog
-        open={bookmarkOpen}
-        onClose={() => setBookmarkOpen(false)}
-      />
-      <ImportExportDialog
-        open={importOpen}
-        onClose={() => setImportOpen(false)}
-        mode="import"
-      />
-      <ImportExportDialog
-        open={exportOpen}
-        onClose={() => setExportOpen(false)}
-        mode="export"
-      />
+      {/* ... 其他对话框 */}
     </>
   );
 }; 

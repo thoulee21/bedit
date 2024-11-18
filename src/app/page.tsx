@@ -1,6 +1,6 @@
 'use client'
 
-import React, { StrictMode } from 'react';
+import React, { StrictMode, useState } from 'react';
 import { createEditor } from 'slate';
 import { withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
@@ -20,6 +20,7 @@ import SlateEditor from '@/components/SlateEditor';
 import { Provider } from 'react-redux';
 import { store } from '@/store';
 import { useAppSelector } from '@/store/hooks';
+import { useMediaQuery } from '@mui/material';
 
 function HomeContent() {
   const [value, setValue] = React.useState(DEV_INITIAL_CONTENT);
@@ -43,6 +44,20 @@ function HomeContent() {
     </IconButton>
   );
 
+  const [showOutline, setShowOutline] = useState(true);
+  const [showChat, setShowChat] = useState(true);
+  const isSmallScreen = useMediaQuery('(max-width: 900px)');
+
+  React.useEffect(() => {
+    if (isSmallScreen) {
+      setShowOutline(false);
+      setShowChat(false);
+    } else {
+      setShowOutline(true);
+      setShowChat(true);
+    }
+  }, [isSmallScreen]);
+
   return (
     <ThemeProvider theme={theme}>
       <Global styles={globalStyles(prefersDarkMode)} />
@@ -51,15 +66,24 @@ function HomeContent() {
         flexDirection: 'column',
         height: '100vh',
         overflow: 'hidden',
-        pt: '64px',
+        pt: { xs: '56px', sm: '64px' },
       }}>
-        <Header editor={editor} setValue={setValue} />
+        <Header 
+          editor={editor} 
+          setValue={setValue}
+          onToggleOutline={() => setShowOutline(!showOutline)}
+          onToggleChat={() => setShowChat(!showChat)}
+          showOutline={showOutline}
+          showChat={showChat}
+          isSmallScreen={isSmallScreen}
+        />
         <Box sx={{ 
           display: 'flex',
           flex: 1,
           overflow: 'hidden',
           position: 'relative',
           backgroundColor: 'background.default',
+          mt: { xs: 0, sm: 0 },
         }}>
           <Sidebar editor={editor} setValue={setValue} />
           <Stack
@@ -67,31 +91,37 @@ function HomeContent() {
             spacing={1.5}
             sx={{ 
               flex: 1,
-              px: 1.5,
+              px: { xs: 0.5, sm: 1, md: 1.5 },
               py: 0.5,
               overflow: 'hidden',
             }}
           >
             {/* 左侧大纲 */}
-            <Paper
-              elevation={3}
-              sx={{
-                width: '280px',
-                height: '100%',
-                overflow: 'auto',
-                overscrollBehavior: 'none',
-                borderRadius: 1.5,
-                transition: 'box-shadow 0.3s ease-in-out',
-                '&:hover': {
-                  boxShadow: 6,
-                },
-                display: 'flex',
-                flexDirection: 'column',
-                backgroundColor: 'background.paper',
-              }}
-            >
-              <DocumentOutline editor={editor} />
-            </Paper>
+            {showOutline && (
+              <Paper
+                elevation={3}
+                sx={{
+                  width: { xs: '100%', md: '280px' },
+                  height: '100%',
+                  overflow: 'auto',
+                  overscrollBehavior: 'none',
+                  borderRadius: 1.5,
+                  transition: 'box-shadow 0.3s ease-in-out',
+                  '&:hover': {
+                    boxShadow: 6,
+                  },
+                  display: isSmallScreen && !showOutline ? 'none' : 'flex',
+                  flexDirection: 'column',
+                  backgroundColor: 'background.paper',
+                  position: { xs: 'absolute', md: 'relative' },
+                  zIndex: { xs: 2, md: 1 },
+                  left: 0,
+                  right: 0,
+                }}
+              >
+                <DocumentOutline editor={editor} />
+              </Paper>
+            )}
 
             {/* 中间编辑区 */}
             <Box
@@ -103,12 +133,14 @@ function HomeContent() {
                 display: 'flex',
                 justifyContent: 'center',
                 position: 'relative',
+                ml: { xs: 0, md: showOutline ? 1.5 : 0 },
+                mr: { xs: 0, md: showChat ? 1.5 : 0 },
               }}
             >
               <Paper
                 elevation={3}
                 sx={{
-                  width: '210mm',
+                  width: { xs: '100%', sm: '100%', md: '210mm' },
                   minHeight: '297mm',
                   height: 'fit-content',
                   borderRadius: 1.5,
@@ -125,6 +157,7 @@ function HomeContent() {
                   flexDirection: 'column',
                   backgroundColor: 'background.paper',
                   my: 2,
+                  mx: { xs: 0.5, sm: 1, md: 'auto' },
                 }}
               >
                 <SlateEditor 
@@ -136,25 +169,31 @@ function HomeContent() {
             </Box>
 
             {/* 右侧聊天区 */}
-            <Paper
-              elevation={3}
-              sx={{
-                width: '320px',
-                height: '100%',
-                overflow: 'auto',
-                overscrollBehavior: 'none',
-                borderRadius: 1.5,
-                transition: 'box-shadow 0.3s ease-in-out',
-                '&:hover': {
-                  boxShadow: 6,
-                },
-                display: 'flex',
-                flexDirection: 'column',
-                backgroundColor: 'background.paper',
-              }}
-            >
-              <Chat />
-            </Paper>
+            {showChat && (
+              <Paper
+                elevation={3}
+                sx={{
+                  width: { xs: '100%', md: '320px' },
+                  height: '100%',
+                  overflow: 'auto',
+                  overscrollBehavior: 'none',
+                  borderRadius: 1.5,
+                  transition: 'box-shadow 0.3s ease-in-out',
+                  '&:hover': {
+                    boxShadow: 6,
+                  },
+                  display: isSmallScreen && !showChat ? 'none' : 'flex',
+                  flexDirection: 'column',
+                  backgroundColor: 'background.paper',
+                  position: { xs: 'absolute', md: 'relative' },
+                  zIndex: { xs: 2, md: 1 },
+                  left: 0,
+                  right: 0,
+                }}
+              >
+                <Chat />
+              </Paper>
+            )}
           </Stack>
         </Box>
         <StatusBar editor={editor} />

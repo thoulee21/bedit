@@ -1,17 +1,19 @@
-import { Link as LinkIcon } from '@mui/icons-material';
-import {
-    Box,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControlLabel,
-    Switch,
-    TextField,
-    Typography
-} from '@mui/material';
 import React from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Box,
+  Typography,
+  useTheme,
+  FormControlLabel,
+  Switch,
+  useMediaQuery,
+} from '@mui/material';
+import { Link as LinkIcon } from '@mui/icons-material';
 
 interface LinkDialogProps {
   open: boolean;
@@ -20,6 +22,8 @@ interface LinkDialogProps {
 }
 
 export const LinkDialog = ({ open, onClose, onConfirm }: LinkDialogProps) => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [url, setUrl] = React.useState('');
   const [linkText, setLinkText] = React.useState('');
   const [useCustomText, setUseCustomText] = React.useState(false);
@@ -35,10 +39,7 @@ export const LinkDialog = ({ open, onClose, onConfirm }: LinkDialogProps) => {
       const urlToCheck = url.startsWith('http') ? url : `http://${url}`;
       new URL(urlToCheck);
       onConfirm(url, useCustomText && linkText ? linkText : url);
-      setUrl('');
-      setLinkText('');
-      setError('');
-      onClose();
+      handleClose();
     } catch {
       setError('请输入有效的链接地址');
     }
@@ -60,99 +61,91 @@ export const LinkDialog = ({ open, onClose, onConfirm }: LinkDialogProps) => {
       onClose={handleClose}
       maxWidth="sm"
       fullWidth
+      fullScreen={isSmallScreen}
       PaperProps={{
         sx: {
-          borderRadius: 2,
-          bgcolor: 'background.paper',
+          borderRadius: isSmallScreen ? 0 : 2,
+          margin: isSmallScreen ? 0 : undefined,
+          backgroundColor: theme.palette.background.paper,
         },
       }}
     >
       <DialogTitle>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1,
+          pt: isSmallScreen ? 2 : 0,
+        }}>
           <LinkIcon color="primary" />
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: 'primary.main',
-              fontWeight: 600,
-            }}
-          >
+          <Typography variant="h6" color="primary" fontWeight={600}>
             插入链接
           </Typography>
         </Box>
       </DialogTitle>
       <DialogContent>
-        <TextField
-          autoFocus
-          fullWidth
-          label="链接地址"
-          placeholder="请输入链接地址"
-          value={url}
-          onChange={(e) => {
-            setUrl(e.target.value);
-            setError('');
-          }}
-          error={!!error}
-          helperText={error}
-          sx={{
-            mt: 2,
-            '& .MuiInputLabel-root': {
-              color: 'text.secondary',
-            },
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                borderColor: 'divider',
-              },
-            },
-          }}
-        />
-        
-        <FormControlLabel
-          control={
-            <Switch
-              checked={useCustomText}
-              onChange={(e) => {
-                setUseCustomText(e.target.checked);
-                if (!e.target.checked) {
-                  setLinkText('');
-                }
-              }}
-            />
-          }
-          label={
-            <Typography color="text.primary">
-              自定义链接文字
-            </Typography>
-          }
-          sx={{ mt: 2 }}
-        />
-
-        {useCustomText && (
+        <Box sx={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          pt: 2,
+        }}>
           <TextField
+            autoFocus
             fullWidth
-            label="链接文字"
-            placeholder="请输入显示的文字"
-            value={linkText}
-            onChange={(e) => setLinkText(e.target.value)}
-            sx={{
-              mt: 2,
-              '& .MuiInputLabel-root': {
-                color: 'text.secondary',
-              },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'divider',
-                },
-              },
+            label="链接地址"
+            placeholder="请输入链接地址"
+            value={url}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              setError('');
             }}
+            error={!!error}
+            helperText={error}
+            size={isSmallScreen ? "medium" : undefined}
           />
-        )}
+          
+          <FormControlLabel
+            control={
+              <Switch
+                checked={useCustomText}
+                onChange={(e) => {
+                  setUseCustomText(e.target.checked);
+                  if (!e.target.checked) {
+                    setLinkText('');
+                  }
+                }}
+              />
+            }
+            label={
+              <Typography color="text.primary">
+                自定义链接文字
+              </Typography>
+            }
+          />
+
+          {useCustomText && (
+            <TextField
+              fullWidth
+              label="链接文字"
+              placeholder="请输入显示的文字"
+              value={linkText}
+              onChange={(e) => setLinkText(e.target.value)}
+              size={isSmallScreen ? "medium" : undefined}
+            />
+          )}
+        </Box>
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
+      <DialogActions sx={{ 
+        px: 3, 
+        pb: isSmallScreen ? 4 : 2,
+        gap: 1,
+        flexDirection: isSmallScreen ? 'column' : 'row',
+      }}>
         <Button 
           onClick={handleClose}
-          color="inherit"
-          sx={{ color: 'text.primary' }}
+          fullWidth={isSmallScreen}
+          size={isSmallScreen ? "large" : undefined}
         >
           取消
         </Button>
@@ -160,7 +153,8 @@ export const LinkDialog = ({ open, onClose, onConfirm }: LinkDialogProps) => {
           variant="contained"
           onClick={handleConfirm}
           disabled={!canSubmit}
-          color="primary"
+          fullWidth={isSmallScreen}
+          size={isSmallScreen ? "large" : undefined}
         >
           确认
         </Button>
