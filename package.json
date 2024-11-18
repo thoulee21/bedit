@@ -11,12 +11,6 @@
   },
   "dependencies": {
     "@babel/core": "^7.0.0-0",
-    "@editablejs/editor": "^1.0.2",
-    "@editablejs/models": "^1.0.0",
-    "@editablejs/plugin-history": "^1.0.2",
-    "@editablejs/plugin-title": "^1.0.2",
-    "@editablejs/plugin-toolbar": "^1.0.2",
-    "@editablejs/plugins": "^1.0.6",
     "@emotion/cache": "^11.11.0",
     "@emotion/css": "^11.11.2",
     "@emotion/react": "^11.11.4",
@@ -24,8 +18,10 @@
     "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
     "@mui/material-nextjs": "^5.15.11",
+    "date-fns": "^4.1.0",
     "docxyz": "^0.2.4",
     "file-saver": "^2.0.5",
+    "is-hotkey": "^0.2.0",
     "lru-cache": "^7.14.0",
     "mui-chat-box": "^0.0.3",
     "next": "14.2.4",
@@ -34,10 +30,14 @@
     "react-dom": "^18",
     "react-is": "^18.3.1",
     "sharp": "^0.33.4",
+    "slate": "^0.101.5",
+    "slate-history": "^0.100.0",
+    "slate-react": "^0.101.5",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.7",
+    "@types/is-hotkey": "^0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -46,5 +46,6 @@
     "eslint-config-next": "14.2.5",
     "original-fs": "^1.2.0",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "yarn@4.5.0"
 }

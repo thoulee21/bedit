@@ -1,49 +1,43 @@
-import { usePreferences } from "@/app/PreferenceProvider";
-import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
-import Image from "next/image";
-import Link from "next/link";
-import packageInfo from '../../package.json';
-import { MaterialUISwitch } from "./MaterialUISwitch";
-import { OpenFile } from "./OpenFile";
-// import { SaveFile } from "./SaveFile";
+import { AppBar, Box, Toolbar, useTheme, Stack } from '@mui/material'
+import { OpenFile } from './OpenFile'
+import { SaveFile } from './SaveFile'
+import { useContext } from 'react'
+import { Preferences } from '@/app/PreferenceProvider'
+import { Editor, Descendant } from 'slate'
+import { ReactEditor } from 'slate-react'
+import { MaterialUISwitch } from './MaterialUISwitch'
 
-const DarkModeSwitch = () => {
-    const { prefersDarkMode, setPrefersDarkMode } = usePreferences();
-    return (
-        <MaterialUISwitch
-            checked={prefersDarkMode}
-            onChange={() => setPrefersDarkMode(!prefersDarkMode)}
-        />
-    )
+interface HeaderProps {
+  editor: Editor & ReactEditor;
+  setValue: (value: Descendant[]) => void;
 }
 
-export const Header = () => {
-    return (
-        <AppBar>
-            <Toolbar variant="dense">
-                <Link href="/next">
-                    <IconButton
-                        size="large"
-                        edge="start"
-                        color="inherit"
-                        aria-label="menu"
-                        sx={{ mr: 2 }}
-                    >
-                        <Image src="/favicon.ico" alt='logo' width={30} height={30} />
-                    </IconButton>
-                </Link>
+export const Header = ({ editor, setValue }: HeaderProps) => {
+  const theme = useTheme()
+  const preferences = useContext(Preferences)
 
-                <Typography variant="body1" component="div" sx={{ flexGrow: 1 }}>
-                    <Link href="/">
-                        Bedit v{packageInfo.version}
-                    </Link>
-                </Typography>
-
-                <OpenFile />
-                {/* <SaveFile /> */}
-
-                <DarkModeSwitch />
-            </Toolbar>
-        </AppBar>
-    )
+  return (
+    <AppBar 
+      position="static" 
+      color="default" 
+      elevation={0}
+      sx={{
+        backgroundColor: theme.palette.background.paper,
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <Toolbar variant="dense">
+        <Stack direction="row" spacing={1}>
+          <OpenFile editor={editor} setValue={setValue} />
+          <SaveFile editor={editor} />
+        </Stack>
+        <Box sx={{ flexGrow: 1 }} />
+        <MaterialUISwitch 
+          checked={preferences.prefersDarkMode}
+          onChange={() => preferences.setPrefersDarkMode(!preferences.prefersDarkMode)}
+        />
+      </Toolbar>
+    </AppBar>
+  )
 }

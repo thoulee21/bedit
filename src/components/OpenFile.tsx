@@ -1,43 +1,72 @@
-import { useEditable } from "@editablejs/editor";
-import { Transforms } from "@editablejs/models";
-import { FileUpload } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
-import { useRef } from "react";
+import { Button } from '@mui/material'
+import { ChangeEvent, useRef } from 'react'
+import { Editor, Transforms, Element as SlateElement, Descendant } from 'slate'
+import { ReactEditor } from 'slate-react'
+import { FolderOpen } from '@mui/icons-material'
 
-export const OpenFile = () => {
-    const fileRef = useRef<HTMLInputElement>(null);
-    const editor = useEditable();
+interface OpenFileProps {
+  editor: Editor & ReactEditor;
+  setValue: (value: Descendant[]) => void;
+}
 
-    return (
-        <IconButton
-            size='large'
-            color='inherit'
-            onClick={() => {
-                fileRef.current?.click();
-            }}
-        >
-            <input
-                type="file"
-                ref={fileRef}
-                accept=".docx"
-                style={{ display: 'none' }}
-                onChange={async (event) => {
-                    const fileObj = event.target.files && event.target.files[0];
-                    if (!fileObj) {
-                        return;
-                    }
+export const OpenFile = ({ editor, setValue }: OpenFileProps) => {
+  const inputRef = useRef<HTMLInputElement>(null)
 
-                    const reader = new FileReader();
-                    reader.readAsArrayBuffer(fileObj);
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
 
-                    reader.onload = function () {
-                        Transforms.deselect(editor);
-                        //@ts-expect-error
-                        editor.loadDocx(this.result);
-                    }
-                }}
-            />
-            <FileUpload />
-        </IconButton>
-    )
+    try {
+      const text = await file.text()
+      
+      // 简单的文本转换为 Slate 文档结构
+      const paragraphs = text.split(/\n\n+/)
+      const content: Descendant[] = paragraphs.map(paragraph => ({
+        type: 'paragraph',
+        children: [{ text: paragraph }]
+      }))
+
+      // 更新编辑器内容
+      setValue(content)
+      
+      // 清空文件输入，允许重复打开同一文件
+      if (inputRef.current) {
+        inputRef.current.value = ''
+      }
+    } catch (error) {
+      console.error('Error reading file:', error)
+    }
+  }
+
+  const handleClick = () => {
+    inputRef.current?.click()
+  }
+
+  return (
+    <>
+      <input
+        type="file"
+        ref={inputRef}
+        onChange={handleFileChange}
+        accept=".txt,.md"
+        style={{ display: 'none' }}
+      />
+      <Button
+        onClick={handleClick}
+        variant="outlined"
+        size="small"
+        startIcon={<FolderOpen />}
+        sx={{
+          borderRadius: 2,
+          textTransform: 'none',
+          px: 2,
+          '&:hover': {
+            backgroundColor: 'primary.50',
+          },
+        }}
+      >
+        打开
+      </Button>
+    </>
+  )
 }

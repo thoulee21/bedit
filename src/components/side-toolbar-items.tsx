@@ -1,91 +1,77 @@
-import { Editable } from '@editablejs/editor'
-import { Editor, Range, Element } from '@editablejs/models'
+import { Editor, Element as SlateElement, Transforms } from 'slate'
+import { ReactEditor } from 'slate-react'
 import {
-  TableEditor,
-  BlockquoteEditor,
-  UnorderedListEditor,
-  OrderedListEditor,
-  TaskListEditor,
-  ImageEditor,
-} from '@editablejs/plugins'
-import { SideToolbarItem } from '@editablejs/plugin-toolbar/side'
-import { Icon } from '@editablejs/ui'
+  LooksOne,
+  LooksTwo,
+  Looks3,
+  Looks4,
+  Looks5,
+  Looks6,
+} from '@mui/icons-material'
 
-export const createSideToolbarItems = (editor: Editable, range: Range, element: Element) => {
-  const items: SideToolbarItem[] = []
-  const isEmpty = Editor.isEmpty(editor, element)
-  if (isEmpty) {
-    items.push(
-      {
-        key: 'image',
-        icon: <Icon name="image" />,
-        title: "Image",
-        onSelect: () => {
-          ImageEditor.open(editor)
-        },
-      },
-      {
-        key: 'table',
-        icon: <Icon name="table" />,
-        title: "Table",
-        disabled: !!TableEditor.isActive(editor),
-        onSelect: () => {
-          TableEditor.insert(editor)
-        },
-      },
-      {
-        key: 'blockquote',
-        icon: <Icon name="blockquote" />,
-        title: "Blockquote",
-        onSelect: () => {
-          BlockquoteEditor.toggle(editor)
-        },
-      },
-      {
-        key: 'unorderedList',
-        icon: <Icon name="unorderedList" />,
-        title: "Unordered List",
-        onSelect: () => {
-          UnorderedListEditor.toggle(editor)
-        },
-      },
-      {
-        key: 'orderedList',
-        icon: <Icon name="orderedList" />,
-        title: "Ordered List",
-        onSelect: () => {
-          OrderedListEditor.toggle(editor)
-        },
-      },
-      {
-        key: 'taskList',
-        icon: <Icon name="taskList" />,
-        title: "Task List",
-        onSelect: () => {
-          TaskListEditor.toggle(editor)
-        },
-      },
-    )
-  } else {
-    items.push(
-      {
-        key: 'cut',
-        icon: <Icon name="cut" />,
-        title: "Cut",
-        onSelect() {
-          editor.cut(range)
-        },
-      },
-      {
-        key: 'copy',
-        icon: <Icon name="copy" />,
-        title: "Copy",
-        onSelect() {
-          editor.copy(range)
-        },
-      },
-    )
-  }
+interface ToolbarItem {
+  key: string
+  title: string
+  icon?: React.ReactNode
+  disabled?: boolean
+  onSelect?: () => void
+}
+
+export const createSideToolbarItems = (editor: Editor & ReactEditor): ToolbarItem[] => {
+  const items: ToolbarItem[] = [
+    {
+      key: 'heading-1',
+      title: '一级标题',
+      icon: <LooksOne fontSize="small" />,
+      onSelect: () => toggleBlock(editor, 'heading-one'),
+    },
+    {
+      key: 'heading-2',
+      title: '二级标题',
+      icon: <LooksTwo fontSize="small" />,
+      onSelect: () => toggleBlock(editor, 'heading-two'),
+    },
+    {
+      key: 'heading-3',
+      title: '三级标题',
+      icon: <Looks3 fontSize="small" />,
+      onSelect: () => toggleBlock(editor, 'heading-three'),
+    },
+    {
+      key: 'heading-4',
+      title: '四级标题',
+      icon: <Looks4 fontSize="small" />,
+      onSelect: () => toggleBlock(editor, 'heading-four'),
+    },
+    {
+      key: 'heading-5',
+      title: '五级标题',
+      icon: <Looks5 fontSize="small" />,
+      onSelect: () => toggleBlock(editor, 'heading-five'),
+    },
+    {
+      key: 'heading-6',
+      title: '六级标题',
+      icon: <Looks6 fontSize="small" />,
+      onSelect: () => toggleBlock(editor, 'heading-six'),
+    },
+  ]
 
   return items
+}
+
+// 辅助函数
+const toggleBlock = (editor: Editor, format: string) => {
+  const isActive = isBlockActive(editor, format)
+  const newProperties: Partial<SlateElement> = {
+    type: isActive ? 'paragraph' : format as any,
+  }
+  Transforms.setNodes(editor, newProperties)
+}
+
+const isBlockActive = (editor: Editor, format: string) => {
+  const [match] = Editor.nodes(editor, {
+    match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format,
+  })
+  return !!match
 }

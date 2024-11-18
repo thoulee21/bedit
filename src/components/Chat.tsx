@@ -1,151 +1,184 @@
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import React, { useState } from 'react';
 import {
-    Avatar,
-    CircularProgress,
-    Divider,
-    InputAdornment,
-    Paper,
-    TextField,
-    Toolbar,
-    Typography
-} from "@mui/material";
-import { ChatBox, ReceiverMessage, SenderMessage } from "mui-chat-box";
-import { useState } from "react";
-import { v7 as uuid } from 'uuid';
-import initMsgs from "../utils/initial-chats.json";
+  Box,
+  TextField,
+  IconButton,
+  Paper,
+  Typography,
+  Stack,
+  Avatar,
+  CircularProgress,
+} from '@mui/material';
+import { Send, SmartToy } from '@mui/icons-material';
 
-export interface MessageItem {
-    role: string,
-    content: string
+interface Message {
+  id: string;
+  content: string;
+  isBot: boolean;
+  timestamp: Date;
 }
 
-export const Chat = ({ hidden }: { hidden?: boolean }) => {
-    const [msg, setMsg] = useState('')
-    const [chatHistory, setChatHistory] = useState(initMsgs)
-    const [loading, setLoading] = useState(false)
+export const Chat = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-    function rowRenderer(msgItem: MessageItem) {
-        switch (msgItem.role) {
-            case 'user':
-                return (
-                    <SenderMessage
-                        key={uuid()}
-                        avatar={<Avatar>U</Avatar>}
-                    >
-                        {msgItem.content}
-                    </SenderMessage>
-                )
-            case 'assistant':
-                return (
-                    <ReceiverMessage
-                        key={uuid()}
-                        avatar={<Avatar>AI</Avatar>}
-                    >
-                        {msgItem.content}
-                    </ReceiverMessage>
-                )
-            default:
-                break;
-        }
-    }
+  const handleSend = async () => {
+    if (!input.trim()) return;
 
-    const sendMsg = async (e: { key: string; }) => {
-        if (e.key === 'Enter') {
-            setMsg('');
-            setChatHistory(prev => [
-                ...prev,
-                { role: 'user', content: msg },
-            ]);
-
-            const fetchUrl = '//8.130.78.253:8080/chat';
-            const params = {
-                prompt: msg,
-                stream: true,
-                former_messages: chatHistory.slice(-3)
-            };
-            setLoading(true);
-            const res = await fetch(fetchUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(params),
-            });
-            const resTxt = await res.text();
-            setLoading(false);
-
-            setChatHistory(prev => [
-                ...prev,
-                { role: 'assistant', content: resTxt }
-            ]);
-        }
+    // 添加用户消息
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: input,
+      isBot: false,
+      timestamp: new Date(),
     };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
 
-    if (hidden) return null
-    return (
-        <Paper
-            style={{
-                width: '23vw',
-                marginLeft: '0.5vw',
-                paddingTop: '1vh',
-                paddingBottom: '0.5vh',
-                paddingLeft: '0.5vw',
-                paddingRight: '0.5vw',
-                marginTop: '1vh',
-                marginBottom: '4vh',
-                borderRadius: '10px',
-                height: 'max-content',
+    // 模拟AI响应
+    setTimeout(() => {
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: '这是一个AI助手的示例回复。',
+        isBot: true,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, botMessage]);
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  return (
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* 聊天标题 */}
+      <Box
+        sx={{
+          p: 2,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          backgroundColor: 'background.paper',
+        }}
+      >
+        <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <SmartToy color="primary" />
+          AI Assistant
+        </Typography>
+      </Box>
+
+      {/* 消息列表 */}
+      <Box
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          p: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
+        {messages.map((message) => (
+          <Stack
+            key={message.id}
+            direction="row"
+            spacing={2}
+            sx={{
+              alignSelf: message.isBot ? 'flex-start' : 'flex-end',
+              maxWidth: '80%',
             }}
-            elevation={3}
-        >
-            <Toolbar
-                style={{
-                    justifyContent: 'space-between',
-                }}
-            >
-                <Typography variant="h6">Chat with AI</Typography>
-                {/* <IconButton
-                    onClick={() => {
-                        alert('close chat')
-                    }}
-                >
-                    <CloseOutlined />
-                </IconButton> */}
-            </Toolbar>
-            <Divider />
-
+          >
+            {message.isBot && (
+              <Avatar sx={{ bgcolor: 'primary.main' }}>
+                <SmartToy />
+              </Avatar>
+            )}
             <Paper
-                style={{
-                    marginTop: '1vh',
-                    paddingBottom: '1vh',
-                    overflowY: 'scroll',
-                    maxHeight: '70vh'
-                }}
-                elevation={0}
+              elevation={1}
+              sx={{
+                p: 2,
+                backgroundColor: message.isBot ? 'background.paper' : 'primary.main',
+                color: message.isBot ? 'text.primary' : 'primary.contrastText',
+                borderRadius: 2,
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  ...(message.isBot
+                    ? {
+                        left: -8,
+                        borderRight: '8px solid',
+                        borderRightColor: 'background.paper',
+                      }
+                    : {
+                        right: -8,
+                        borderLeft: '8px solid',
+                        borderLeftColor: 'primary.main',
+                      }),
+                  borderTop: '8px solid transparent',
+                  borderBottom: '8px solid transparent',
+                },
+              }}
             >
-                <ChatBox>
-                    {chatHistory.map(rowRenderer)}
-                </ChatBox>
+              <Typography variant="body1">{message.content}</Typography>
             </Paper>
+          </Stack>
+        ))}
+        {isLoading && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+            <CircularProgress size={24} />
+          </Box>
+        )}
+      </Box>
 
-            <TextField
-                size="small"
-                margin="normal"
-                fullWidth
-                label="Send a message"
-                InputProps={{
-                    endAdornment: (
-                        <InputAdornment position="end">
-                            {loading ?
-                                <CircularProgress size={20} />
-                                : <ArrowForwardIcon />}
-                        </InputAdornment>
-                    ),
-                }}
-                value={msg}
-                onChange={(e) => setMsg(e.target.value)}
-                onKeyDown={sendMsg}
-            />
-        </Paper>
-    )
-}
+      {/* 输入框 */}
+      <Box
+        sx={{
+          p: 2,
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          backgroundColor: 'background.paper',
+        }}
+      >
+        <Stack direction="row" spacing={1}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="输入消息..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            multiline
+            maxRows={4}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+              },
+            }}
+          />
+          <IconButton
+            color="primary"
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading}
+            sx={{
+              alignSelf: 'flex-end',
+              transition: 'transform 0.2s',
+              '&:hover': {
+                transform: 'scale(1.1)',
+              },
+            }}
+          >
+            <Send />
+          </IconButton>
+        </Stack>
+      </Box>
+    </Box>
+  );
+};
