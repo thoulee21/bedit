@@ -1,40 +1,52 @@
-import {
-  BookmarkBorder,
-  CloudDownload,
-  CloudUpload,
-  Description,
-  Folder,
-  GitHub,
-  History,
-  Info,
-  Menu as MenuIcon,
-  Settings
-} from '@mui/icons-material';
+import React from 'react';
 import {
   Box,
-  Divider,
   Drawer,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Stack,
+  Divider,
+  IconButton,
   Tooltip,
+  Stack,
   useTheme,
 } from '@mui/material';
-import React from 'react';
-import { AboutDialog } from './dialogs/AboutDialog';
-import { BookmarkDialog } from './dialogs/BookmarkDialog';
-import { FolderDialog } from './dialogs/FolderDialog';
-import { ImportExportDialog } from './dialogs/ImportExportDialog';
-import { RecentDocsDialog } from './dialogs/RecentDocsDialog';
+import {
+  Menu as MenuIcon,
+  Description,
+  Folder,
+  Settings,
+  Info,
+  GitHub,
+  BookmarkBorder,
+  History,
+  CloudUpload,
+  CloudDownload,
+  FileOpen,
+  Save,
+} from '@mui/icons-material';
+import { OpenFile } from './OpenFile';
+import { SaveFile } from './SaveFile';
+import { Editor, Descendant } from 'slate';
+import { ReactEditor } from 'slate-react';
 import { SettingsDialog } from './dialogs/SettingsDialog';
+import { AboutDialog } from './dialogs/AboutDialog';
+import { RecentDocsDialog } from './dialogs/RecentDocsDialog';
+import { FolderDialog } from './dialogs/FolderDialog';
+import { BookmarkDialog } from './dialogs/BookmarkDialog';
+import { ImportExportDialog } from './dialogs/ImportExportDialog';
 
+// 定义抽屉宽度常量
 const DRAWER_WIDTH = 240;
 
-export const Sidebar = () => {
+interface SidebarProps {
+  editor: Editor & ReactEditor;
+  setValue: (value: Descendant[]) => void;
+}
+
+export const Sidebar = ({ editor, setValue }: SidebarProps) => {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
@@ -46,6 +58,46 @@ export const Sidebar = () => {
   const [exportOpen, setExportOpen] = React.useState(false);
 
   const menuItems = [
+    {
+      title: '打开文件',
+      icon: <FileOpen />,
+      onClick: () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.txt,.md,.html';
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+              const content = e.target?.result;
+              if (typeof content === 'string') {
+                // 处理文件内容
+                // 这里需要调用 OpenFile 组件中的处理逻辑
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
+      },
+    },
+    {
+      title: '保存文件',
+      icon: <Save />,
+      onClick: () => {
+        // 调用 SaveFile 组件中的保存逻辑
+        const content = JSON.stringify(editor.children);
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'document.txt';
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+    },
+    { type: 'divider' },
     {
       title: '最近文档',
       icon: <History />,
@@ -174,6 +226,7 @@ export const Sidebar = () => {
               ) : (
                 <ListItem key={item.title} disablePadding>
                   <ListItemButton
+                    onClick={item.onClick}
                     sx={{
                       borderRadius: 1,
                       mx: 1,
@@ -186,15 +239,14 @@ export const Sidebar = () => {
                         color: 'inherit',
                       },
                     }}
-                    onClick={item.onClick}
                   >
-                    <ListItemIcon sx={{
+                    <ListItemIcon sx={{ 
                       minWidth: 40,
                       color: theme.palette.text.primary,
                     }}>
                       {item.icon}
                     </ListItemIcon>
-                    <ListItemText
+                    <ListItemText 
                       primary={item.title}
                       sx={{
                         '& .MuiTypography-root': {

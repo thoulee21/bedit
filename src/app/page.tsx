@@ -75,7 +75,7 @@ export default function Home() {
                   ? theme.palette.background.default
                   : 'grey.100',
             }}>
-              <Sidebar />
+              <Sidebar editor={editor} setValue={setValue} />
               <Stack
                 direction="row"
                 spacing={1.5}

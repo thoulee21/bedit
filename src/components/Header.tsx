@@ -1,6 +1,4 @@
-import { AppBar, Box, Toolbar, useTheme, Stack, Divider } from '@mui/material'
-import { OpenFile } from './OpenFile'
-import { SaveFile } from './SaveFile'
+import { AppBar, Box, Toolbar, useTheme, Stack, Divider, Typography } from '@mui/material'
 import { useContext } from 'react'
 import { Preferences } from '@/app/PreferenceProvider'
 import { Editor, Descendant } from 'slate'
@@ -9,6 +7,7 @@ import { MaterialUISwitch } from './MaterialUISwitch'
 import { createToolbarItems } from './toolbar-items'
 import { ToolbarTooltip } from './ToolbarTooltip'
 import { IconButton } from '@mui/material'
+import { Edit } from '@mui/icons-material'
 
 interface HeaderProps {
   editor: Editor & ReactEditor;
@@ -27,25 +26,12 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
       elevation={0}
       sx={{
         backgroundColor: theme.palette.mode === 'dark' 
-          ? 'rgba(18, 18, 18, 0.7)'
-          : 'rgba(255, 255, 255, 0.7)',
-        backdropFilter: 'blur(20px) saturate(180%)',
+          ? 'rgba(30, 30, 30, 0.8)'
+          : 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(8px)',
         borderBottom: '1px solid',
-        borderColor: theme.palette.mode === 'dark'
-          ? 'rgba(255, 255, 255, 0.1)'
-          : 'rgba(0, 0, 0, 0.1)',
+        borderColor: 'divider',
         zIndex: 1300,
-        mb: 1,
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backdropFilter: 'blur(10px)',
-          zIndex: -1,
-        },
       }}
     >
       <Toolbar
@@ -54,13 +40,14 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
           minHeight: '64px',
           display: 'flex',
           gap: 2,
-          pb: 0.5,
         }}
       >
-        {/* 文件操作区 */}
-        <Stack direction="row" spacing={1}>
-          <OpenFile editor={editor} setValue={setValue} />
-          <SaveFile editor={editor} />
+        {/* Logo and Title */}
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Edit color="primary" sx={{ fontSize: 28 }} />
+          <Typography variant="h6" color="primary" fontWeight="bold">
+            BEdit
+          </Typography>
         </Stack>
 
         <Divider orientation="vertical" flexItem />
@@ -88,9 +75,7 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
                 sx={{
                   height: 24,
                   borderLeft: '1px solid',
-                  borderColor: theme.palette.mode === 'dark'
-                    ? 'rgba(255, 255, 255, 0.1)'
-                    : 'rgba(0, 0, 0, 0.1)',
+                  borderColor: 'divider',
                   mx: 0.5,
                 }}
               />
@@ -109,9 +94,7 @@ export const Header = ({ editor, setValue }: HeaderProps) => {
                     p: 0.75,
                     borderRadius: 1,
                     '&:hover': {
-                      backgroundColor: theme.palette.mode === 'dark'
-                        ? 'rgba(255, 255, 255, 0.1)'
-                        : 'rgba(0, 0, 0, 0.05)',
+                      backgroundColor: 'action.hover',
                     },
                     '&.Mui-disabled': {
                       opacity: 0.5,
