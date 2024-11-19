@@ -3,8 +3,9 @@ module.exports = {
         {
             name: 'bedit',
             script: 'yarn',
-            args: 'build && yarn start',
-            interpreter: '/bin/bash', // 使用 Bash 解释器来运行命令
+            args: 'start',
+            pre_start: 'yarn build',
+            interpreter: '/bin/bash',
             env: {
                 NODE_ENV: 'production',
                 PORT: 80,
