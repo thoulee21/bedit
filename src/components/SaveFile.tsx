@@ -1,95 +1,107 @@
-import { Save } from '@mui/icons-material'
-import { Button } from '@mui/material'
-import { saveAs } from 'file-saver'
-import { Editor, Element as SlateElement, Text } from 'slate'
-import { ReactEditor } from 'slate-react'
+import React from 'react';
+import { IconButton, Tooltip } from '@mui/material';
+import { SaveOutlined } from '@mui/icons-material';
+import { Editor, Element as SlateElement, Text, Node } from 'slate';
+import { CustomEditor, CustomElement } from '@/types/slate';
 
 interface SaveFileProps {
-  editor: Editor & ReactEditor;
+  editor: CustomEditor;
 }
 
 export const SaveFile = ({ editor }: SaveFileProps) => {
   const handleSave = () => {
-    // 将编辑器内容序列化为纯文本
-    const content = serializeToText(editor)
-    
-    // 创建 Blob 对象
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-    
-    // 保存文件
-    saveAs(blob, 'document.txt')
-  }
+    const content = convertToMarkdown(editor);
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'document.md';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <Button
-      onClick={handleSave}
-      variant="outlined"
-      size="small"
-      startIcon={<Save />}
-      sx={{
-        borderRadius: 2,
-        textTransform: 'none',
-        px: 2,
-        '&:hover': {
-          backgroundColor: 'primary.50',
-        },
-      }}
-    >
-      保存
-    </Button>
-  )
-}
+    <Tooltip title="保存">
+      <IconButton onClick={handleSave} size="small">
+        <SaveOutlined />
+      </IconButton>
+    </Tooltip>
+  );
+};
 
-// 序列化函数：将 Slate 内容转换为纯文本
-const serializeToText = (editor: Editor): string => {
-  const nodes = Array.from(Editor.nodes(editor, {
-    at: [],
-    match: n => true,
-  }))
+const convertToMarkdown = (editor: CustomEditor): string => {
+  let result = '';
+  let lastType: string | null = null;
 
-  let result = ''
-  let lastType = ''
+  // 遍历所有节点
+  const nodes = Array.from(
+    Editor.nodes(editor, {
+      at: [],
+      match: (n): n is CustomElement => {
+        if (!Editor.isEditor(n) && SlateElement.isElement(n)) {
+          return true;
+        }
+        return false;
+      },
+    })
+  );
 
   nodes.forEach(([node]) => {
-    if (!Editor.isEditor(node) && SlateElement.isElement(node)) {
-      // 根据节点类型添加适当的换行
-      if (lastType && lastType !== node.type) {
-        result += '\n'
-      }
-      lastType = node.type
-
-      // 获取节点的文本内容
-      const text = node.children
-        .map(child => Text.isText(child) ? child.text : '')
-        .join('')
-
-      // 根据节点类型添加格式
-      switch (node.type) {
-        case 'heading-one':
-          result += `# ${text}\n`
-          break
-        case 'heading-two':
-          result += `## ${text}\n`
-          break
-        case 'heading-three':
-          result += `### ${text}\n`
-          break
-        case 'heading-four':
-          result += `#### ${text}\n`
-          break
-        case 'heading-five':
-          result += `##### ${text}\n`
-          break
-        case 'heading-six':
-          result += `###### ${text}\n`
-          break
-        default:
-          if (text.trim()) {
-            result += `${text}\n`
-          }
-      }
+    const element = node as CustomElement;
+    
+    // 根据节点类型添加适当的换行
+    if (lastType && lastType !== element.type) {
+      result += '\n';
     }
-  })
+    lastType = element.type;
 
-  return result.trim()
-}
+    // 获取节点的文本内容
+    const text = element.children
+      .map((child: Node) => Text.isText(child) ? child.text : '')
+      .join('');
+
+    // 根据节点类型添加格式
+    switch (element.type) {
+      case 'heading-one':
+        result += `# ${text}\n`;
+        break;
+      case 'heading-two':
+        result += `## ${text}\n`;
+        break;
+      case 'heading-three':
+        result += `### ${text}\n`;
+        break;
+      case 'heading-four':
+        result += `#### ${text}\n`;
+        break;
+      case 'heading-five':
+        result += `##### ${text}\n`;
+        break;
+      case 'heading-six':
+        result += `###### ${text}\n`;
+        break;
+      case 'paragraph':
+        result += `${text}\n`;
+        break;
+      case 'blockquote':
+        result += `> ${text}\n`;
+        break;
+      case 'code-block':
+        result += `\`\`\`\n${text}\n\`\`\`\n`;
+        break;
+      case 'bulleted-list':
+        result += `- ${text}\n`;
+        break;
+      case 'numbered-list':
+        result += `1. ${text}\n`;
+        break;
+      case 'list-item':
+        result += `- ${text}\n`;
+        break;
+      default:
+        result += `${text}\n`;
+    }
+  });
+
+  return result.trim();
+};

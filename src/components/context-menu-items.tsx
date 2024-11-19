@@ -1,19 +1,23 @@
-import { Editor, Element as SlateElement, Transforms, Node as SlateNode, Text } from 'slate'
+import { Editor, Element as SlateElement, Node as SlateNode, Transforms } from 'slate'
 import { ReactEditor } from 'slate-react'
 import {
   ContentCopy,
   ContentCut,
   ContentPaste,
+  DeleteOutline,
   FormatBold,
   FormatItalic,
   FormatUnderlined,
-  LooksOne,
-  LooksTwo,
   Looks3,
   Looks4,
   Looks5,
   Looks6,
+  LooksOne,
+  LooksTwo,
+  Redo,
+  Undo,
 } from '@mui/icons-material'
+import { CustomEditor, CustomElement } from '@/types/slate'
 
 interface MenuItem {
   key: string
@@ -30,41 +34,40 @@ interface SeparatorItem extends MenuItem {
   title: string
 }
 
-export const createContextMenuItems = (editor: Editor & ReactEditor): MenuItem[] => {
+export const createContextMenuItems = (editor: CustomEditor): MenuItem[] => {
   const hasSelection = editor.selection !== null
 
   const items: (MenuItem | SeparatorItem)[] = [
     {
       key: 'cut',
       title: '剪切',
-      icon: <ContentCut fontSize="small" />,
+      icon: <ContentCut />,
       disabled: !hasSelection,
       onSelect: () => {
         if (hasSelection) {
-          // 获取选中的文本
           const fragment = editor.getFragment()
           const string = fragment
-            .map(node => SlateNode.string(node))
+            .map((node: SlateNode) => SlateNode.string(node))
             .join('\n')
           
           // 复制到剪贴板
-          navigator.clipboard.writeText(string)
-          
-          // 删除选中内容
-          Transforms.delete(editor)
+          navigator.clipboard.writeText(string).then(() => {
+            // 删除选中内容
+            Transforms.delete(editor)
+          })
         }
       },
     },
     {
       key: 'copy',
       title: '复制',
-      icon: <ContentCopy fontSize="small" />,
+      icon: <ContentCopy />,
       disabled: !hasSelection,
       onSelect: () => {
         if (hasSelection) {
           const fragment = editor.getFragment()
           const string = fragment
-            .map(node => SlateNode.string(node))
+            .map((node: SlateNode) => SlateNode.string(node))
             .join('\n')
           navigator.clipboard.writeText(string)
         }
@@ -73,7 +76,7 @@ export const createContextMenuItems = (editor: Editor & ReactEditor): MenuItem[]
     {
       key: 'paste',
       title: '粘贴',
-      icon: <ContentPaste fontSize="small" />,
+      icon: <ContentPaste />,
       onSelect: async () => {
         try {
           const text = await navigator.clipboard.readText()
@@ -145,7 +148,7 @@ export const createContextMenuItems = (editor: Editor & ReactEditor): MenuItem[]
 }
 
 // 辅助函数
-const toggleBlock = (editor: Editor, format: string) => {
+const toggleBlock = (editor: CustomEditor, format: string) => {
   const isActive = isBlockActive(editor, format)
   const newProperties: Partial<SlateElement> = {
     type: isActive ? 'paragraph' : format as any,
@@ -153,7 +156,7 @@ const toggleBlock = (editor: Editor, format: string) => {
   Transforms.setNodes(editor, newProperties)
 }
 
-const toggleMark = (editor: Editor, format: string) => {
+const toggleMark = (editor: CustomEditor, format: string) => {
   const isActive = isMarkActive(editor, format)
   if (isActive) {
     Editor.removeMark(editor, format)
@@ -162,14 +165,20 @@ const toggleMark = (editor: Editor, format: string) => {
   }
 }
 
-const isBlockActive = (editor: Editor, format: string) => {
+const isBlockActive = (editor: CustomEditor, format: string) => {
   const [match] = Editor.nodes(editor, {
-    match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format,
-  })
-  return !!match
+    match: (n): n is CustomElement => {
+      if (!Editor.isEditor(n) && SlateElement.isElement(n)) {
+        const element = n as CustomElement;
+        return element.type === format;
+      }
+      return false;
+    },
+  });
+  return !!match;
 }
 
-const isMarkActive = (editor: Editor, format: string) => {
+const isMarkActive = (editor: CustomEditor, format: string) => {
   const marks = Editor.marks(editor)
   return marks ? marks[format as keyof typeof marks] === true : false
 }

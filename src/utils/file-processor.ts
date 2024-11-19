@@ -1,4 +1,5 @@
-import { Descendant } from 'slate';
+import { Editor, Element as SlateElement, Node, Text } from 'slate';
+import { CustomEditor, CustomElement, CustomText } from '@/types/slate';
 import { htmlToSlate, markdownToSlate, slateToHtml, slateToMarkdown, textToSlate } from './file-converter';
 import { saveAs } from 'file-saver';
 
@@ -24,7 +25,7 @@ interface FileMetadata {
 
 // 处理结果
 interface ProcessResult {
-  content: Descendant[];
+  content: Node[];
   metadata: FileMetadata;
   success: boolean;
   error?: string;
@@ -38,7 +39,7 @@ export const importFile = async (
   try {
     const text = await file.text();
     const format = file.name.split('.').pop()?.toLowerCase() as FileFormat;
-    let content: Descendant[];
+    let content: Node[];
 
     switch (format) {
       case 'md':
@@ -84,7 +85,7 @@ export const importFile = async (
 
 // 导出文件
 export const exportFile = (
-  content: Descendant[],
+  content: Node[],
   format: FileFormat,
   filename: string,
   options: ProcessOptions = {}
@@ -108,7 +109,7 @@ export const exportFile = (
           .map(node => {
             if ('children' in node) {
               return node.children
-                .map(child => ('text' in child ? child.text : ''))
+                .map((child: { text: any; }) => ('text' in child ? child.text : ''))
                 .join('');
             }
             return '';
@@ -140,12 +141,12 @@ export const exportFile = (
 };
 
 // 获取文件预览
-export const getFilePreview = (content: Descendant[]): string => {
+export const getFilePreview = (content: Node[]): string => {
   return content
     .map(node => {
       if ('children' in node) {
         return node.children
-          .map(child => ('text' in child ? child.text : ''))
+          .map((child: { text: any; }) => ('text' in child ? child.text : ''))
           .join('');
       }
       return '';
@@ -177,4 +178,52 @@ export const getFileSizeDescription = (size: number): string => {
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const getNodeText = (node: Node): string => {
+  if (Text.isText(node)) {
+    return node.text;
+  } else if ('children' in node) {
+    return node.children
+      .map((child: CustomText | CustomElement) => {
+        if (Text.isText(child)) {
+          return child.text;
+        }
+        return '';
+      })
+      .join('');
+  }
+  return '';
+};
+
+const convertToText = (node: Node): string => {
+  if (Text.isText(node)) {
+    return node.text;
+  } else if ('children' in node) {
+    return node.children
+      .map((child: CustomText | CustomElement) => {
+        if (Text.isText(child)) {
+          return child.text;
+        }
+        return '';
+      })
+      .join('');
+  }
+  return '';
+};
+
+const processNode = (node: Node): string => {
+  if (Text.isText(node)) {
+    return node.text;
+  } else if ('children' in node) {
+    return node.children
+      .map((child: CustomText | CustomElement) => {
+        if (Text.isText(child)) {
+          return child.text;
+        }
+        return processNode(child);
+      })
+      .join('');
+  }
+  return '';
 }; 

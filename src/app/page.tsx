@@ -1,10 +1,10 @@
 'use client'
 
-import React, { StrictMode, useState } from 'react';
+import React, { StrictMode } from 'react';
 import { createEditor } from 'slate';
 import { withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
-import { Box, ThemeProvider, Stack, Paper, IconButton } from '@mui/material';
+import { Box, ThemeProvider, Stack, Paper, IconButton, useMediaQuery } from '@mui/material';
 import { Header } from '@/components/Header';
 import { StatusBar } from '@/components/StatusBar';
 import { globalStyles } from '@/styles/global';
@@ -20,19 +20,22 @@ import SlateEditor from '@/components/SlateEditor';
 import { Provider } from 'react-redux';
 import { store } from '@/store';
 import { useAppSelector } from '@/store/hooks';
-import { useMediaQuery } from '@mui/material';
+import dynamic from 'next/dynamic';
 
-function HomeContent() {
+// 使用 dynamic import 并禁用 SSR
+const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [value, setValue] = React.useState(DEV_INITIAL_CONTENT);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [snackMsg, setSnackMsg] = React.useState('');
   const editor = React.useMemo(() => withHistory(withReact(createEditor())), []);
   const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode);
-
   const theme = React.useMemo(
     () => getTheme(prefersDarkMode ? 'dark' : 'light'),
     [prefersDarkMode]
   );
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const [showOutline, setShowOutline] = React.useState(!isSmallScreen);
+  const [showChat, setShowChat] = React.useState(!isSmallScreen);
 
   const snackbarAction = (
     <IconButton
@@ -43,20 +46,6 @@ function HomeContent() {
       <Close />
     </IconButton>
   );
-
-  const [showOutline, setShowOutline] = useState(true);
-  const [showChat, setShowChat] = useState(true);
-  const isSmallScreen = useMediaQuery('(max-width: 900px)');
-
-  React.useEffect(() => {
-    if (isSmallScreen) {
-      setShowOutline(false);
-      setShowChat(false);
-    } else {
-      setShowOutline(true);
-      setShowChat(true);
-    }
-  }, [isSmallScreen]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -83,7 +72,6 @@ function HomeContent() {
           overflow: 'hidden',
           position: 'relative',
           backgroundColor: 'background.default',
-          mt: { xs: 0, sm: 0 },
         }}>
           <Sidebar editor={editor} setValue={setValue} />
           <Stack
@@ -96,7 +84,6 @@ function HomeContent() {
               overflow: 'hidden',
             }}
           >
-            {/* 左侧大纲 */}
             {showOutline && (
               <Paper
                 elevation={3}
@@ -123,7 +110,6 @@ function HomeContent() {
               </Paper>
             )}
 
-            {/* 中间编辑区 */}
             <Box
               sx={{
                 flex: 1,
@@ -133,8 +119,6 @@ function HomeContent() {
                 display: 'flex',
                 justifyContent: 'center',
                 position: 'relative',
-                ml: { xs: 0, md: showOutline ? 1.5 : 0 },
-                mr: { xs: 0, md: showChat ? 1.5 : 0 },
               }}
             >
               <Paper
@@ -168,7 +152,6 @@ function HomeContent() {
               </Paper>
             </Box>
 
-            {/* 右侧聊天区 */}
             {showChat && (
               <Paper
                 elevation={3}
@@ -213,7 +196,9 @@ function HomeContent() {
       />
     </ThemeProvider>
   );
-}
+}), {
+  ssr: false // 禁用服务器端渲染
+});
 
 export default function Home() {
   return (

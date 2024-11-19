@@ -1,4 +1,5 @@
-import { Descendant } from 'slate';
+import { Editor, Element as SlateElement, Node, Text } from 'slate';
+import { CustomEditor, CustomElement, CustomText } from '@/types/slate';
 import { saveAs } from 'file-saver';
 import { htmlToSlate, markdownToSlate, slateToHtml, slateToMarkdown, textToSlate } from './file-converter';
 
@@ -6,7 +7,7 @@ import { htmlToSlate, markdownToSlate, slateToHtml, slateToMarkdown, textToSlate
 export type FileType = 'txt' | 'md' | 'html' | 'docx' | 'pdf';
 
 // 导入文件
-export const importFile = async (file: File): Promise<Descendant[]> => {
+export const importFile = async (file: File): Promise<Node[]> => {
   const text = await file.text();
   const extension = file.name.split('.').pop()?.toLowerCase();
 
@@ -23,7 +24,7 @@ export const importFile = async (file: File): Promise<Descendant[]> => {
 
 // 导出文件
 export const exportFile = (
-  nodes: Descendant[],
+  nodes: Node[],
   type: FileType,
   filename: string
 ): void => {
@@ -45,7 +46,7 @@ export const exportFile = (
         .map(node => {
           if ('children' in node) {
             return node.children
-              .map(child => ('text' in child ? child.text : ''))
+              .map((child: { text: any; }) => ('text' in child ? child.text : ''))
               .join('');
           }
           return '';
@@ -59,7 +60,7 @@ export const exportFile = (
 };
 
 // 自动保存
-export const autoSave = (nodes: Descendant[]): void => {
+export const autoSave = (nodes: Node[]): void => {
   try {
     localStorage.setItem('editor-content', JSON.stringify(nodes));
     localStorage.setItem('editor-timestamp', new Date().toISOString());
@@ -70,7 +71,7 @@ export const autoSave = (nodes: Descendant[]): void => {
 
 // 加载自动保存的内容
 export const loadAutoSave = (): {
-  content: Descendant[] | null;
+  content: Node[] | null;
   timestamp: Date | null;
 } => {
   try {
@@ -121,7 +122,7 @@ export const getRecentDocs = (): {
 // 添加到最近文档列表
 export const addToRecentDocs = (
   title: string,
-  content: Descendant[]
+  content: Node[]
 ): void => {
   try {
     const recentDocs = getRecentDocs();
@@ -129,7 +130,7 @@ export const addToRecentDocs = (
       .map(node => {
         if ('children' in node) {
           return node.children
-            .map(child => ('text' in child ? child.text : ''))
+            .map((child: { text: any; }) => ('text' in child ? child.text : ''))
             .join('');
         }
         return '';
@@ -160,4 +161,46 @@ export const removeFromRecentDocs = (id: string): void => {
   } catch (error) {
     console.error('Remove from recent docs failed:', error);
   }
-}; 
+};
+
+const getNodeText = (node: Node): string => {
+  if (Text.isText(node)) {
+    return node.text;
+  } else if ('children' in node) {
+    return node.children
+      .map((child: CustomText | CustomElement) => {
+        if (Text.isText(child)) {
+          return child.text;
+        }
+        return '';
+      })
+      .join('');
+  }
+  return '';
+};
+
+const convertToText = (node: Node): string => {
+  if (Text.isText(node)) {
+    return node.text;
+  } else if ('children' in node) {
+    return node.children
+      .map((child: CustomText | CustomElement) => {
+        if (Text.isText(child)) {
+          return child.text;
+        }
+        return '';
+      })
+      .join('');
+  }
+  return '';
+};
+
+const parseMarkdown = (content: string): Node[] => {
+  return content.split('\n').map((line): CustomElement => {
+    return {
+      type: 'paragraph',
+      children: [{ text: line }],
+    } as CustomElement;
+  });
+};
+  
