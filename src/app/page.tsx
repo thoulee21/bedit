@@ -4,13 +4,11 @@ import React, { StrictMode } from 'react';
 import { createEditor } from 'slate';
 import { withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
-import { Box, ThemeProvider, Stack, Paper, IconButton, useMediaQuery } from '@mui/material';
+import { Box, ThemeProvider, Stack, Paper, IconButton, useMediaQuery, CssBaseline } from '@mui/material';
 import { Header } from '@/components/Header';
 import { StatusBar } from '@/components/StatusBar';
-import { globalStyles } from '@/styles/global';
 import { getTheme } from '@/theme/theme';
 import { DEV_INITIAL_CONTENT } from '@/utils/dev-content';
-import { Global } from '@emotion/react';
 import { Close } from '@mui/icons-material';
 import { Snackbar } from '@mui/material';
 import { Sidebar } from '@/components/Sidebar';
@@ -21,6 +19,53 @@ import { Provider } from 'react-redux';
 import { store } from '@/store';
 import { useAppSelector } from '@/store/hooks';
 import dynamic from 'next/dynamic';
+import * as stylex from '@stylexjs/stylex';
+
+const styles = stylex.create({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
+    overflow: 'hidden',
+  },
+  mainContent: {
+    display: 'flex',
+    flex: 1,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: 'var(--background-default)',
+  },
+  contentStack: {
+    flex: 1,
+    overflow: 'hidden',
+  },
+  sidePanel: {
+    overflow: 'auto',
+    overscrollBehavior: 'none',
+    borderRadius: '12px',
+    transition: 'box-shadow 0.3s ease-in-out',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: 'var(--background-paper)',
+  },
+  editorContainer: {
+    flex: 1,
+    height: '100%',
+    overflow: 'auto',
+    overscrollBehavior: 'none',
+    display: 'flex',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  editorPaper: {
+    minHeight: '297mm',
+    height: 'fit-content',
+    borderRadius: '12px',
+    backgroundColor: 'var(--background-paper)',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+});
 
 // 使用 dynamic import 并禁用 SSR
 const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
@@ -49,14 +94,8 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Global styles={globalStyles(prefersDarkMode)} />
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        height: '100vh',
-        overflow: 'hidden',
-        pt: { xs: '56px', sm: '64px' },
-      }}>
+      <CssBaseline />
+      <Box {...stylex.props(styles.root)} sx={{ pt: { xs: '56px', sm: '64px' } }}>
         <Header 
           editor={editor} 
           setValue={setValue}
@@ -66,82 +105,48 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
           showChat={showChat}
           isSmallScreen={isSmallScreen}
         />
-        <Box sx={{ 
-          display: 'flex',
-          flex: 1,
-          overflow: 'hidden',
-          position: 'relative',
-          backgroundColor: 'background.default',
-        }}>
+        <Box {...stylex.props(styles.mainContent)}>
           <Sidebar editor={editor} setValue={setValue} />
           <Stack
             direction="row"
             spacing={1.5}
+            {...stylex.props(styles.contentStack)}
             sx={{ 
-              flex: 1,
               px: { xs: 0.5, sm: 1, md: 1.5 },
               py: 0.5,
-              overflow: 'hidden',
             }}
           >
             {showOutline && (
               <Paper
                 elevation={3}
+                {...stylex.props(styles.sidePanel)}
                 sx={{
                   width: { xs: '100%', md: '280px' },
-                  height: '100%',
-                  overflow: 'auto',
-                  overscrollBehavior: 'none',
-                  borderRadius: 1.5,
-                  transition: 'box-shadow 0.3s ease-in-out',
-                  '&:hover': {
-                    boxShadow: 6,
-                  },
                   display: isSmallScreen && !showOutline ? 'none' : 'flex',
-                  flexDirection: 'column',
-                  backgroundColor: 'background.paper',
                   position: { xs: 'absolute', md: 'relative' },
                   zIndex: { xs: 2, md: 1 },
                   left: 0,
                   right: 0,
+                  '&:hover': {
+                    boxShadow: 6,
+                  },
                 }}
               >
                 <DocumentOutline editor={editor} />
               </Paper>
             )}
 
-            <Box
-              sx={{
-                flex: 1,
-                height: '100%',
-                overflow: 'auto',
-                overscrollBehavior: 'none',
-                display: 'flex',
-                justifyContent: 'center',
-                position: 'relative',
-              }}
-            >
+            <Box {...stylex.props(styles.editorContainer)}>
               <Paper
                 elevation={3}
+                {...stylex.props(styles.editorPaper)}
                 sx={{
                   width: { xs: '100%', sm: '100%', md: '210mm' },
-                  minHeight: '297mm',
-                  height: 'fit-content',
-                  borderRadius: 1.5,
-                  transition: theme => theme.transitions.create(
-                    ['box-shadow', 'background-color'],
-                    {
-                      duration: theme.transitions.duration.standard,
-                    }
-                  ),
+                  my: 2,
+                  mx: { xs: 0.5, sm: 1, md: 'auto' },
                   '&:hover': {
                     boxShadow: 6,
                   },
-                  display: 'flex',
-                  flexDirection: 'column',
-                  backgroundColor: 'background.paper',
-                  my: 2,
-                  mx: { xs: 0.5, sm: 1, md: 'auto' },
                 }}
               >
                 <SlateEditor 
@@ -155,23 +160,17 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
             {showChat && (
               <Paper
                 elevation={3}
+                {...stylex.props(styles.sidePanel)}
                 sx={{
                   width: { xs: '100%', md: '320px' },
-                  height: '100%',
-                  overflow: 'auto',
-                  overscrollBehavior: 'none',
-                  borderRadius: 1.5,
-                  transition: 'box-shadow 0.3s ease-in-out',
-                  '&:hover': {
-                    boxShadow: 6,
-                  },
                   display: isSmallScreen && !showChat ? 'none' : 'flex',
-                  flexDirection: 'column',
-                  backgroundColor: 'background.paper',
                   position: { xs: 'absolute', md: 'relative' },
                   zIndex: { xs: 2, md: 1 },
                   left: 0,
                   right: 0,
+                  '&:hover': {
+                    boxShadow: 6,
+                  },
                 }}
               >
                 <Chat />
@@ -190,9 +189,7 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
           vertical: 'bottom',
           horizontal: 'center',
         }}
-        sx={{
-          mb: '24px',
-        }}
+        sx={{ mb: '24px' }}
       />
     </ThemeProvider>
   );
