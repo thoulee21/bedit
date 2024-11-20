@@ -1,65 +1,110 @@
-import {
-  BookmarkBorder,
-  ChevronLeft,
-  CloudDownload,
-  CloudUpload,
-  Description,
-  Folder,
-  History,
-  Info,
-  Menu as MenuIcon,
-  Settings
-} from '@mui/icons-material';
+import React from 'react';
 import {
   Box,
-  Divider,
   Drawer,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Divider,
+  IconButton,
   Tooltip,
+  useTheme,
   useMediaQuery,
-  useTheme
 } from '@mui/material';
-import React from 'react';
-import { Descendant, Editor } from 'slate';
+import {
+  Menu as MenuIcon,
+  ChevronLeft,
+  History,
+  Description,
+  Folder,
+  BookmarkBorder,
+  CloudUpload,
+  CloudDownload,
+  Settings,
+  Info,
+} from '@mui/icons-material';
+import { Editor, Descendant } from 'slate';
 import { ReactEditor } from 'slate-react';
-import { SettingsDialog } from './dialogs/SettingsDialog';
+import * as stylex from '@stylexjs/stylex';
 
 const DRAWER_WIDTH = 240;
+
+const styles = stylex.create({
+  toggleButton: {
+    backgroundColor: 'var(--background-paper)',
+    borderRadius: '0 8px 8px 0',
+    width: '24px',
+    height: '48px',
+    transition: 'all 0.15s ease',
+    ':hover': {
+      backgroundColor: 'var(--background-hover)',
+    },
+  },
+  toggleIcon: {
+    fontSize: '20px',
+    color: 'var(--text-primary)',
+  },
+  drawer: {
+    width: `${DRAWER_WIDTH}px`,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    width: `${DRAWER_WIDTH}px`,
+    borderRight: '1px solid var(--divider)',
+    backgroundColor: 'var(--background-paper)',
+  },
+  listItem: {
+    borderRadius: '8px',
+    margin: '0 8px',
+    ':hover': {
+      backgroundColor: 'var(--background-hover)',
+    },
+  },
+  listItemIcon: {
+    color: 'var(--text-primary)',
+    minWidth: '40px',
+  },
+  listItemText: {
+    color: 'var(--text-primary)',
+  },
+  divider: {
+    margin: '8px 0',
+  },
+});
+
+interface MenuItem {
+  title: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+}
+
+type MenuItemOrDivider = MenuItem | { type: 'divider' };
 
 interface SidebarProps {
   editor: Editor & ReactEditor;
   setValue: (value: Descendant[]) => void;
 }
 
-interface MenuItem {
-  title: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-  type?: 'divider';
-}
-
-export const Sidebar = ({  }: SidebarProps) => {
+export const Sidebar = ({ editor, setValue }: SidebarProps) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const [open, setOpen] = React.useState(!isSmallScreen);
-  const [settingsOpen, setSettingsOpen] = React.useState(false);
-  const [aboutOpen, setAboutOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
+  
   const [recentDocsOpen, setRecentDocsOpen] = React.useState(false);
   const [folderOpen, setFolderOpen] = React.useState(false);
   const [bookmarkOpen, setBookmarkOpen] = React.useState(false);
   const [importOpen, setImportOpen] = React.useState(false);
   const [exportOpen, setExportOpen] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [aboutOpen, setAboutOpen] = React.useState(false);
 
   React.useEffect(() => {
     setOpen(!isSmallScreen);
   }, [isSmallScreen]);
 
-  const menuItems: (MenuItem | { type: 'divider' })[] = [
+  const menuItems: MenuItemOrDivider[] = [
     {
       title: '最近文档',
       icon: <History />,
@@ -104,25 +149,15 @@ export const Sidebar = ({  }: SidebarProps) => {
     },
   ];
 
-  const handleItemClick = (item: MenuItem | { type: 'divider' }) => {
-    if ('onClick' in item) {
-      item.onClick();
-      if (isSmallScreen) {
-        setOpen(false);
-      }
-    }
-  };
-
   return (
     <>
-      {/* 折叠按钮 */}
       <Box
         sx={{
           position: 'fixed',
           left: open ? DRAWER_WIDTH : 0,
-          top: 64,
+          top: { xs: 56, sm: 64 },
           zIndex: 1300,
-          transition: theme.transitions.create(['left'], {
+          transition: theme => theme.transitions.create(['left'], {
             duration: 0.15,
             easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
           }),
@@ -131,76 +166,59 @@ export const Sidebar = ({  }: SidebarProps) => {
         <Tooltip title={open ? '收起菜单' : '展开菜单'} placement="right">
           <IconButton
             onClick={() => setOpen(!open)}
-            sx={{
-              backgroundColor: 'background.paper',
-              borderRadius: '0 8px 8px 0',
-              boxShadow: theme.shadows[2],
-              '&:hover': {
-                backgroundColor: 'action.hover',
-              },
-              width: 24,
-              height: 48,
-              '& .MuiSvgIcon-root': {
-                fontSize: 20,
-              },
-            }}
+            {...stylex.props(styles.toggleButton)}
           >
-            {open ? <ChevronLeft /> : <MenuIcon />}
+            {open ? (
+              <ChevronLeft {...stylex.props(styles.toggleIcon)} />
+            ) : (
+              <MenuIcon {...stylex.props(styles.toggleIcon)} />
+            )}
           </IconButton>
         </Tooltip>
       </Box>
 
-      {/* 侧边栏 */}
       <Drawer
         variant={isSmallScreen ? 'temporary' : 'persistent'}
         anchor="left"
         open={open}
         onClose={() => setOpen(false)}
-        sx={{
-          width: DRAWER_WIDTH,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: DRAWER_WIDTH,
-            boxSizing: 'border-box',
-            borderRight: '1px solid',
-            borderColor: 'divider',
-            top: 64,
-            height: 'calc(100% - 64px)',
-            backgroundColor: 'background.paper',
+        {...stylex.props(styles.drawer)}
+        PaperProps={{
+          sx: {
+            top: { xs: 56, sm: 64 },
+            height: { xs: 'calc(100% - 56px)', sm: 'calc(100% - 64px)' },
           },
+          ...stylex.props(styles.drawerPaper),
         }}
       >
         <List>
           {menuItems.map((item, index) =>
-            item.type === 'divider' ? (
-              <Divider key={index} sx={{ my: 1 }} />
+            'type' in item ? (
+              <Divider key={`divider-${index}`} {...stylex.props(styles.divider)} />
             ) : (
               <ListItem key={item.title} disablePadding>
                 <ListItemButton
-                  onClick={() => handleItemClick(item)}
-                  sx={{
-                    borderRadius: 1,
-                    mx: 1,
-                    '&:hover': {
-                      backgroundColor: 'action.hover',
-                    },
+                  onClick={() => {
+                    item.onClick();
+                    if (isSmallScreen) {
+                      setOpen(false);
+                    }
                   }}
+                  {...stylex.props(styles.listItem)}
                 >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.title} />
+                  <ListItemIcon {...stylex.props(styles.listItemIcon)}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={item.title}
+                    {...stylex.props(styles.listItemText)}
+                  />
                 </ListItemButton>
               </ListItem>
             )
           )}
         </List>
       </Drawer>
-
-      {/* 对话框 */}
-      <SettingsDialog
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-      />
-      {/* ... 其他对话框 */}
     </>
   );
 }; 

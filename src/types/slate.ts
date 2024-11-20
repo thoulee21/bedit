@@ -23,11 +23,7 @@ export type CustomElement = {
   mimeType?: string
 } & BaseElement
 
-export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor & {
-  toggleList: (format: string) => void;
-  isInline: (element: CustomElement) => boolean;
-  isVoid: (element: CustomElement) => boolean;
-}
+export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor
 
 declare module 'slate' {
   interface CustomTypes {

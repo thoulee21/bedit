@@ -1,17 +1,15 @@
-import { useAppSelector } from '@/store/hooks';
-import { Send, SmartToy } from '@mui/icons-material';
+import React, { useState } from 'react';
 import {
-  Avatar,
   Box,
-  CircularProgress,
-  IconButton,
-  Paper,
-  Stack,
   TextField,
+  IconButton,
+  Stack,
+  Avatar,
+  CircularProgress,
   Typography,
 } from '@mui/material';
+import { Send, SmartToy } from '@mui/icons-material';
 import * as stylex from '@stylexjs/stylex';
-import { useState } from 'react';
 
 const styles = stylex.create({
   container: {
@@ -22,15 +20,10 @@ const styles = stylex.create({
   },
   header: {
     padding: '16px',
-    borderBottom: '1px solid var(--divider-color)',
+    borderBottom: '1px solid var(--divider)',
+    backgroundColor: 'var(--background-hover)',
   },
-  headerDark: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  headerLight: {
-    backgroundColor: 'rgba(0, 0, 0, 0.02)',
-  },
-  title: {
+  headerTitle: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
@@ -40,12 +33,7 @@ const styles = stylex.create({
     flex: 1,
     overflow: 'auto',
     padding: '16px',
-  },
-  messageListDark: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3) !important',
-  },
-  messageListLight: {
-    backgroundColor: 'rgba(0, 0, 0, 0.03) !important',
+    backgroundColor: 'var(--background-default)',
   },
   emptyState: {
     height: '100%',
@@ -67,57 +55,44 @@ const styles = stylex.create({
     justifyContent: 'flex-end',
   },
   botAvatar: {
-    backgroundColor: '#e3f2fd !important',
+    backgroundColor: 'var(--primary-light)',
     width: '32px',
     height: '32px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    boxShadow: 'var(--shadow-1)',
   },
   botAvatarIcon: {
-    color: '#1565c0 !important',
+    color: 'var(--primary-dark)',
+    fontSize: '20px',
   },
   messageBubble: {
-    padding: '12px',
+    padding: '12px 16px',
     maxWidth: '80%',
     borderRadius: '16px',
     position: 'relative',
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+    boxShadow: 'var(--shadow-1)',
   },
-  botBubbleDark: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15) !important',
-    color: '#fff !important',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+  botBubble: {
+    backgroundColor: 'var(--background-paper)',
+    color: 'var(--text-primary)',
+    border: '1px solid var(--divider)',
   },
-  botBubbleLight: {
-    backgroundColor: 'rgba(0, 0, 0, 0.08) !important',
-    color: 'rgba(0, 0, 0, 0.87) !important',
-    border: '1px solid rgba(0, 0, 0, 0.05)',
-  },
-  userBubbleDark: {
-    backgroundColor: '#90caf9 !important',
-    color: '#000 !important',
-  },
-  userBubbleLight: {
-    backgroundColor: '#1976d2 !important',
-    color: '#fff !important',
+  userBubble: {
+    backgroundColor: 'var(--primary-main)',
+    color: 'var(--primary-contrast)',
   },
   inputContainer: {
     padding: '16px',
     paddingBottom: '32px',
-    borderTop: '1px solid var(--divider-color)',
-  },
-  inputContainerDark: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  inputContainerLight: {
-    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+    borderTop: '1px solid var(--divider)',
+    backgroundColor: 'var(--background-hover)',
   },
   input: {
-    borderRadius: '16px',
     backgroundColor: 'var(--background-paper)',
+    borderRadius: '8px',
   },
   sendButton: {
     alignSelf: 'flex-end',
-    transition: 'transform 0.2s',
+    transition: 'transform 0.2s ease',
     ':hover': {
       transform: 'scale(1.1)',
     },
@@ -135,7 +110,6 @@ export const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -150,6 +124,7 @@ export const Chat = () => {
     setInput('');
     setIsLoading(true);
 
+    // 模拟AI响应
     setTimeout(() => {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -164,20 +139,14 @@ export const Chat = () => {
 
   return (
     <Box {...stylex.props(styles.container)}>
-      <Box {...stylex.props(
-        styles.header,
-        prefersDarkMode ? styles.headerDark : styles.headerLight
-      )}>
-        <Typography variant="h6" {...stylex.props(styles.title)}>
+      <Box {...stylex.props(styles.header)}>
+        <Typography variant="h6" {...stylex.props(styles.headerTitle)}>
           <SmartToy color="primary" />
           AI Assistant
         </Typography>
       </Box>
 
-      <Box {...stylex.props(
-        styles.messageList,
-        prefersDarkMode ? styles.messageListDark : styles.messageListLight
-      )}>
+      <Box {...stylex.props(styles.messageList)}>
         {messages.length === 0 ? (
           <Box {...stylex.props(styles.emptyState)}>
             <Typography variant="body2">
@@ -197,23 +166,17 @@ export const Chat = () => {
             >
               {message.isBot && (
                 <Avatar {...stylex.props(styles.botAvatar)}>
-                  <SmartToy
-                    sx={{ fontSize: 20 }}
-                    {...stylex.props(styles.botAvatarIcon)}
-                  />
+                  <SmartToy {...stylex.props(styles.botAvatarIcon)} />
                 </Avatar>
               )}
-              <Paper
-                elevation={0}
+              <Box
                 {...stylex.props(
                   styles.messageBubble,
-                  message.isBot
-                    ? prefersDarkMode ? styles.botBubbleDark : styles.botBubbleLight
-                    : prefersDarkMode ? styles.userBubbleDark : styles.userBubbleLight
+                  message.isBot ? styles.botBubble : styles.userBubble
                 )}
               >
                 <Typography variant="body1">{message.content}</Typography>
-              </Paper>
+              </Box>
             </Stack>
           ))
         )}
@@ -224,10 +187,7 @@ export const Chat = () => {
         )}
       </Box>
 
-      <Box {...stylex.props(
-        styles.inputContainer,
-        prefersDarkMode ? styles.inputContainerDark : styles.inputContainerLight
-      )}>
+      <Box {...stylex.props(styles.inputContainer)}>
         <Stack direction="row" spacing={1}>
           <TextField
             fullWidth

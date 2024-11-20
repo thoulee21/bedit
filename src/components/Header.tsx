@@ -1,17 +1,57 @@
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { toggleDarkMode } from '@/store/preferencesSlice';
-import { insertLink, insertTable } from '@/utils/editor-utils';
-import { Chat as ChatIcon, Edit, FormatListBulleted } from '@mui/icons-material';
-import { AppBar, Box, Divider, IconButton, Stack, Toolbar, Typography } from '@mui/material';
-import * as stylex from '@stylexjs/stylex';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Descendant, Editor } from 'slate';
+import React, { useState } from 'react';
+import { AppBar, Box, Toolbar, Stack, Divider, Typography, IconButton } from '@mui/material';
+import { Editor, Descendant } from 'slate';
 import { ReactEditor } from 'slate-react';
+import { MaterialUISwitch } from './MaterialUISwitch';
+import { createToolbarItems } from './toolbar-items';
+import { Edit, FormatListBulleted, Chat as ChatIcon } from '@mui/icons-material';
 import { LinkDialog } from './dialogs/LinkDialog';
 import { TableDialog } from './dialogs/TableDialog';
-import { MaterialUISwitch } from './MaterialUISwitch';
-import { MoreToolsMenu } from './MoreToolsMenu';
-import { createToolbarItems, type ToolbarItem } from './toolbar-items';
+import { insertLink, insertTable } from '@/utils/editor-utils';
+import { toggleDarkMode } from '@/store/preferencesSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import * as stylex from '@stylexjs/stylex';
+
+const styles = stylex.create({
+  appBar: {
+    backdropFilter: 'blur(8px)',
+    borderBottom: '1px solid var(--divider)',
+    backgroundColor: 'var(--header-background)',
+  },
+  toolbar: {
+    display: 'flex',
+    gap: '16px',
+  },
+  title: {
+    color: 'var(--header-text)',
+    fontWeight: 600,
+  },
+  toolbarContent: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '4px',
+    flex: 1,
+  },
+  toolbarItem: {
+    transition: 'transform 0.2s ease',
+    ':hover': {
+      transform: 'translateY(-1px)',
+    },
+  },
+  mobileButton: {
+    padding: '6px',
+  },
+  toolbarText: {
+    color: 'var(--header-text)',
+  },
+  toolbarIcon: {
+    color: 'var(--header-text)',
+    opacity: 0.9,
+    ':hover': {
+      opacity: 1,
+    },
+  },
+});
 
 interface HeaderProps {
   editor: Editor & ReactEditor;
@@ -30,92 +70,38 @@ export const Header = ({
   onToggleChat,
   showOutline,
   showChat,
-  isSmallScreen
+  isSmallScreen,
 }: HeaderProps) => {
   const dispatch = useAppDispatch();
   const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [tableDialogOpen, setTableDialogOpen] = useState(false);
-  const [visibleTools, setVisibleTools] = useState<ToolbarItem[]>([]);
-  const [overflowTools, setOverflowTools] = useState<ToolbarItem[]>([]);
-  const toolbarRef = useRef<HTMLDivElement>(null);
 
-  const toolbarEvents = useMemo(() => ({
+  const toolbarEvents = {
     openLinkDialog: () => setLinkDialogOpen(true),
     openTableDialog: () => setTableDialogOpen(true),
-  }), []);
+  };
 
-  const allToolbarItems = useMemo(() =>
-    createToolbarItems(editor, toolbarEvents),
-    [editor, toolbarEvents]
-  );
-
-  // 计算哪些工具需要折叠
-  const updateToolbarLayout = useCallback(() => {
-    if (!toolbarRef.current) return;
-
-    const toolbarWidth = toolbarRef.current.offsetWidth;
-    const itemWidth = isSmallScreen ? 32 : 40;
-    const maxItems = Math.floor((toolbarWidth - 40) / itemWidth); // 减去更多按钮的宽度
-
-    const essentialTools = ['bold', 'italic', 'underline'];
-    const visibleItems: ToolbarItem[] = [];
-    const overflowItems: ToolbarItem[] = [];
-
-    allToolbarItems.forEach(item => {
-      if (item.type === 'separator') return;
-
-      if (essentialTools.includes(item.key) || visibleItems.length < maxItems - 1) {
-        visibleItems.push(item);
-      } else {
-        overflowItems.push(item);
-      }
-    });
-
-    setVisibleTools(visibleItems);
-    setOverflowTools(overflowItems);
-  }, [isSmallScreen, allToolbarItems]);
-
-  // 监听窗口大小变化
-  useEffect(() => {
-    const handleResize = debounce(() => {
-      requestAnimationFrame(updateToolbarLayout);
-    }, 100);
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [updateToolbarLayout]);
-
-  // 初始布局计算
-  useEffect(() => {
-    requestAnimationFrame(updateToolbarLayout);
-  }, [updateToolbarLayout]);
+  const toolbarItems = createToolbarItems(editor, toolbarEvents);
 
   return (
-    <AppBar
-      position="fixed"
-      color="default"
+    <AppBar 
+      position="fixed" 
+      color="default" 
       elevation={0}
       {...stylex.props(styles.appBar)}
     >
-      <Toolbar
+      <Toolbar 
         variant="dense"
-        {...stylex.props(styles.toolbar, isSmallScreen && styles.toolbarMobile)}
+        {...stylex.props(styles.toolbar)}
+        sx={{ minHeight: { xs: '56px', sm: '64px' } }}
       >
-        <Stack
-          direction="row"
-          spacing={isSmallScreen ? 0.5 : 1}
-          alignItems="center"
-        >
-          <Edit
-            color="primary"
-            sx={{
-              fontSize: isSmallScreen ? 24 : 28,
-              ml: isSmallScreen ? -0.5 : 0,
-            }}
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Edit 
+            {...stylex.props(styles.toolbarIcon)}
+            sx={{ fontSize: isSmallScreen ? 24 : 28 }} 
           />
-          <Typography {...stylex.props(styles.title)}>
+          <Typography variant="h6" {...stylex.props(styles.title)}>
             BEdit
           </Typography>
         </Stack>
@@ -126,7 +112,7 @@ export const Header = ({
               onClick={onToggleOutline}
               color={showOutline ? 'primary' : 'default'}
               size="small"
-              sx={{ padding: '6px' }}
+              {...stylex.props(styles.mobileButton)}
             >
               <FormatListBulleted fontSize="small" />
             </IconButton>
@@ -134,7 +120,7 @@ export const Header = ({
               onClick={onToggleChat}
               color={showChat ? 'primary' : 'default'}
               size="small"
-              sx={{ padding: '6px' }}
+              {...stylex.props(styles.mobileButton)}
             >
               <ChatIcon fontSize="small" />
             </IconButton>
@@ -144,39 +130,49 @@ export const Header = ({
         <Divider orientation="vertical" flexItem />
 
         <Stack
-          ref={toolbarRef}
           direction="row"
           spacing={0.5}
           {...stylex.props(styles.toolbarContent)}
-          sx={{
-            '& .MuiIconButton-root': {
-              padding: isSmallScreen ? '6px' : '8px',
-            },
-          }}
         >
-          {visibleTools.map((item) => (
-            <IconButton
-              key={item.key}
-              size="small"
-              onClick={item.onSelect}
-              disabled={item.disabled}
-              color={item.active ? 'primary' : 'default'}
-              {...stylex.props(styles.toolbarItem)}
-            >
-              {item.icon}
-            </IconButton>
-          ))}
-
-          {overflowTools.length > 0 && (
-            <MoreToolsMenu tools={overflowTools} />
+          {toolbarItems.map((item) => 
+            item.type === 'separator' ? (
+              <Divider
+                key={item.key}
+                orientation="vertical"
+                flexItem
+                sx={{ 
+                  mx: isSmallScreen ? 0.25 : 0.5,
+                  borderColor: 'var(--divider)',
+                }}
+              />
+            ) : (
+              <IconButton
+                key={item.key}
+                size="small"
+                onClick={item.onSelect}
+                disabled={item.disabled}
+                {...stylex.props(styles.toolbarItem, styles.toolbarIcon)}
+                sx={{ 
+                  padding: isSmallScreen ? '6px' : '8px',
+                  '&.Mui-disabled': {
+                    opacity: 0.5,
+                  },
+                  '&.MuiIconButton-colorPrimary': {
+                    color: 'var(--primary-main)',
+                  },
+                }}
+              >
+                {item.icon}
+              </IconButton>
+            )
           )}
         </Stack>
 
         <Box sx={{ ml: 'auto' }}>
-          <MaterialUISwitch
+          <MaterialUISwitch 
             checked={prefersDarkMode}
             onChange={() => dispatch(toggleDarkMode())}
-            size={isSmallScreen ? 'small' : 'medium'}
+            size={isSmallScreen ? "small" : "medium"}
           />
         </Box>
       </Toolbar>
@@ -201,62 +197,3 @@ export const Header = ({
     </AppBar>
   );
 };
-
-const styles = stylex.create({
-  appBar: {
-    backdropFilter: 'blur(8px)',
-    borderBottom: '1px solid var(--divider-color)',
-    zIndex: 1300,
-  },
-  darkAppBar: {
-    backgroundColor: 'rgba(30, 30, 30, 0.8)',
-  },
-  lightAppBar: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-  },
-  toolbar: {
-    minHeight: {
-      default: '64px',
-      '@media (max-width: 600px)': '56px',
-    },
-    display: 'flex',
-    gap: '16px',
-  },
-  toolbarMobile: {
-    padding: '0 8px',
-  },
-  title: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    color: 'var(--primary-color)',
-    fontWeight: 600,
-    fontSize: {
-      default: '1.25rem',
-      '@media (max-width: 600px)': '1rem',
-    },
-  },
-  toolbarContent: {
-    flexWrap: 'wrap',
-    gap: '4px',
-    flex: 1,
-  },
-  toolbarItem: {
-    transition: 'transform 0.2s ease',
-    ':hover': {
-      transform: 'translateY(-1px)',
-    },
-  },
-});
-
-// 防抖函数
-function debounce<T extends (...args: any[]) => any>(
-  fn: T,
-  ms: number
-): (...args: Parameters<T>) => void {
-  let timer: NodeJS.Timeout;
-  return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), ms);
-  };
-}
