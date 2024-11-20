@@ -325,4 +325,28 @@ export const getParentBlock = (editor: CustomEditor) => {
     at: Path.parent(editor.selection?.anchor.path || []),
   });
   return block;
-}; 
+};
+
+// 切换列表类型
+export const toggleList = (editor: CustomEditor, format: 'bulleted-list' | 'numbered-list') => {
+  const isList = isBlockActive(editor, format);
+
+  Transforms.unwrapNodes(editor, {
+    match: n =>
+      !Editor.isEditor(n) &&
+      Element.isElement(n) &&
+      ['bulleted-list', 'numbered-list'].includes(n.type),
+    split: true,
+  });
+
+  const newProperties: Partial<CustomElement> = {
+    type: isList ? 'paragraph' : 'list-item',
+  };
+
+  Transforms.setNodes(editor, newProperties);
+
+  if (!isList) {
+    const block = { type: format, children: [] };
+    Transforms.wrapNodes(editor, block);
+  }
+};

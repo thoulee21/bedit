@@ -1,6 +1,6 @@
 import React, { useState, Dispatch, SetStateAction } from 'react';
 import { AppBar, Box, Toolbar, Stack, Divider, Typography, IconButton } from '@mui/material';
-import { Editor, Descendant, BaseEditor } from 'slate';
+import { Editor, Descendant } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { HistoryEditor } from 'slate-history';
 import { MaterialUISwitch } from './MaterialUISwitch';
@@ -12,6 +12,7 @@ import { insertLink, insertTable } from '@/utils/editor-utils';
 import { toggleDarkMode } from '@/store/preferencesSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import * as stylex from '@stylexjs/stylex';
+import { CustomEditor } from '@/types/slate';
 
 const styles = stylex.create({
   appBar: {
@@ -56,7 +57,7 @@ const styles = stylex.create({
 });
 
 interface HeaderProps {
-  editor: BaseEditor & ReactEditor & HistoryEditor;
+  editor: CustomEditor;
   setValue: Dispatch<SetStateAction<any[]>>;
   onToggleOutline: () => void;
   onToggleChat: () => void;

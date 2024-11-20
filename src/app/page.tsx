@@ -22,6 +22,7 @@ import { store } from '@/store';
 import { useAppSelector } from '@/store/hooks';
 import dynamic from 'next/dynamic';
 import * as stylex from '@stylexjs/stylex';
+import { toggleList } from '@/utils/editor-utils';
 
 const styles = stylex.create({
   root: {
@@ -73,7 +74,14 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [value, setValue] = React.useState(DEV_INITIAL_CONTENT);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [snackMsg, setSnackMsg] = React.useState('');
-  const editor = React.useMemo(() => withHistory(withReact(createEditor())), []);
+  const editor = React.useMemo(() => {
+    const e = withHistory(withReact(createEditor()));
+    
+    // 添加 toggleList 方法
+    e.toggleList = (format) => toggleList(e, format);
+    
+    return e;
+  }, []);
   const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode);
   const theme = React.useMemo(
     () => getTheme(prefersDarkMode ? 'dark' : 'light'),

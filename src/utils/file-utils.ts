@@ -2,6 +2,7 @@ import { Descendant } from 'slate';
 import mammoth from 'mammoth';
 import { Document, Paragraph, TextRun, Packer, HeadingLevel, AlignmentType, convertInchesToTwip, PageOrientation, PageSize } from 'docx';
 import { saveAs } from 'file-saver';
+import { CustomElement, CustomText } from '@/types/slate';
 
 // 将编辑器内容转换为纯文本
 export const convertToText = (nodes: Descendant[]): string => {
@@ -31,12 +32,12 @@ export const convertToMarkdown = (nodes: Descendant[]): string => {
         case 'paragraph':
           return `${convertToText(node.children)}\n`;
         case 'bulleted-list':
-          return node.children
-            .map(item => `* ${convertToText(item.children)}\n`)
+          return (node as CustomElement).children
+            .map((item: CustomElement) => `* ${convertToText(item.children)}\n`)
             .join('');
         case 'numbered-list':
-          return node.children
-            .map((item, i) => `${i + 1}. ${convertToText(item.children)}\n`)
+          return (node as CustomElement).children
+            .map((item: CustomElement, i: number) => `${i + 1}. ${convertToText(item.children)}\n`)
             .join('');
         default:
           return convertToText(node.children);
@@ -52,7 +53,7 @@ const convertToDocx = async (nodes: Descendant[]): Promise<Blob> => {
     if (!('type' in node)) return [];
 
     // 获取节点的文本内容和格式
-    const textRuns = node.children.map(child => {
+    const textRuns = (node as CustomElement).children.map((child: CustomElement | CustomText) => {
       if (!('text' in child)) return new TextRun({ text: '' });
       
       return new TextRun({
@@ -94,10 +95,10 @@ const convertToDocx = async (nodes: Descendant[]): Promise<Blob> => {
           },
         });
       case 'bulleted-list':
-        return node.children.map(item => 
+        return (node as CustomElement).children.map((item: CustomElement) => 
           new Paragraph({
-            children: item.children.map(child => 
-              new TextRun({ text: child.text || '' })
+            children: item.children.map((child: CustomElement | CustomText) => 
+              new TextRun({ text: 'text' in child ? child.text || '' : '' })
             ),
             bullet: {
               level: 0,
@@ -105,10 +106,10 @@ const convertToDocx = async (nodes: Descendant[]): Promise<Blob> => {
           })
         );
       case 'numbered-list':
-        return node.children.map((item, index) => 
+        return (node as CustomElement).children.map((item: CustomElement, index: number) => 
           new Paragraph({
-            children: item.children.map(child => 
-              new TextRun({ text: child.text || '' })
+            children: item.children.map((child: CustomElement | CustomText) => 
+              new TextRun({ text: 'text' in child ? child.text || '' : '' })
             ),
             numbering: {
               reference: 'default-numbering',

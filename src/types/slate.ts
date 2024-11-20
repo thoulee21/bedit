@@ -24,7 +24,9 @@ export type CustomElement = {
   level?: number
 } & BaseElement
 
-export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor
+export interface CustomEditor extends BaseEditor, ReactEditor, HistoryEditor {
+  toggleList: (format: 'bulleted-list' | 'numbered-list') => void;
+}
 
 declare module 'slate' {
   interface CustomTypes {
