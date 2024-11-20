@@ -21,6 +21,7 @@ export type CustomElement = {
   name?: string
   size?: number
   mimeType?: string
+  level?: number
 } & BaseElement
 
 export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor

@@ -1,20 +1,22 @@
 'use client'
 
+import './globals.css'; 
+
 import React, { StrictMode } from 'react';
 import { createEditor } from 'slate';
 import { withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
-import { Box, ThemeProvider, Stack, Paper, IconButton, useMediaQuery, CssBaseline } from '@mui/material';
+import { Box, ThemeProvider, Stack, Paper, IconButton, useMediaQuery, CssBaseline, Drawer } from '@mui/material';
 import { Header } from '@/components/Header';
 import { StatusBar } from '@/components/StatusBar';
 import { getTheme } from '@/theme/theme';
 import { DEV_INITIAL_CONTENT } from '@/utils/dev-content';
-import { Close } from '@mui/icons-material';
+import { Close, Menu } from '@mui/icons-material';
 import { Snackbar } from '@mui/material';
 import { Sidebar } from '@/components/Sidebar';
 import { Chat } from '@/components/Chat';
 import { DocumentOutline } from '@/components/DocumentOutline';
-import SlateEditor from '@/components/SlateEditor';
+import { SlateEditor } from '@/components/SlateEditor';
 import { Provider } from 'react-redux';
 import { store } from '@/store';
 import { useAppSelector } from '@/store/hooks';
@@ -67,7 +69,6 @@ const styles = stylex.create({
   },
 });
 
-// 使用 dynamic import 并禁用 SSR
 const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [value, setValue] = React.useState(DEV_INITIAL_CONTENT);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
@@ -79,8 +80,9 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
     [prefersDarkMode]
   );
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const [showOutline, setShowOutline] = React.useState(!isSmallScreen);
+  const [showOutline, setShowOutline] = React.useState(true);
   const [showChat, setShowChat] = React.useState(!isSmallScreen);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   const snackbarAction = (
     <IconButton
@@ -104,9 +106,24 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
           showOutline={showOutline}
           showChat={showChat}
           isSmallScreen={isSmallScreen}
+          setSidebarOpen={setSidebarOpen}
+          sidebarOpen={sidebarOpen}
         />
-        <Box {...stylex.props(styles.mainContent)}>
+        <Drawer
+          variant="temporary"
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          sx={{
+            width: 240,
+            '& .MuiDrawer-paper': {
+              width: 240,
+              boxSizing: 'border-box',
+            },
+          }}
+        >
           <Sidebar editor={editor} setValue={setValue} />
+        </Drawer>
+        <Box {...stylex.props(styles.mainContent)}>
           <Stack
             direction="row"
             spacing={1.5}
@@ -114,27 +131,14 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
             sx={{ 
               px: { xs: 0.5, sm: 1, md: 1.5 },
               py: 0.5,
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
             }}
           >
-            {showOutline && (
-              <Paper
-                elevation={3}
-                {...stylex.props(styles.sidePanel)}
-                sx={{
-                  width: { xs: '100%', md: '280px' },
-                  display: isSmallScreen && !showOutline ? 'none' : 'flex',
-                  position: { xs: 'absolute', md: 'relative' },
-                  zIndex: { xs: 2, md: 1 },
-                  left: 0,
-                  right: 0,
-                  '&:hover': {
-                    boxShadow: 6,
-                  },
-                }}
-              >
-                <DocumentOutline editor={editor} />
-              </Paper>
-            )}
+            <Box {...stylex.props(styles.sidePanel)} sx={{ width: '280px', flexShrink: 0 }}>
+              <DocumentOutline editor={editor} />
+            </Box>
 
             <Box {...stylex.props(styles.editorContainer)}>
               <Paper
@@ -149,7 +153,7 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
                   },
                 }}
               >
-                <SlateEditor 
+                <SlateEditor
                   editor={editor}
                   value={value}
                   onChange={setValue}
@@ -158,23 +162,9 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
             </Box>
 
             {showChat && (
-              <Paper
-                elevation={3}
-                {...stylex.props(styles.sidePanel)}
-                sx={{
-                  width: { xs: '100%', md: '320px' },
-                  display: isSmallScreen && !showChat ? 'none' : 'flex',
-                  position: { xs: 'absolute', md: 'relative' },
-                  zIndex: { xs: 2, md: 1 },
-                  left: 0,
-                  right: 0,
-                  '&:hover': {
-                    boxShadow: 6,
-                  },
-                }}
-              >
+              <Box {...stylex.props(styles.sidePanel)} sx={{ width: '280px', flexShrink: 0 }}>
                 <Chat />
-              </Paper>
+              </Box>
             )}
           </Stack>
         </Box>

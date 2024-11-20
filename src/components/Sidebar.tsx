@@ -1,51 +1,35 @@
-import React from 'react';
 import {
-  Box,
+  Bookmark,
+  CloudDownload,
+  CloudUpload,
+  GitHub,
+  Settings
+} from '@mui/icons-material';
+import {
   Drawer,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
-  IconButton,
-  Tooltip,
-  useTheme,
   useMediaQuery,
+  useTheme
 } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  ChevronLeft,
-  History,
-  Description,
-  Folder,
-  BookmarkBorder,
-  CloudUpload,
-  CloudDownload,
-  Settings,
-  Info,
-} from '@mui/icons-material';
-import { Editor, Descendant } from 'slate';
-import { ReactEditor } from 'slate-react';
 import * as stylex from '@stylexjs/stylex';
+import React from 'react';
+import { Descendant, Editor } from 'slate';
+import { ReactEditor } from 'slate-react';
+import { AboutDialog } from './dialogs/AboutDialog';
+import { ExportDialog } from './dialogs/ExportDialog';
+import { ImportDialog } from './dialogs/ImportDialog';
+import { SettingsDialog } from './dialogs/SettingsDialog';
+import { convertToText, convertToMarkdown, exportFile, readFile, parseImportedContent, handleExport } from '@/utils/file-utils';
+import { BookmarkDialog } from './dialogs/BookmarkDialog';
+import { Bookmark as BookmarkType } from '@/types/bookmark';
 
 const DRAWER_WIDTH = 240;
 
 const styles = stylex.create({
-  toggleButton: {
-    backgroundColor: 'var(--background-paper)',
-    borderRadius: '0 8px 8px 0',
-    width: '24px',
-    height: '48px',
-    transition: 'all 0.15s ease',
-    ':hover': {
-      backgroundColor: 'var(--background-hover)',
-    },
-  },
-  toggleIcon: {
-    fontSize: '20px',
-    color: 'var(--text-primary)',
-  },
   drawer: {
     width: `${DRAWER_WIDTH}px`,
     flexShrink: 0,
@@ -69,18 +53,7 @@ const styles = stylex.create({
   listItemText: {
     color: 'var(--text-primary)',
   },
-  divider: {
-    margin: '8px 0',
-  },
 });
-
-interface MenuItem {
-  title: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-}
-
-type MenuItemOrDivider = MenuItem | { type: 'divider' };
 
 interface SidebarProps {
   editor: Editor & ReactEditor;
@@ -91,92 +64,52 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [open, setOpen] = React.useState(true);
-  
-  const [recentDocsOpen, setRecentDocsOpen] = React.useState(false);
-  const [folderOpen, setFolderOpen] = React.useState(false);
-  const [bookmarkOpen, setBookmarkOpen] = React.useState(false);
-  const [importOpen, setImportOpen] = React.useState(false);
-  const [exportOpen, setExportOpen] = React.useState(false);
-  const [settingsOpen, setSettingsOpen] = React.useState(false);
-  const [aboutOpen, setAboutOpen] = React.useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = React.useState(false);
+  const [settingsDialogOpen, setSettingsDialogOpen] = React.useState(false);
+  const [importDialogOpen, setImportDialogOpen] = React.useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = React.useState(false);
+  const [bookmarkDialogOpen, setBookmarkDialogOpen] = React.useState(false);
+  const [bookmarks, setBookmarks] = React.useState<BookmarkType[]>([]);
 
-  React.useEffect(() => {
-    setOpen(!isSmallScreen);
-  }, [isSmallScreen]);
+  const handleImport = async (file: File) => {
+    try {
+      const newValue = await parseImportedContent(file);
+      
+      if (newValue.length === 0) {
+        newValue.push({
+          type: 'paragraph',
+          children: [{ text: '' }],
+        });
+      }
+      
+      setValue(newValue);
+      setImportDialogOpen(false);
+    } catch (error) {
+      console.error('Error importing file:', error);
+    }
+  };
 
-  const menuItems: MenuItemOrDivider[] = [
-    {
-      title: '最近文档',
-      icon: <History />,
-      onClick: () => setRecentDocsOpen(true),
-    },
-    {
-      title: '我的文档',
-      icon: <Description />,
-      onClick: () => console.log('我的文档'),
-    },
-    {
-      title: '文件夹',
-      icon: <Folder />,
-      onClick: () => setFolderOpen(true),
-    },
-    {
-      title: '书签',
-      icon: <BookmarkBorder />,
-      onClick: () => setBookmarkOpen(true),
-    },
-    { type: 'divider' },
-    {
-      title: '导入',
-      icon: <CloudUpload />,
-      onClick: () => setImportOpen(true),
-    },
-    {
-      title: '导出',
-      icon: <CloudDownload />,
-      onClick: () => setExportOpen(true),
-    },
-    { type: 'divider' },
-    {
-      title: '设置',
-      icon: <Settings />,
-      onClick: () => setSettingsOpen(true),
-    },
-    {
-      title: '关于',
-      icon: <Info />,
-      onClick: () => setAboutOpen(true),
-    },
-  ];
+  const handleExportFormat = async (format: 'txt' | 'md' | 'json' | 'docx') => {
+    try {
+      const result = await handleExport(editor.children, format);
+      await exportFile(result.content, result.filename);
+      setExportDialogOpen(false);
+    } catch (error) {
+      console.error('Error exporting file:', error);
+    }
+  };
+
+  const handleDeleteBookmark = (id: string) => {
+    setBookmarks(bookmarks.filter(bookmark => bookmark.id !== id));
+  };
+
+  const handleSelectBookmark = (bookmark: BookmarkType) => {
+    console.log('Selected bookmark:', bookmark);
+    setBookmarkDialogOpen(false);
+  };
 
   return (
     <>
-      <Box
-        sx={{
-          position: 'fixed',
-          left: open ? DRAWER_WIDTH : 0,
-          top: { xs: 56, sm: 64 },
-          zIndex: 1300,
-          transition: theme => theme.transitions.create(['left'], {
-            duration: 0.15,
-            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-          }),
-        }}
-      >
-        <Tooltip title={open ? '收起菜单' : '展开菜单'} placement="right">
-          <IconButton
-            onClick={() => setOpen(!open)}
-            {...stylex.props(styles.toggleButton)}
-          >
-            {open ? (
-              <ChevronLeft {...stylex.props(styles.toggleIcon)} />
-            ) : (
-              <MenuIcon {...stylex.props(styles.toggleIcon)} />
-            )}
-          </IconButton>
-        </Tooltip>
-      </Box>
-
       <Drawer
         variant={isSmallScreen ? 'temporary' : 'persistent'}
         anchor="left"
@@ -192,33 +125,64 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
         }}
       >
         <List>
-          {menuItems.map((item, index) =>
-            'type' in item ? (
-              <Divider key={`divider-${index}`} {...stylex.props(styles.divider)} />
-            ) : (
-              <ListItem key={item.title} disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    item.onClick();
-                    if (isSmallScreen) {
-                      setOpen(false);
-                    }
-                  }}
-                  {...stylex.props(styles.listItem)}
-                >
-                  <ListItemIcon {...stylex.props(styles.listItemIcon)}>
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={item.title}
-                    {...stylex.props(styles.listItemText)}
-                  />
-                </ListItemButton>
-              </ListItem>
-            )
-          )}
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setBookmarkDialogOpen(true)}>
+              <ListItemIcon><Bookmark /></ListItemIcon>
+              <ListItemText primary="书签" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setImportDialogOpen(true)}>
+              <ListItemIcon><CloudUpload /></ListItemIcon>
+              <ListItemText primary="导入" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setExportDialogOpen(true)}>
+              <ListItemIcon><CloudDownload /></ListItemIcon>
+              <ListItemText primary="导出" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setSettingsDialogOpen(true)}>
+              <ListItemIcon><Settings /></ListItemIcon>
+              <ListItemText primary="设置" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setAboutDialogOpen(true)}>
+              <ListItemIcon><GitHub /></ListItemIcon>
+              <ListItemText primary="关于" />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Drawer>
+
+      <AboutDialog
+        open={aboutDialogOpen}
+        onClose={() => setAboutDialogOpen(false)}
+      />
+      <SettingsDialog
+        open={settingsDialogOpen}
+        onClose={() => setSettingsDialogOpen(false)}
+      />
+      <ImportDialog
+        open={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        onImport={handleImport}
+      />
+      <ExportDialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        onExport={handleExportFormat}
+      />
+      <BookmarkDialog
+        open={bookmarkDialogOpen}
+        onClose={() => setBookmarkDialogOpen(false)}
+        bookmarks={bookmarks}
+        onDeleteBookmark={handleDeleteBookmark}
+        onSelectBookmark={handleSelectBookmark}
+      />
     </>
   );
 }; 

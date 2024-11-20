@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, Dispatch, SetStateAction } from 'react';
 import { AppBar, Box, Toolbar, Stack, Divider, Typography, IconButton } from '@mui/material';
-import { Editor, Descendant } from 'slate';
+import { Editor, Descendant, BaseEditor } from 'slate';
 import { ReactEditor } from 'slate-react';
+import { HistoryEditor } from 'slate-history';
 import { MaterialUISwitch } from './MaterialUISwitch';
 import { createToolbarItems } from './toolbar-items';
-import { Edit, FormatListBulleted, Chat as ChatIcon } from '@mui/icons-material';
+import { Edit, FormatListBulleted, Chat as ChatIcon, Menu } from '@mui/icons-material';
 import { LinkDialog } from './dialogs/LinkDialog';
 import { TableDialog } from './dialogs/TableDialog';
 import { insertLink, insertTable } from '@/utils/editor-utils';
@@ -17,6 +18,7 @@ const styles = stylex.create({
     backdropFilter: 'blur(8px)',
     borderBottom: '1px solid var(--divider)',
     backgroundColor: 'var(--header-background)',
+    zIndex: 1400,
   },
   toolbar: {
     display: 'flex',
@@ -54,16 +56,19 @@ const styles = stylex.create({
 });
 
 interface HeaderProps {
-  editor: Editor & ReactEditor;
-  setValue: (value: Descendant[]) => void;
+  editor: BaseEditor & ReactEditor & HistoryEditor;
+  setValue: Dispatch<SetStateAction<any[]>>;
   onToggleOutline: () => void;
   onToggleChat: () => void;
   showOutline: boolean;
   showChat: boolean;
   isSmallScreen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  sidebarOpen: boolean;
+  children?: React.ReactNode;
 }
 
-export const Header = ({
+export const Header: React.FC<HeaderProps> = ({
   editor,
   setValue,
   onToggleOutline,
@@ -71,7 +76,10 @@ export const Header = ({
   showOutline,
   showChat,
   isSmallScreen,
-}: HeaderProps) => {
+  setSidebarOpen,
+  sidebarOpen,
+  children,
+}) => {
   const dispatch = useAppDispatch();
   const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
@@ -96,6 +104,13 @@ export const Header = ({
         {...stylex.props(styles.toolbar)}
         sx={{ minHeight: { xs: '56px', sm: '64px' } }}
       >
+        <IconButton
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          sx={{ marginRight: 1 }}
+        >
+          <Menu />
+        </IconButton>
+
         <Stack direction="row" spacing={1} alignItems="center">
           <Edit 
             {...stylex.props(styles.toolbarIcon)}
@@ -106,28 +121,7 @@ export const Header = ({
           </Typography>
         </Stack>
 
-        {isSmallScreen && (
-          <Stack direction="row" spacing={0.5}>
-            <IconButton
-              onClick={onToggleOutline}
-              color={showOutline ? 'primary' : 'default'}
-              size="small"
-              {...stylex.props(styles.mobileButton)}
-            >
-              <FormatListBulleted fontSize="small" />
-            </IconButton>
-            <IconButton
-              onClick={onToggleChat}
-              color={showChat ? 'primary' : 'default'}
-              size="small"
-              {...stylex.props(styles.mobileButton)}
-            >
-              <ChatIcon fontSize="small" />
-            </IconButton>
-          </Stack>
-        )}
-
-        <Divider orientation="vertical" flexItem />
+        <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
 
         <Stack
           direction="row"
@@ -168,6 +162,27 @@ export const Header = ({
           )}
         </Stack>
 
+        {isSmallScreen && (
+          <Stack direction="row" spacing={0.5}>
+            <IconButton
+              onClick={onToggleOutline}
+              color={showOutline ? 'primary' : 'default'}
+              size="small"
+              {...stylex.props(styles.mobileButton)}
+            >
+              <FormatListBulleted fontSize="small" />
+            </IconButton>
+            <IconButton
+              onClick={onToggleChat}
+              color={showChat ? 'primary' : 'default'}
+              size="small"
+              {...stylex.props(styles.mobileButton)}
+            >
+              <ChatIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        )}
+
         <Box sx={{ ml: 'auto' }}>
           <MaterialUISwitch 
             checked={prefersDarkMode}
@@ -175,25 +190,25 @@ export const Header = ({
             size={isSmallScreen ? "small" : "medium"}
           />
         </Box>
+
+        <LinkDialog
+          open={linkDialogOpen}
+          onClose={() => setLinkDialogOpen(false)}
+          onConfirm={(url, text) => {
+            insertLink(editor, url, text);
+            setLinkDialogOpen(false);
+          }}
+        />
+
+        <TableDialog
+          open={tableDialogOpen}
+          onClose={() => setTableDialogOpen(false)}
+          onConfirm={(rows, cols) => {
+            insertTable(editor, rows, cols);
+            setTableDialogOpen(false);
+          }}
+        />
       </Toolbar>
-
-      <LinkDialog
-        open={linkDialogOpen}
-        onClose={() => setLinkDialogOpen(false)}
-        onConfirm={(url, text) => {
-          insertLink(editor, url, text);
-          setLinkDialogOpen(false);
-        }}
-      />
-
-      <TableDialog
-        open={tableDialogOpen}
-        onClose={() => setTableDialogOpen(false)}
-        onConfirm={(rows, cols) => {
-          insertTable(editor, rows, cols);
-          setTableDialogOpen(false);
-        }}
-      />
     </AppBar>
   );
 };
