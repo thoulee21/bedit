@@ -10,6 +10,7 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '@stylexjs/stylex': '<rootDir>/src/__mocks__/stylex.js',
   },
 }
 

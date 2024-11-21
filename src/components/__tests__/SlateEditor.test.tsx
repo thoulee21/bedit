@@ -1,10 +1,10 @@
-import { lightTheme } from '@/theme/theme'
+import { getTheme } from '@/theme/theme'
 import { ThemeProvider } from '@mui/material'
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { createEditor } from 'slate'
 import { withHistory } from 'slate-history'
 import { withReact } from 'slate-react'
-import SlateEditor from '../SlateEditor'
+import { SlateEditor } from '../SlateEditor'
 
 // 模拟 Portal 组件
 jest.mock('@mui/material', () => ({
@@ -43,7 +43,7 @@ describe('SlateEditor', () => {
 
   const renderEditor = () => {
     return render(
-      <ThemeProvider theme={lightTheme}>
+      <ThemeProvider theme={getTheme('light')}>
         <SlateEditor
           editor={editor}
           value={initialValue}
@@ -61,7 +61,7 @@ describe('SlateEditor', () => {
   it('shows placeholder when empty', () => {
     const emptyValue = [{ type: 'paragraph' as const, children: [{ text: '' }] }]
     render(
-      <ThemeProvider theme={lightTheme}>
+      <ThemeProvider theme={getTheme('light')}>
         <SlateEditor
           editor={editor}
           value={emptyValue}
