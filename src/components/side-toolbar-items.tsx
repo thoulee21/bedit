@@ -16,7 +16,8 @@ import {
   SelectAll,
   Undo,
   AutoFixHigh,
-  Image
+  Image,
+  TableChart
 } from '@mui/icons-material';
 import React from 'react';
 import { Editor, Range, Transforms } from 'slate';
@@ -35,6 +36,7 @@ interface ToolbarEvents {
   openTableDialog: () => void;
   openAIDialog: () => void;
   openMediaDialog: () => void;
+  openVisualizerDialog: () => void;
 }
 
 export const createSideToolbarItems = (
@@ -182,6 +184,12 @@ export const createSideToolbarItems = (
       icon: <Image />,
       title: '多媒体提取',
       onSelect: events.openMediaDialog,
+    },
+    {
+      key: 'visualizer',
+      icon: <TableChart />,
+      title: '智能可视化',
+      onSelect: events.openVisualizerDialog,
     },
   ];
 

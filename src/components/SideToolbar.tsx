@@ -5,6 +5,7 @@ import { Editor, Range, Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import { AIDialog } from './dialogs/AIDialog';
 import { MediaDialog } from './dialogs/MediaDialog';
+import { VisualizerDialog } from './dialogs/VisualizerDialog';
 import { createSideToolbarItems } from './side-toolbar-items';
 
 export const SideToolbar = () => {
@@ -15,6 +16,7 @@ export const SideToolbar = () => {
   const [aiDialogOpen, setAiDialogOpen] = React.useState(false);
   const [selectedText, setSelectedText] = React.useState('');
   const [mediaDialogOpen, setMediaDialogOpen] = React.useState(false);
+  const [visualizerDialogOpen, setVisualizerDialogOpen] = React.useState(false);
 
   React.useEffect(() => {
     const updateToolbar = () => {
@@ -76,6 +78,7 @@ export const SideToolbar = () => {
       setAiDialogOpen(true);
     },
     openMediaDialog: () => setMediaDialogOpen(true),
+    openVisualizerDialog: () => setVisualizerDialogOpen(true),
   });
 
   const handleApplyAIResult = (result: string) => {
@@ -88,6 +91,12 @@ export const SideToolbar = () => {
     if (!editor.selection) return;
     Transforms.insertText(editor, text);
     setMediaDialogOpen(false);
+  };
+
+  const handleInsertVisualization = (content: string) => {
+    if (!editor.selection) return;
+    Transforms.insertText(editor, content);
+    setVisualizerDialogOpen(false);
   };
 
   return (
@@ -138,6 +147,11 @@ export const SideToolbar = () => {
         open={mediaDialogOpen}
         onClose={() => setMediaDialogOpen(false)}
         onInsert={handleInsertMedia}
+      />
+      <VisualizerDialog
+        open={visualizerDialogOpen}
+        onClose={() => setVisualizerDialogOpen(false)}
+        onInsert={handleInsertVisualization}
       />
     </Portal>
   );
