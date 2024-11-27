@@ -22,28 +22,56 @@ export const convertToMarkdown = (nodes: Descendant[]): string => {
     .map(node => {
       if (!('type' in node)) return '';
       
+      const text = node.children
+        .map((child: CustomElement | CustomText) => 'text' in child ? child.text : '')
+        .join('');
+
       switch (node.type) {
         case 'heading-one':
-          return `# ${convertToText(node.children)}\n`;
+          return `# ${text}\n`;
         case 'heading-two':
-          return `## ${convertToText(node.children)}\n`;
+          return `## ${text}\n`;
         case 'heading-three':
-          return `### ${convertToText(node.children)}\n`;
+          return `### ${text}\n`;
+        case 'heading-four':
+          return `#### ${text}\n`;
+        case 'heading-five':
+          return `##### ${text}\n`;
+        case 'heading-six':
+          return `###### ${text}\n`;
         case 'paragraph':
-          return `${convertToText(node.children)}\n`;
+          return text ? `${text}\n` : '\n';
         case 'bulleted-list':
-          return (node as CustomElement).children
-            .map((item: CustomElement) => `* ${convertToText(item.children)}\n`)
+          return node.children
+            .map((item: CustomElement) => `* ${(item.children || [])
+              .map((child: CustomElement | CustomText) => 'text' in child ? child.text : '')
+              .join('')}\n`)
             .join('');
         case 'numbered-list':
-          return (node as CustomElement).children
-            .map((item: CustomElement, i: number) => `${i + 1}. ${convertToText(item.children)}\n`)
+          return node.children
+            .map((item: CustomElement, i: number) => `${i + 1}. ${(item.children || [])
+              .map((child: CustomElement | CustomText) => 'text' in child ? child.text : '')
+              .join('')}\n`)
             .join('');
+        case 'list-item':
+          return `${text}\n`;
+        case 'blockquote':
+          return `> ${text}\n`;
+        case 'code-block':
+          return `\`\`\`\n${text}\n\`\`\`\n`;
+        case 'link':
+          const url = (node as any).url || '';
+          return `[${text}](${url})`;
+        case 'image':
+          const imageUrl = (node as any).url || '';
+          const alt = text || 'image';
+          return `![${alt}](${imageUrl})`;
         default:
-          return convertToText(node.children);
+          return text ? `${text}\n` : '';
       }
     })
-    .join('\n');
+    .join('\n')
+    .trim();
 };
 
 // 将 Slate 节点转换为 Word 文档
