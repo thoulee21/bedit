@@ -1,6 +1,6 @@
 'use client'
 
-import './globals.css'; 
+import './globals.css';
 
 import React, { StrictMode } from 'react';
 import { createEditor } from 'slate';
@@ -76,10 +76,10 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [snackMsg, setSnackMsg] = React.useState('');
   const editor = React.useMemo(() => {
     const e = withHistory(withReact(createEditor()));
-    
+
     // 添加 toggleList 方法
     e.toggleList = (format) => toggleList(e, format);
-    
+
     return e;
   }, []);
   const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode);
@@ -106,8 +106,8 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box {...stylex.props(styles.root)} sx={{ pt: { xs: '56px', sm: '64px' } }}>
-        <Header 
-          editor={editor} 
+        <Header
+          editor={editor}
           setValue={setValue}
           onToggleOutline={() => setShowOutline(!showOutline)}
           onToggleChat={() => setShowChat(!showChat)}
@@ -136,7 +136,7 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
             direction="row"
             spacing={1.5}
             {...stylex.props(styles.contentStack)}
-            sx={{ 
+            sx={{
               px: { xs: 0.5, sm: 1, md: 1.5 },
               py: 0.5,
               display: 'flex',
