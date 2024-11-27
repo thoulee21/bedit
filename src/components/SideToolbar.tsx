@@ -95,7 +95,19 @@ export const SideToolbar = () => {
 
   const handleInsertVisualization = (content: string) => {
     if (!editor.selection) return;
-    Transforms.insertText(editor, content);
+    try {
+      // 尝试解析为图表节点
+      const node = JSON.parse(content);
+      if (node.type === 'chart') {
+        Transforms.insertNodes(editor, node);
+      } else {
+        // 如果不是图表节点，直接插入文本
+        Transforms.insertText(editor, content);
+      }
+    } catch {
+      // 如果解析失败，直接插入文本
+      Transforms.insertText(editor, content);
+    }
     setVisualizerDialogOpen(false);
   };
 

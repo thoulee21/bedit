@@ -12,8 +12,9 @@ import {
   CircularProgress,
   Typography,
 } from '@mui/material';
-import { TableChart, AccountTree, BarChart } from '@mui/icons-material';
+import { TableChart, AccountTree, BarChart, ShowChart, PieChart } from '@mui/icons-material';
 import { mockVisualize } from '@/utils/visualizer-utils';
+import { ChartVisualizer } from '../visualizers/ChartVisualizer';
 
 interface VisualizerDialogProps {
   open: boolean;
@@ -44,6 +45,24 @@ export const VisualizerDialog: React.FC<VisualizerDialogProps> = ({
     }
   };
 
+  const handleInsert = () => {
+    if (!result) return;
+
+    // 如果是图表数据，创建图表节点
+    if (activeTab >= 2) {  // 2,3,4 是图表类型
+      const chartNode = {
+        type: 'chart',
+        data: result,
+        children: [{ text: '' }],
+      };
+      onInsert(JSON.stringify(chartNode));
+    } else {
+      // 对于表格和思维导图，直接插入文本
+      onInsert(result);
+    }
+    onClose();
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>智能可视化</DialogTitle>
@@ -51,7 +70,9 @@ export const VisualizerDialog: React.FC<VisualizerDialogProps> = ({
         <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)}>
           <Tab icon={<TableChart />} label="表格生成" />
           <Tab icon={<AccountTree />} label="思维导图" />
-          <Tab icon={<BarChart />} label="数据可视化" />
+          <Tab icon={<BarChart />} label="柱状图" />
+          <Tab icon={<ShowChart />} label="折线图" />
+          <Tab icon={<PieChart />} label="饼图" />
         </Tabs>
 
         <Box sx={{ mt: 2 }}>
@@ -79,10 +100,14 @@ export const VisualizerDialog: React.FC<VisualizerDialogProps> = ({
               <Typography variant="subtitle2" gutterBottom>
                 生成结果：
               </Typography>
-              <pre style={{ whiteSpace: 'pre-wrap' }}>{result}</pre>
+              {activeTab >= 2 ? (
+                <ChartVisualizer data={result} />
+              ) : (
+                <pre style={{ whiteSpace: 'pre-wrap' }}>{result}</pre>
+              )}
               <Button
                 variant="contained"
-                onClick={() => onInsert(result)}
+                onClick={handleInsert}
                 sx={{ mt: 1 }}
               >
                 插入到编辑器

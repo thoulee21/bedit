@@ -7,12 +7,38 @@ export const mockVisualize = async (type: number, content: string): Promise<stri
       return `| 列1 | 列2 | 列3 |\n|-----|-----|-----|\n| 数据1 | 数据2 | 数据3 |`;
     case 1: // 思维导图
       return `- 主题\n  - 分支1\n    - 子分支1\n    - 子分支2\n  - 分支2\n    - 子分支3\n    - 子分支4`;
-    case 2: // 数据可视化
+    case 2: // 数据可视化 - 柱状图
       return `{
   "type": "bar",
   "data": {
-    "labels": ["A", "B", "C"],
-    "values": [10, 20, 30]
+    "labels": ["A", "B", "C", "D", "E"],
+    "values": [10, 20, 30, 25, 15]
+  },
+  "options": {
+    "title": "柱状图示例",
+    "colors": ["rgba(54, 162, 235, 0.5)"]
+  }
+}`;
+    case 3: // 数据可视化 - 折线图
+      return `{
+  "type": "line",
+  "data": {
+    "labels": ["一月", "二月", "三月", "四月", "五月"],
+    "values": [5, 15, 10, 25, 20]
+  },
+  "options": {
+    "title": "趋势图示例"
+  }
+}`;
+    case 4: // 数据可视化 - 饼图
+      return `{
+  "type": "pie",
+  "data": {
+    "labels": ["类别A", "类别B", "类别C", "类别D"],
+    "values": [30, 25, 20, 25]
+  },
+  "options": {
+    "title": "占比分析"
   }
 }`;
     default:

@@ -14,6 +14,7 @@ import {
 import { CustomElement } from '@/types/slate'
 import Image from 'next/image'
 import { ElementStyle } from '@/types/style';
+import { ChartVisualizer } from '../visualizers/ChartVisualizer';
 
 export const Element = ({ attributes, children, element }: RenderElementProps) => {
   const theme = useTheme()
@@ -422,6 +423,25 @@ export const Element = ({ attributes, children, element }: RenderElementProps) =
           {children}
         </TableCell>
       )
+
+    case 'chart':
+      return (
+        <Box
+          {...attributes}
+          contentEditable={false}
+          sx={{
+            margin: '1em 0',
+            padding: '1em',
+            backgroundColor: theme.palette.mode === 'dark'
+              ? 'rgba(255, 255, 255, 0.05)'
+              : 'rgba(0, 0, 0, 0.03)',
+            borderRadius: '4px',
+          }}
+        >
+          <ChartVisualizer data={element.data} />
+          {children}
+        </Box>
+      );
 
     // ... 其他 case 保持不变
   }

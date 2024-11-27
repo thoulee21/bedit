@@ -14,9 +14,10 @@ export type CustomText = {
 export type CustomElement = {
   type: 'paragraph' | 'heading-one' | 'heading-two' | 'heading-three' | 'heading-four' | 'heading-five' | 'heading-six' |
         'bulleted-list' | 'numbered-list' | 'list-item' | 'blockquote' | 'code-block' | 'link' | 'image' | 'attachment' | 'table' |
-        'table-row' | 'table-cell'
+        'table-row' | 'table-cell' | 'chart'
   align?: 'left' | 'center' | 'right' | 'justify'
   url?: string
+  data?: string
   children: (CustomElement | CustomText)[]
   name?: string
   size?: number
