@@ -1,3 +1,5 @@
+import { Bookmark as BookmarkType } from '@/types/bookmark';
+import { exportFile, handleExport, parseImportedContent } from '@/utils/file-utils';
 import {
   Bookmark,
   CloudDownload,
@@ -13,21 +15,20 @@ import {
   ListItemIcon,
   ListItemText,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Divider
 } from '@mui/material';
 import * as stylex from '@stylexjs/stylex';
 import React from 'react';
 import { Descendant, Editor } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { AboutDialog } from './dialogs/AboutDialog';
+import { BookmarkDialog } from './dialogs/BookmarkDialog';
 import { ExportDialog } from './dialogs/ExportDialog';
 import { ImportDialog } from './dialogs/ImportDialog';
 import { SettingsDialog } from './dialogs/SettingsDialog';
-import { convertToText, convertToMarkdown, exportFile, readFile, parseImportedContent, handleExport } from '@/utils/file-utils';
-import { BookmarkDialog } from './dialogs/BookmarkDialog';
-import { Bookmark as BookmarkType } from '@/types/bookmark';
 
-const DRAWER_WIDTH = 240;
+const DRAWER_WIDTH = 280;
 
 const styles = stylex.create({
   drawer: {
@@ -38,20 +39,32 @@ const styles = stylex.create({
     width: `${DRAWER_WIDTH}px`,
     borderRight: '1px solid var(--divider)',
     backgroundColor: 'var(--background-paper)',
+    transition: 'box-shadow 0.3s ease-in-out',
+    ':hover': {
+      boxShadow: '0 0 20px rgba(0, 0, 0, 0.1)',
+    },
   },
   listItem: {
-    borderRadius: '8px',
-    margin: '0 8px',
+    margin: '4px 8px',
+    borderRadius: '12px',
+    transition: 'all 0.2s ease-in-out',
     ':hover': {
       backgroundColor: 'var(--background-hover)',
+      transform: 'translateX(4px)',
     },
   },
   listItemIcon: {
     color: 'var(--text-primary)',
     minWidth: '40px',
+    transition: 'transform 0.2s ease',
   },
   listItemText: {
     color: 'var(--text-primary)',
+    transition: 'color 0.2s ease',
+  },
+  divider: {
+    margin: '12px 0',
+    opacity: 0.6,
   },
 });
 
@@ -120,39 +133,124 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
           sx: {
             top: { xs: 56, sm: 64 },
             height: { xs: 'calc(100% - 56px)', sm: 'calc(100% - 64px)' },
+            padding: '12px 0',
+            backgroundImage: theme.palette.mode === 'dark' 
+              ? 'linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))'
+              : 'linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.01))',
           },
           ...stylex.props(styles.drawerPaper),
         }}
       >
         <List>
           <ListItem disablePadding>
-            <ListItemButton onClick={() => setBookmarkDialogOpen(true)}>
-              <ListItemIcon><Bookmark /></ListItemIcon>
-              <ListItemText primary="书签" />
+            <ListItemButton 
+              onClick={() => setBookmarkDialogOpen(true)}
+              sx={{
+                '&:hover .MuiListItemIcon-root': {
+                  transform: 'scale(1.1)',
+                  color: 'primary.main',
+                },
+              }}
+              {...stylex.props(styles.listItem)}
+            >
+              <ListItemIcon {...stylex.props(styles.listItemIcon)}>
+                <Bookmark />
+              </ListItemIcon>
+              <ListItemText 
+                primary="书签"
+                primaryTypographyProps={{
+                  sx: { fontWeight: 500 }
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+          <Divider {...stylex.props(styles.divider)} />
+          <ListItem disablePadding>
+            <ListItemButton 
+              onClick={() => setImportDialogOpen(true)}
+              sx={{
+                '&:hover .MuiListItemIcon-root': {
+                  transform: 'scale(1.1)',
+                  color: 'primary.main',
+                },
+              }}
+              {...stylex.props(styles.listItem)}
+            >
+              <ListItemIcon {...stylex.props(styles.listItemIcon)}>
+                <CloudUpload />
+              </ListItemIcon>
+              <ListItemText 
+                primary="导入"
+                primaryTypographyProps={{
+                  sx: { fontWeight: 500 }
+                }}
+              />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton onClick={() => setImportDialogOpen(true)}>
-              <ListItemIcon><CloudUpload /></ListItemIcon>
-              <ListItemText primary="导入" />
+            <ListItemButton 
+              onClick={() => setExportDialogOpen(true)}
+              sx={{
+                '&:hover .MuiListItemIcon-root': {
+                  transform: 'scale(1.1)',
+                  color: 'primary.main',
+                },
+              }}
+              {...stylex.props(styles.listItem)}
+            >
+              <ListItemIcon {...stylex.props(styles.listItemIcon)}>
+                <CloudDownload />
+              </ListItemIcon>
+              <ListItemText 
+                primary="导出"
+                primaryTypographyProps={{
+                  sx: { fontWeight: 500 }
+                }}
+              />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton onClick={() => setExportDialogOpen(true)}>
-              <ListItemIcon><CloudDownload /></ListItemIcon>
-              <ListItemText primary="导出" />
+            <ListItemButton 
+              onClick={() => setSettingsDialogOpen(true)}
+              sx={{
+                '&:hover .MuiListItemIcon-root': {
+                  transform: 'scale(1.1)',
+                  color: 'primary.main',
+                },
+              }}
+              {...stylex.props(styles.listItem)}
+            >
+              <ListItemIcon {...stylex.props(styles.listItemIcon)}>
+                <Settings />
+              </ListItemIcon>
+              <ListItemText 
+                primary="设置"
+                primaryTypographyProps={{
+                  sx: { fontWeight: 500 }
+                }}
+              />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton onClick={() => setSettingsDialogOpen(true)}>
-              <ListItemIcon><Settings /></ListItemIcon>
-              <ListItemText primary="设置" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => setAboutDialogOpen(true)}>
-              <ListItemIcon><GitHub /></ListItemIcon>
-              <ListItemText primary="关于" />
+            <ListItemButton 
+              onClick={() => setAboutDialogOpen(true)}
+              sx={{
+                '&:hover .MuiListItemIcon-root': {
+                  transform: 'scale(1.1)',
+                  color: 'primary.main',
+                },
+              }}
+              {...stylex.props(styles.listItem)}
+            >
+              <ListItemIcon {...stylex.props(styles.listItemIcon)}>
+                <GitHub />
+              </ListItemIcon>
+              <ListItemText 
+                primary="关于"
+                primaryTypographyProps={{
+                  sx: { fontWeight: 500 }
+                }}
+              />
             </ListItemButton>
           </ListItem>
         </List>
