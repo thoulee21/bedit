@@ -5,9 +5,7 @@ export const mockVisualize = async (type: number, content: string): Promise<stri
   switch (type) {
     case 0: // 表格生成
       return `| 列1 | 列2 | 列3 |\n|-----|-----|-----|\n| 数据1 | 数据2 | 数据3 |`;
-    case 1: // 思维导图
-      return `- 主题\n  - 分支1\n    - 子分支1\n    - 子分支2\n  - 分支2\n    - 子分支3\n    - 子分支4`;
-    case 2: // 数据可视化 - 柱状图
+    case 1: // 柱状图
       return `{
   "type": "bar",
   "data": {
@@ -19,7 +17,7 @@ export const mockVisualize = async (type: number, content: string): Promise<stri
     "colors": ["rgba(54, 162, 235, 0.5)"]
   }
 }`;
-    case 3: // 数据可视化 - 折线图
+    case 2: // 折线图
       return `{
   "type": "line",
   "data": {
@@ -30,7 +28,7 @@ export const mockVisualize = async (type: number, content: string): Promise<stri
     "title": "趋势图示例"
   }
 }`;
-    case 4: // 数据可视化 - 饼图
+    case 3: // 饼图
       return `{
   "type": "pie",
   "data": {

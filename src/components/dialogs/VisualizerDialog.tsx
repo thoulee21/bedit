@@ -1,19 +1,19 @@
-import React from 'react';
+import { mockVisualize } from '@/utils/visualizer-utils';
+import { BarChart, PieChart, ShowChart, TableChart } from '@mui/icons-material';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Tabs,
-  Tab,
   Box,
-  TextField,
+  Button,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Tab,
+  Tabs,
+  TextField,
   Typography,
 } from '@mui/material';
-import { TableChart, AccountTree, BarChart, ShowChart, PieChart } from '@mui/icons-material';
-import { mockVisualize } from '@/utils/visualizer-utils';
+import React from 'react';
 import { ChartVisualizer } from '../visualizers/ChartVisualizer';
 
 interface VisualizerDialogProps {
@@ -69,7 +69,6 @@ export const VisualizerDialog: React.FC<VisualizerDialogProps> = ({
       <DialogContent>
         <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)}>
           <Tab icon={<TableChart />} label="表格生成" />
-          <Tab icon={<AccountTree />} label="思维导图" />
           <Tab icon={<BarChart />} label="柱状图" />
           <Tab icon={<ShowChart />} label="折线图" />
           <Tab icon={<PieChart />} label="饼图" />
@@ -85,8 +84,6 @@ export const VisualizerDialog: React.FC<VisualizerDialogProps> = ({
             placeholder={
               activeTab === 0
                 ? '请输入需要整理成表格的文本内容...'
-                : activeTab === 1
-                ? '请输入需要生成思维导图的文本内容...'
                 : '请输入需要可视化的数据...'
             }
           />
@@ -100,10 +97,10 @@ export const VisualizerDialog: React.FC<VisualizerDialogProps> = ({
               <Typography variant="subtitle2" gutterBottom>
                 生成结果：
               </Typography>
-              {activeTab >= 2 ? (
-                <ChartVisualizer data={result} />
-              ) : (
+              {activeTab === 0 ? (
                 <pre style={{ whiteSpace: 'pre-wrap' }}>{result}</pre>
+              ) : (
+                <ChartVisualizer data={result} />
               )}
               <Button
                 variant="contained"
