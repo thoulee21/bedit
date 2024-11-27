@@ -1,8 +1,14 @@
-import { exportFile, handleExport, parseImportedContent } from '@/utils/file-utils';
+import { StyleTemplate } from '@/types/style';
+import {
+  exportFile,
+  handleExport,
+  parseImportedContent
+} from '@/utils/file-utils';
 import {
   CloudDownload,
   GitHub,
-  Settings
+  Settings,
+  Style
 } from '@mui/icons-material';
 import {
   Drawer,
@@ -12,7 +18,8 @@ import {
   ListItemIcon,
   ListItemText,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Divider
 } from '@mui/material';
 import * as stylex from '@stylexjs/stylex';
 import React from 'react';
@@ -22,15 +29,17 @@ import { AboutDialog } from './dialogs/AboutDialog';
 import { ExportDialog } from './dialogs/ExportDialog';
 import { ImportDialog } from './dialogs/ImportDialog';
 import { SettingsDialog } from './dialogs/SettingsDialog';
+import { StyleDialog } from './dialogs/StyleDialog';
 
 const DRAWER_WIDTH = 280;
 
 interface SidebarProps {
   editor: Editor & ReactEditor;
   setValue: (value: Descendant[]) => void;
+  onApplyStyle: (template: StyleTemplate) => void;
 }
 
-export const Sidebar = ({ editor, setValue }: SidebarProps) => {
+export const Sidebar = ({ editor, setValue, onApplyStyle }: SidebarProps) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [open, setOpen] = React.useState(true);
@@ -38,6 +47,7 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
   const [settingsDialogOpen, setSettingsDialogOpen] = React.useState(false);
   const [importDialogOpen, setImportDialogOpen] = React.useState(false);
   const [exportDialogOpen, setExportDialogOpen] = React.useState(false);
+  const [styleDialogOpen, setStyleDialogOpen] = React.useState(false);
 
   const handleImport = async (file: File) => {
     try {
@@ -67,6 +77,19 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
     }
   };
 
+  const handleApplyStyle = (template: StyleTemplate) => {
+    const newValue = editor.children.map(node => {
+      if ('type' in node && template.styles[node.type]) {
+        return {
+          ...node,
+          style: template.styles[node.type],
+        };
+      }
+      return node;
+    });
+    setValue(newValue);
+  };
+
   return (
     <>
       <Drawer
@@ -80,6 +103,8 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
             top: { xs: 56, sm: 64 },
             height: { xs: 'calc(100% - 56px)', sm: 'calc(100% - 64px)' },
             padding: '12px 0',
+            display: 'flex',
+            flexDirection: 'column',
             backgroundImage: theme.palette.mode === 'dark'
               ? 'linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))'
               : 'linear-gradient(rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.01))',
@@ -87,7 +112,7 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
           ...stylex.props(styles.drawerPaper),
         }}
       >
-        <List>
+        <List sx={{ flex: 1 }}>
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => setImportDialogOpen(true)}
@@ -132,6 +157,31 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
               />
             </ListItemButton>
           </ListItem>
+
+          <Divider {...stylex.props(styles.divider)} />
+
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => setStyleDialogOpen(true)}
+              sx={{
+                '&:hover .MuiListItemIcon-root': {
+                  transform: 'scale(1.1)',
+                  color: 'primary.main',
+                },
+              }}
+              {...stylex.props(styles.listItem)}
+            >
+              <ListItemIcon {...stylex.props(styles.listItemIcon)}>
+                <Style />
+              </ListItemIcon>
+              <ListItemText
+                primary="排版样式"
+                primaryTypographyProps={{
+                  sx: { fontWeight: 500 }
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => setSettingsDialogOpen(true)}
@@ -154,6 +204,11 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
               />
             </ListItemButton>
           </ListItem>
+        </List>
+
+        <Divider {...stylex.props(styles.divider)} />
+
+        <List>
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => setAboutDialogOpen(true)}
@@ -196,6 +251,11 @@ export const Sidebar = ({ editor, setValue }: SidebarProps) => {
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExportFormat}
+      />
+      <StyleDialog
+        open={styleDialogOpen}
+        onClose={() => setStyleDialogOpen(false)}
+        onApplyStyle={handleApplyStyle}
       />
     </>
   );

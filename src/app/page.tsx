@@ -29,9 +29,11 @@ import { Provider } from 'react-redux';
 import { createEditor } from 'slate';
 import { withHistory } from 'slate-history';
 import { withReact } from 'slate-react';
+import { StyleTemplate } from '@/types/style';
 
 const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [value, setValue] = React.useState(DEV_INITIAL_CONTENT);
+  const [currentStyle, setCurrentStyle] = React.useState<StyleTemplate>();
 
   const editor = React.useMemo(() => {
     const e = withHistory(withReact(createEditor()));
@@ -50,6 +52,20 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [showOutline, setShowOutline] = React.useState(true);
   const [showChat, setShowChat] = React.useState(!isSmallScreen);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  const handleApplyStyle = (template: StyleTemplate) => {
+    const newValue = editor.children.map(node => {
+      if ('type' in node && template.styles[node.type]) {
+        return {
+          ...node,
+          style: template.styles[node.type],
+        };
+      }
+      return node;
+    });
+    setValue(newValue);
+    setCurrentStyle(template);  // 更新当前样式
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -78,7 +94,11 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
             },
           }}
         >
-          <Sidebar editor={editor} setValue={setValue} />
+          <Sidebar 
+            editor={editor} 
+            setValue={setValue}
+            onApplyStyle={handleApplyStyle}  // 传递样式处理函数
+          />
         </Drawer>
         <Box {...stylex.props(styles.mainContent)}>
           <Stack
@@ -125,7 +145,10 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
             )}
           </Stack>
         </Box>
-        <StatusBar editor={editor} />
+        <StatusBar 
+          editor={editor} 
+          currentStyle={currentStyle}  // 传递当前样式
+        />
       </Box>
     </ThemeProvider>
   );

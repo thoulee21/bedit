@@ -1,12 +1,26 @@
 import React, { CSSProperties } from 'react'
 import { RenderElementProps } from 'slate-react'
-import { Box, Table, TableBody, TableCell, TableContainer, TableRow, useTheme, Link, Paper } from '@mui/material'
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  useTheme,
+  Link,
+  Paper,
+} from '@mui/material'
 import { CustomElement } from '@/types/slate'
 import Image from 'next/image'
+import { ElementStyle } from '@/types/style';
 
 export const Element = ({ attributes, children, element }: RenderElementProps) => {
   const theme = useTheme()
-  const style = element.align ? { textAlign: element.align } : {}
+  const customStyle = (element as any).style as ElementStyle;
+  const style = {
+    ...customStyle,
+  };
   const customElement = element as CustomElement
 
   const renderHeading = (level: number) => {
@@ -56,15 +70,15 @@ export const Element = ({ attributes, children, element }: RenderElementProps) =
             top: '0.3em',
             bottom: '0.3em',
             width: '4px',
-            backgroundColor: level === 1 
-              ? theme.palette.primary.main 
-              : level === 2 
+            backgroundColor: level === 1
+              ? theme.palette.primary.main
+              : level === 2
                 ? theme.palette.primary.light
                 : theme.palette.divider,
             borderRadius: '2px',
           } : undefined,
           '&:hover': level <= 3 ? {
-            backgroundColor: theme.palette.mode === 'dark' 
+            backgroundColor: theme.palette.mode === 'dark'
               ? 'rgba(255, 255, 255, 0.03)'
               : 'rgba(0, 0, 0, 0.02)',
             transition: 'background-color 0.2s ease',
@@ -336,7 +350,7 @@ export const Element = ({ attributes, children, element }: RenderElementProps) =
             },
           }}
         >
-          <TableContainer 
+          <TableContainer
             component={Paper}
             sx={{
               borderRadius: 1,
