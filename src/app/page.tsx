@@ -2,73 +2,36 @@
 
 import './globals.css';
 
-import React, { StrictMode } from 'react';
-import { createEditor } from 'slate';
-import { withReact } from 'slate-react';
-import { withHistory } from 'slate-history';
-import { Box, ThemeProvider, Stack, Paper, IconButton, useMediaQuery, CssBaseline, Drawer } from '@mui/material';
-import { Header } from '@/components/Header';
-import { StatusBar } from '@/components/StatusBar';
-import { getTheme } from '@/theme/theme';
-import { DEV_INITIAL_CONTENT } from '@/utils/dev-content';
-import { Close, Menu } from '@mui/icons-material';
-import { Snackbar } from '@mui/material';
-import { Sidebar } from '@/components/Sidebar';
 import { Chat } from '@/components/Chat';
 import { DocumentOutline } from '@/components/DocumentOutline';
+import { Header } from '@/components/Header';
+import { Sidebar } from '@/components/Sidebar';
 import { SlateEditor } from '@/components/SlateEditor';
-import { Provider } from 'react-redux';
+import { StatusBar } from '@/components/StatusBar';
 import { store } from '@/store';
 import { useAppSelector } from '@/store/hooks';
-import dynamic from 'next/dynamic';
-import * as stylex from '@stylexjs/stylex';
+import { getTheme } from '@/theme/theme';
+import { DEV_INITIAL_CONTENT } from '@/utils/dev-content';
 import { toggleList } from '@/utils/editor-utils';
-
-const styles = stylex.create({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh',
-    overflow: 'hidden',
-  },
-  mainContent: {
-    display: 'flex',
-    flex: 1,
-    overflow: 'hidden',
-    position: 'relative',
-    backgroundColor: 'var(--background-default)',
-  },
-  contentStack: {
-    flex: 1,
-    overflow: 'hidden',
-  },
-  sidePanel: {
-    overflow: 'auto',
-    overscrollBehavior: 'none',
-    borderRadius: '12px',
-    transition: 'box-shadow 0.3s ease-in-out',
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: 'var(--background-paper)',
-  },
-  editorContainer: {
-    flex: 1,
-    height: '100%',
-    overflow: 'auto',
-    overscrollBehavior: 'none',
-    display: 'flex',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  editorPaper: {
-    minHeight: '297mm',
-    height: 'fit-content',
-    borderRadius: '12px',
-    backgroundColor: 'var(--background-paper)',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-});
+import { Close } from '@mui/icons-material';
+import {
+  Box,
+  CssBaseline,
+  Drawer,
+  IconButton,
+  Paper,
+  Snackbar,
+  Stack,
+  ThemeProvider,
+  useMediaQuery,
+} from '@mui/material';
+import * as stylex from '@stylexjs/stylex';
+import dynamic from 'next/dynamic';
+import React, { StrictMode } from 'react';
+import { Provider } from 'react-redux';
+import { createEditor } from 'slate';
+import { withHistory } from 'slate-history';
+import { withReact } from 'slate-react';
 
 const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [value, setValue] = React.useState(DEV_INITIAL_CONTENT);
@@ -204,3 +167,49 @@ export default function Home() {
     </StrictMode>
   );
 }
+
+const styles = stylex.create({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
+    overflow: 'hidden',
+  },
+  mainContent: {
+    display: 'flex',
+    flex: 1,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: 'var(--background-default)',
+  },
+  contentStack: {
+    flex: 1,
+    overflow: 'hidden',
+  },
+  sidePanel: {
+    overflow: 'auto',
+    overscrollBehavior: 'none',
+    borderRadius: '12px',
+    transition: 'box-shadow 0.3s ease-in-out',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: 'var(--background-paper)',
+  },
+  editorContainer: {
+    flex: 1,
+    height: '100%',
+    overflow: 'auto',
+    overscrollBehavior: 'none',
+    display: 'flex',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  editorPaper: {
+    minHeight: '297mm',
+    height: 'fit-content',
+    borderRadius: '12px',
+    backgroundColor: 'var(--background-paper)',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+});

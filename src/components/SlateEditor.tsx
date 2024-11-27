@@ -4,6 +4,7 @@ import { Descendant, Editor } from 'slate';
 import { Editable, Slate } from 'slate-react';
 import { Element } from './elements/Element';
 import { Leaf } from './elements/Leaf';
+import { SideToolbar } from './SideToolbar';
 
 // 创建自定义样式的 Editable 组件
 const StyledEditable = styled(Editable)(({ theme }) => ({
@@ -77,6 +78,7 @@ export const SlateEditor: React.FC<SlateEditorProps> = ({ editor, value, onChang
         spellCheck
         autoFocus
       />
+      <SideToolbar />
     </Slate>
   );
 }; 

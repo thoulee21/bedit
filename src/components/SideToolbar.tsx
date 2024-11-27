@@ -62,7 +62,10 @@ export const SideToolbar = () => {
     };
   }, [editor]);
 
-  const toolbarItems = createSideToolbarItems(editor);
+  const toolbarItems = createSideToolbarItems(editor, {
+    openLinkDialog: () => {},
+    openTableDialog: () => {},
+  });
 
   return (
     <Portal>

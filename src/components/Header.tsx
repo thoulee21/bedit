@@ -1,18 +1,177 @@
-import React, { useState, Dispatch, SetStateAction } from 'react';
-import { AppBar, Box, Toolbar, Stack, Divider, Typography, IconButton } from '@mui/material';
-import { Editor, Descendant } from 'slate';
-import { ReactEditor } from 'slate-react';
-import { HistoryEditor } from 'slate-history';
-import { MaterialUISwitch } from './MaterialUISwitch';
-import { createToolbarItems } from './toolbar-items';
-import { Edit, FormatListBulleted, Chat as ChatIcon, Menu } from '@mui/icons-material';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { toggleDarkMode } from '@/store/preferencesSlice';
+import { CustomEditor } from '@/types/slate';
+import { insertLink, insertTable } from '@/utils/editor-utils';
+import { Chat as ChatIcon, Edit, FormatListBulleted, Menu } from '@mui/icons-material';
+import { AppBar, Box, Divider, IconButton, Stack, Toolbar, Typography } from '@mui/material';
+import * as stylex from '@stylexjs/stylex';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { LinkDialog } from './dialogs/LinkDialog';
 import { TableDialog } from './dialogs/TableDialog';
-import { insertLink, insertTable } from '@/utils/editor-utils';
-import { toggleDarkMode } from '@/store/preferencesSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import * as stylex from '@stylexjs/stylex';
-import { CustomEditor } from '@/types/slate';
+import { MaterialUISwitch } from './MaterialUISwitch';
+import { createToolbarItems } from './toolbar-items';
+
+interface HeaderProps {
+  editor: CustomEditor;
+  setValue: Dispatch<SetStateAction<any[]>>;
+  onToggleOutline: () => void;
+  onToggleChat: () => void;
+  showOutline: boolean;
+  showChat: boolean;
+  isSmallScreen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  sidebarOpen: boolean;
+  children?: React.ReactNode;
+}
+
+export const Header: React.FC<HeaderProps> = ({
+  editor,
+  onToggleOutline,
+  onToggleChat,
+  showOutline,
+  showChat,
+  isSmallScreen,
+  setSidebarOpen,
+  sidebarOpen,
+}) => {
+  const dispatch = useAppDispatch();
+  const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [tableDialogOpen, setTableDialogOpen] = useState(false);
+
+  const toolbarEvents = {
+    openLinkDialog: () => setLinkDialogOpen(true),
+    openTableDialog: () => setTableDialogOpen(true),
+  };
+
+  const toolbarItems = createToolbarItems(editor, toolbarEvents);
+
+  return (
+    <AppBar
+      position="fixed"
+      color="default"
+      elevation={0}
+      {...stylex.props(styles.appBar)}
+    >
+      <Toolbar
+        variant="dense"
+        {...stylex.props(styles.toolbar)}
+        sx={{ minHeight: { xs: '56px', sm: '64px' } }}
+      >
+        <IconButton
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          sx={{ marginRight: 1 }}
+        >
+          <Menu />
+        </IconButton>
+
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Edit
+            {...stylex.props(styles.toolbarIcon)}
+            sx={{ fontSize: isSmallScreen ? 24 : 28 }}
+          />
+          <Typography
+            variant="h6"
+            {...stylex.props(styles.title)}
+          >
+            BEdit
+          </Typography>
+        </Stack>
+
+        <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
+
+        <Stack
+          direction="row"
+          spacing={0.5}
+          {...stylex.props(styles.toolbarContent)}
+        >
+          {toolbarItems.map((item) =>
+            item.type === 'separator' ? (
+              <Divider
+                key={item.key}
+                orientation="vertical"
+                flexItem
+                sx={{
+                  mx: isSmallScreen ? 0.25 : 0.5,
+                  borderColor: 'var(--divider)',
+                }}
+              />
+            ) : (
+              <IconButton
+                key={item.key}
+                size="small"
+                onClick={item.onSelect}
+                disabled={item.disabled}
+                {...stylex.props(
+                  styles.toolbarItem,
+                  styles.toolbarIcon
+                )}
+                sx={{
+                  padding: isSmallScreen ? '6px' : '8px',
+                  '&.Mui-disabled': {
+                    opacity: 0.5,
+                  },
+                  '&.MuiIconButton-colorPrimary': {
+                    color: 'var(--primary-main)',
+                  },
+                }}
+              >
+                {item.icon}
+              </IconButton>
+            )
+          )}
+        </Stack>
+
+        {isSmallScreen && (
+          <Stack direction="row" spacing={0.5}>
+            <IconButton
+              onClick={onToggleOutline}
+              color={showOutline ? 'primary' : 'default'}
+              size="small"
+              {...stylex.props(styles.mobileButton)}
+            >
+              <FormatListBulleted fontSize="small" />
+            </IconButton>
+            <IconButton
+              onClick={onToggleChat}
+              color={showChat ? 'primary' : 'default'}
+              size="small"
+              {...stylex.props(styles.mobileButton)}
+            >
+              <ChatIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        )}
+
+        <Box sx={{ ml: 'auto' }}>
+          <MaterialUISwitch
+            checked={prefersDarkMode}
+            onChange={() => dispatch(toggleDarkMode())}
+            size={isSmallScreen ? "small" : "medium"}
+          />
+        </Box>
+
+        <LinkDialog
+          open={linkDialogOpen}
+          onClose={() => setLinkDialogOpen(false)}
+          onConfirm={(url, text) => {
+            insertLink(editor, url, text);
+            setLinkDialogOpen(false);
+          }}
+        />
+
+        <TableDialog
+          open={tableDialogOpen}
+          onClose={() => setTableDialogOpen(false)}
+          onConfirm={(rows, cols) => {
+            insertTable(editor, rows, cols);
+            setTableDialogOpen(false);
+          }}
+        />
+      </Toolbar>
+    </AppBar>
+  );
+};
 
 const styles = stylex.create({
   appBar: {
@@ -55,161 +214,3 @@ const styles = stylex.create({
     },
   },
 });
-
-interface HeaderProps {
-  editor: CustomEditor;
-  setValue: Dispatch<SetStateAction<any[]>>;
-  onToggleOutline: () => void;
-  onToggleChat: () => void;
-  showOutline: boolean;
-  showChat: boolean;
-  isSmallScreen: boolean;
-  setSidebarOpen: (open: boolean) => void;
-  sidebarOpen: boolean;
-  children?: React.ReactNode;
-}
-
-export const Header: React.FC<HeaderProps> = ({
-  editor,
-  setValue,
-  onToggleOutline,
-  onToggleChat,
-  showOutline,
-  showChat,
-  isSmallScreen,
-  setSidebarOpen,
-  sidebarOpen,
-  children,
-}) => {
-  const dispatch = useAppDispatch();
-  const prefersDarkMode = useAppSelector(state => state.preferences.prefersDarkMode);
-  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
-  const [tableDialogOpen, setTableDialogOpen] = useState(false);
-
-  const toolbarEvents = {
-    openLinkDialog: () => setLinkDialogOpen(true),
-    openTableDialog: () => setTableDialogOpen(true),
-  };
-
-  const toolbarItems = createToolbarItems(editor, toolbarEvents);
-
-  return (
-    <AppBar 
-      position="fixed" 
-      color="default" 
-      elevation={0}
-      {...stylex.props(styles.appBar)}
-    >
-      <Toolbar 
-        variant="dense"
-        {...stylex.props(styles.toolbar)}
-        sx={{ minHeight: { xs: '56px', sm: '64px' } }}
-      >
-        <IconButton
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          sx={{ marginRight: 1 }}
-        >
-          <Menu />
-        </IconButton>
-
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Edit 
-            {...stylex.props(styles.toolbarIcon)}
-            sx={{ fontSize: isSmallScreen ? 24 : 28 }} 
-          />
-          <Typography variant="h6" {...stylex.props(styles.title)}>
-            BEdit
-          </Typography>
-        </Stack>
-
-        <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
-
-        <Stack
-          direction="row"
-          spacing={0.5}
-          {...stylex.props(styles.toolbarContent)}
-        >
-          {toolbarItems.map((item) => 
-            item.type === 'separator' ? (
-              <Divider
-                key={item.key}
-                orientation="vertical"
-                flexItem
-                sx={{ 
-                  mx: isSmallScreen ? 0.25 : 0.5,
-                  borderColor: 'var(--divider)',
-                }}
-              />
-            ) : (
-              <IconButton
-                key={item.key}
-                size="small"
-                onClick={item.onSelect}
-                disabled={item.disabled}
-                {...stylex.props(styles.toolbarItem, styles.toolbarIcon)}
-                sx={{ 
-                  padding: isSmallScreen ? '6px' : '8px',
-                  '&.Mui-disabled': {
-                    opacity: 0.5,
-                  },
-                  '&.MuiIconButton-colorPrimary': {
-                    color: 'var(--primary-main)',
-                  },
-                }}
-              >
-                {item.icon}
-              </IconButton>
-            )
-          )}
-        </Stack>
-
-        {isSmallScreen && (
-          <Stack direction="row" spacing={0.5}>
-            <IconButton
-              onClick={onToggleOutline}
-              color={showOutline ? 'primary' : 'default'}
-              size="small"
-              {...stylex.props(styles.mobileButton)}
-            >
-              <FormatListBulleted fontSize="small" />
-            </IconButton>
-            <IconButton
-              onClick={onToggleChat}
-              color={showChat ? 'primary' : 'default'}
-              size="small"
-              {...stylex.props(styles.mobileButton)}
-            >
-              <ChatIcon fontSize="small" />
-            </IconButton>
-          </Stack>
-        )}
-
-        <Box sx={{ ml: 'auto' }}>
-          <MaterialUISwitch 
-            checked={prefersDarkMode}
-            onChange={() => dispatch(toggleDarkMode())}
-            size={isSmallScreen ? "small" : "medium"}
-          />
-        </Box>
-
-        <LinkDialog
-          open={linkDialogOpen}
-          onClose={() => setLinkDialogOpen(false)}
-          onConfirm={(url, text) => {
-            insertLink(editor, url, text);
-            setLinkDialogOpen(false);
-          }}
-        />
-
-        <TableDialog
-          open={tableDialogOpen}
-          onClose={() => setTableDialogOpen(false)}
-          onConfirm={(rows, cols) => {
-            insertTable(editor, rows, cols);
-            setTableDialogOpen(false);
-          }}
-        />
-      </Toolbar>
-    </AppBar>
-  );
-};

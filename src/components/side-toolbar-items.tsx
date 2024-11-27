@@ -28,7 +28,12 @@ interface SideToolbarItem {
   disabled?: boolean;
 }
 
-export const createSideToolbarItems = (editor: CustomEditor): SideToolbarItem[] => {
+interface ToolbarEvents {
+  openLinkDialog: () => void;
+  openTableDialog: () => void;
+}
+
+export const createSideToolbarItems = (editor: CustomEditor, events: ToolbarEvents): SideToolbarItem[] => {
   const hasSelection = !editor.selection || Range.isCollapsed(editor.selection);
 
   const items: SideToolbarItem[] = [
