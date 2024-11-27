@@ -20,6 +20,7 @@ export const Element = ({ attributes, children, element }: RenderElementProps) =
   const customStyle = (element as any).style as ElementStyle;
   const style = {
     ...customStyle,
+    textAlign: element.align || 'left',
   };
   const customElement = element as CustomElement
 
