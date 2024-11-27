@@ -15,7 +15,8 @@ import {
   Redo,
   SelectAll,
   Undo,
-  AutoFixHigh
+  AutoFixHigh,
+  Image
 } from '@mui/icons-material';
 import React from 'react';
 import { Editor, Range, Transforms } from 'slate';
@@ -33,9 +34,12 @@ interface ToolbarEvents {
   openLinkDialog: () => void;
   openTableDialog: () => void;
   openAIDialog: () => void;
+  openMediaDialog: () => void;
 }
 
-export const createSideToolbarItems = (editor: CustomEditor, events: ToolbarEvents): SideToolbarItem[] => {
+export const createSideToolbarItems = (
+  editor: CustomEditor, events: ToolbarEvents
+): SideToolbarItem[] => {
   const hasSelection = !editor.selection || Range.isCollapsed(editor.selection);
 
   const items: SideToolbarItem[] = [
@@ -172,6 +176,12 @@ export const createSideToolbarItems = (editor: CustomEditor, events: ToolbarEven
         events.openAIDialog();
       },
       disabled: hasSelection,
+    },
+    {
+      key: 'media',
+      icon: <Image />,
+      title: '多媒体提取',
+      onSelect: events.openMediaDialog,
     },
   ];
 

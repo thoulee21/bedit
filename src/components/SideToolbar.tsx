@@ -3,8 +3,9 @@ import { IconButton, Paper, Portal, Stack, Tooltip } from '@mui/material';
 import React from 'react';
 import { Editor, Range, Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
-import { createSideToolbarItems } from './side-toolbar-items';
 import { AIDialog } from './dialogs/AIDialog';
+import { MediaDialog } from './dialogs/MediaDialog';
+import { createSideToolbarItems } from './side-toolbar-items';
 
 export const SideToolbar = () => {
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -13,6 +14,7 @@ export const SideToolbar = () => {
   const [position, setPosition] = React.useState({ top: -10000, left: -10000 });
   const [aiDialogOpen, setAiDialogOpen] = React.useState(false);
   const [selectedText, setSelectedText] = React.useState('');
+  const [mediaDialogOpen, setMediaDialogOpen] = React.useState(false);
 
   React.useEffect(() => {
     const updateToolbar = () => {
@@ -73,12 +75,19 @@ export const SideToolbar = () => {
       setSelectedText(text);
       setAiDialogOpen(true);
     },
+    openMediaDialog: () => setMediaDialogOpen(true),
   });
 
   const handleApplyAIResult = (result: string) => {
     if (!editor.selection) return;
     Transforms.insertText(editor, result);
     setAiDialogOpen(false);
+  };
+
+  const handleInsertMedia = (text: string) => {
+    if (!editor.selection) return;
+    Transforms.insertText(editor, text);
+    setMediaDialogOpen(false);
   };
 
   return (
@@ -124,6 +133,11 @@ export const SideToolbar = () => {
         onClose={() => setAiDialogOpen(false)}
         selectedText={selectedText}
         onApplyAIResult={handleApplyAIResult}
+      />
+      <MediaDialog
+        open={mediaDialogOpen}
+        onClose={() => setMediaDialogOpen(false)}
+        onInsert={handleInsertMedia}
       />
     </Portal>
   );
