@@ -14,7 +14,8 @@ import {
   FormatQuote,
   Redo,
   SelectAll,
-  Undo
+  Undo,
+  AutoFixHigh
 } from '@mui/icons-material';
 import React from 'react';
 import { Editor, Range, Transforms } from 'slate';
@@ -31,6 +32,7 @@ interface SideToolbarItem {
 interface ToolbarEvents {
   openLinkDialog: () => void;
   openTableDialog: () => void;
+  openAIDialog: () => void;
 }
 
 export const createSideToolbarItems = (editor: CustomEditor, events: ToolbarEvents): SideToolbarItem[] => {
@@ -159,6 +161,17 @@ export const createSideToolbarItems = (editor: CustomEditor, events: ToolbarEven
       title: '引用',
       onSelect: () => toggleBlock(editor, 'blockquote'),
       active: isBlockActive(editor, 'blockquote'),
+    },
+    {
+      key: 'ai-helper',
+      icon: <AutoFixHigh />,
+      title: 'AI助手',
+      onSelect: () => {
+        if (!editor.selection) return;
+        const text = Editor.string(editor, editor.selection);
+        events.openAIDialog();
+      },
+      disabled: hasSelection,
     },
   ];
 

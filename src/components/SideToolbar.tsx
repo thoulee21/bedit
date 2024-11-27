@@ -1,15 +1,18 @@
 import { CustomEditor } from '@/types/slate';
 import { IconButton, Paper, Portal, Stack, Tooltip } from '@mui/material';
 import React from 'react';
-import { Editor, Range } from 'slate';
+import { Editor, Range, Transforms } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
 import { createSideToolbarItems } from './side-toolbar-items';
+import { AIDialog } from './dialogs/AIDialog';
 
 export const SideToolbar = () => {
   const ref = React.useRef<HTMLDivElement | null>(null);
   const editor = useSlate() as CustomEditor;
   const [show, setShow] = React.useState(false);
   const [position, setPosition] = React.useState({ top: -10000, left: -10000 });
+  const [aiDialogOpen, setAiDialogOpen] = React.useState(false);
+  const [selectedText, setSelectedText] = React.useState('');
 
   React.useEffect(() => {
     const updateToolbar = () => {
@@ -65,7 +68,18 @@ export const SideToolbar = () => {
   const toolbarItems = createSideToolbarItems(editor, {
     openLinkDialog: () => {},
     openTableDialog: () => {},
+    openAIDialog: () => {
+      const text = Editor.string(editor, editor.selection!);
+      setSelectedText(text);
+      setAiDialogOpen(true);
+    },
   });
+
+  const handleApplyAIResult = (result: string) => {
+    if (!editor.selection) return;
+    Transforms.insertText(editor, result);
+    setAiDialogOpen(false);
+  };
 
   return (
     <Portal>
@@ -105,6 +119,12 @@ export const SideToolbar = () => {
           ))}
         </Stack>
       </Paper>
+      <AIDialog
+        open={aiDialogOpen}
+        onClose={() => setAiDialogOpen(false)}
+        selectedText={selectedText}
+        onApplyAIResult={handleApplyAIResult}
+      />
     </Portal>
   );
 }; 
