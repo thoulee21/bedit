@@ -13,17 +13,14 @@ import { useAppSelector } from '@/store/hooks';
 import { getTheme } from '@/theme/theme';
 import { DEV_INITIAL_CONTENT } from '@/utils/dev-content';
 import { toggleList } from '@/utils/editor-utils';
-import { Close } from '@mui/icons-material';
 import {
   Box,
   CssBaseline,
   Drawer,
-  IconButton,
   Paper,
-  Snackbar,
   Stack,
   ThemeProvider,
-  useMediaQuery,
+  useMediaQuery
 } from '@mui/material';
 import * as stylex from '@stylexjs/stylex';
 import dynamic from 'next/dynamic';
@@ -35,8 +32,7 @@ import { withReact } from 'slate-react';
 
 const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [value, setValue] = React.useState(DEV_INITIAL_CONTENT);
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-  const [snackMsg, setSnackMsg] = React.useState('');
+
   const editor = React.useMemo(() => {
     const e = withHistory(withReact(createEditor()));
 
@@ -54,16 +50,6 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [showOutline, setShowOutline] = React.useState(true);
   const [showChat, setShowChat] = React.useState(!isSmallScreen);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-
-  const snackbarAction = (
-    <IconButton
-      size="small"
-      color="inherit"
-      onClick={() => setSnackbarOpen(false)}
-    >
-      <Close />
-    </IconButton>
-  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -141,17 +127,6 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
         </Box>
         <StatusBar editor={editor} />
       </Box>
-
-      <Snackbar
-        open={snackbarOpen}
-        message={snackMsg}
-        action={snackbarAction}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        sx={{ mb: '24px' }}
-      />
     </ThemeProvider>
   );
 }), {
