@@ -11,6 +11,7 @@ import { StatusBar } from '@/components/StatusBar';
 import { store } from '@/store';
 import { useAppSelector } from '@/store/hooks';
 import { getTheme } from '@/theme/theme';
+import { StyleTemplate } from '@/types/style';
 import { DEV_INITIAL_CONTENT } from '@/utils/dev-content';
 import { toggleList } from '@/utils/editor-utils';
 import {
@@ -29,11 +30,9 @@ import { Provider } from 'react-redux';
 import { createEditor } from 'slate';
 import { withHistory } from 'slate-history';
 import { withReact } from 'slate-react';
-import { StyleTemplate } from '@/types/style';
 
 const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
   const [value, setValue] = React.useState(DEV_INITIAL_CONTENT);
-  const [currentStyle, setCurrentStyle] = React.useState<StyleTemplate>();
 
   const editor = React.useMemo(() => {
     const e = withHistory(withReact(createEditor()));
@@ -64,7 +63,6 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
       return node;
     });
     setValue(newValue);
-    setCurrentStyle(template);  // 更新当前样式
   };
 
   return (
