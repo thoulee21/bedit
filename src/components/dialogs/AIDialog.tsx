@@ -7,6 +7,7 @@ import {
   Button,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   CircularProgress,
@@ -72,13 +73,11 @@ export const AIDialog: React.FC<AIDialogProps> = ({
         ) : (
           <List>
             {aiFeatures.map((feature) => (
-              <ListItem
-                button
-                key={feature.action}
-                onClick={() => handleAIAction(feature.action)}
-              >
-                <ListItemIcon>{feature.icon}</ListItemIcon>
-                <ListItemText primary={feature.title} />
+              <ListItem key={feature.action} disablePadding>
+                <ListItemButton onClick={() => handleAIAction(feature.action)}>
+                  <ListItemIcon>{feature.icon}</ListItemIcon>
+                  <ListItemText primary={feature.title} />
+                </ListItemButton>
               </ListItem>
             ))}
           </List>
