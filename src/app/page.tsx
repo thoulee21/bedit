@@ -94,8 +94,8 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
             },
           }}
         >
-          <Sidebar 
-            editor={editor} 
+          <Sidebar
+            editor={editor}
             setValue={setValue}
             onApplyStyle={handleApplyStyle}  // 传递样式处理函数
           />
@@ -145,10 +145,7 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
             )}
           </Stack>
         </Box>
-        <StatusBar 
-          editor={editor} 
-          currentStyle={currentStyle}  // 传递当前样式
-        />
+        <StatusBar editor={editor} />
       </Box>
     </ThemeProvider>
   );
