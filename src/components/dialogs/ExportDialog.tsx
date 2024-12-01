@@ -1,6 +1,17 @@
+import { Code, Description } from '@mui/icons-material';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import { Description, Code } from '@mui/icons-material';
 
 interface ExportDialogProps {
   open: boolean;
@@ -8,47 +19,57 @@ interface ExportDialogProps {
   onExport: (format: 'txt' | 'md' | 'json' | 'docx') => void;
 }
 
-export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onClose, onExport }) => {
+export const ExportDialog: React.FC<ExportDialogProps> = ({
+  open, onClose, onExport
+}) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>导出文档</DialogTitle>
       <DialogContent>
         <List>
-          <ListItem button onClick={() => onExport('txt')}>
-            <ListItemIcon>
-              <Description />
-            </ListItemIcon>
-            <ListItemText 
-              primary="纯文本文档" 
-              secondary=".txt"
-            />
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => onExport('txt')}>
+              <ListItemIcon>
+                <Description />
+              </ListItemIcon>
+              <ListItemText
+                primary="纯文本文档"
+                secondary=".txt"
+              />
+            </ListItemButton>
           </ListItem>
-          <ListItem button onClick={() => onExport('md')}>
-            <ListItemIcon>
-              <Code />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Markdown 文档" 
-              secondary=".md"
-            />
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => onExport('md')}>
+              <ListItemIcon>
+                <Code />
+              </ListItemIcon>
+              <ListItemText
+                primary="Markdown 文档"
+                secondary=".md"
+              />
+            </ListItemButton>
           </ListItem>
-          <ListItem button onClick={() => onExport('docx')}>
-            <ListItemIcon>
-              <Description />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Word 文档" 
-              secondary=".docx"
-            />
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => onExport('docx')}>
+              <ListItemIcon>
+                <Description />
+              </ListItemIcon>
+              <ListItemText
+                primary="Word 文档"
+                secondary=".docx"
+              />
+            </ListItemButton>
           </ListItem>
-          <ListItem button onClick={() => onExport('json')}>
-            <ListItemIcon>
-              <Code />
-            </ListItemIcon>
-            <ListItemText 
-              primary="JSON 文档" 
-              secondary=".json"
-            />
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => onExport('json')}>
+              <ListItemIcon>
+                <Code />
+              </ListItemIcon>
+              <ListItemText
+                primary="JSON 文档"
+                secondary=".json"
+              />
+            </ListItemButton>
           </ListItem>
         </List>
       </DialogContent>
