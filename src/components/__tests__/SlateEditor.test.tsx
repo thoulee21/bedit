@@ -6,6 +6,12 @@ import { withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
+// 添加 mock 来避免 Tooltip 警告
+jest.mock('@mui/material', () => ({
+  ...jest.requireActual('@mui/material'),
+  Tooltip: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 const theme = createTheme({
   palette: {
     mode: 'light',

@@ -21,7 +21,6 @@ const theme = createTheme({
   },
 });
 
-// 创建测试用的 store
 const store = configureStore({
   reducer: {
     preferences: preferencesReducer,
@@ -31,6 +30,7 @@ const store = configureStore({
 describe('Sidebar', () => {
   const editor = withHistory(withReact(createEditor()));
   const setValue = jest.fn();
+  const onApplyStyle = jest.fn();
 
   const renderWithProviders = (ui: React.ReactElement) => {
     return render(
@@ -44,24 +44,24 @@ describe('Sidebar', () => {
 
   it('renders correctly', () => {
     renderWithProviders(
-      <Sidebar editor={editor} setValue={setValue} />
+      <Sidebar editor={editor} setValue={setValue} onApplyStyle={onApplyStyle} />
     );
 
     // 验证基本元素是否存在
-    expect(screen.getByText('书签')).toBeInTheDocument();
     expect(screen.getByText('导入')).toBeInTheDocument();
     expect(screen.getByText('导出')).toBeInTheDocument();
+    expect(screen.getByText('排版样式')).toBeInTheDocument();
     expect(screen.getByText('设置')).toBeInTheDocument();
     expect(screen.getByText('关于')).toBeInTheDocument();
   });
 
   it('opens dialogs when clicking buttons', () => {
     renderWithProviders(
-      <Sidebar editor={editor} setValue={setValue} />
+      <Sidebar editor={editor} setValue={setValue} onApplyStyle={onApplyStyle} />
     );
 
     // 点击按钮并验证对话框是否打开
-    fireEvent.click(screen.getByText('书签'));
+    fireEvent.click(screen.getByText('导入'));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 }); 
