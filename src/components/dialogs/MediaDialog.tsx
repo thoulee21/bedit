@@ -12,8 +12,8 @@ import {
   Tabs,
 } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
-import { Image as ImageIcon, Audiotrack, PictureAsPdf } from '@mui/icons-material';
-import { mockOCR, mockASR, extractPDFText } from '@/utils/media-utils';
+import { Image as ImageIcon, Audiotrack } from '@mui/icons-material';
+import { mockOCR, mockASR } from '@/utils/media-utils';
 
 interface MediaDialogProps {
   open: boolean;
@@ -42,8 +42,6 @@ export const MediaDialog: React.FC<MediaDialogProps> = ({
         text = await mockOCR(file);
       } else if (file.type.startsWith('audio/')) {
         text = await mockASR(file);
-      } else if (file.type === 'application/pdf') {
-        text = await extractPDFText(file);
       }
 
       setResult(text);
@@ -58,21 +56,16 @@ export const MediaDialog: React.FC<MediaDialogProps> = ({
     onDrop,
     accept: activeTab === 0
       ? { 'image/*': ['.jpg', '.jpeg', '.png'] }
-      : activeTab === 1
-        ? { 'audio/*': ['.mp3', '.wav'] }
-        : { 'application/pdf': ['.pdf'] },
+      : { 'audio/*': ['.mp3', '.wav'] },
   });
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>多媒体信息提取</DialogTitle>
       <DialogContent>
-        <Tabs value={activeTab} onChange={
-          (_, v) => setActiveTab(v)
-        }>
+        <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)}>
           <Tab icon={<ImageIcon />} label="图片识别" />
           <Tab icon={<Audiotrack />} label="语音识别" />
-          <Tab icon={<PictureAsPdf />} label="PDF提取" />
         </Tabs>
 
         <Box sx={{ mt: 2 }}>
@@ -111,9 +104,7 @@ export const MediaDialog: React.FC<MediaDialogProps> = ({
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 {activeTab === 0
                   ? '支持的格式：JPG、PNG'
-                  : activeTab === 1
-                    ? '支持的格式：MP3、WAV'
-                    : '支持的格式：PDF'}
+                  : '支持的格式：MP3、WAV'}
               </Typography>
             </Box>
           )}
