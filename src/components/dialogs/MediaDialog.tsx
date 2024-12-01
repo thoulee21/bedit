@@ -12,7 +12,7 @@ import {
   Tabs,
 } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
-import { Image, Audiotrack, PictureAsPdf } from '@mui/icons-material';
+import { Image as ImageIcon, Audiotrack, PictureAsPdf } from '@mui/icons-material';
 import { mockOCR, mockASR, extractPDFText } from '@/utils/media-utils';
 
 interface MediaDialogProps {
@@ -70,7 +70,7 @@ export const MediaDialog: React.FC<MediaDialogProps> = ({
         <Tabs value={activeTab} onChange={
           (_, v) => setActiveTab(v)
         }>
-          <Tab icon={<Image />} label="图片识别" />
+          <Tab icon={<ImageIcon />} label="图片识别" />
           <Tab icon={<Audiotrack />} label="语音识别" />
           <Tab icon={<PictureAsPdf />} label="PDF提取" />
         </Tabs>

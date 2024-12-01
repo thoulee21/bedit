@@ -16,7 +16,7 @@ import {
   SelectAll,
   Undo,
   AutoFixHigh,
-  Image,
+  Image as ImageIcon,
   TableChart
 } from '@mui/icons-material';
 import React from 'react';
@@ -181,7 +181,7 @@ export const createSideToolbarItems = (
     },
     {
       key: 'media',
-      icon: <Image />,
+      icon: <ImageIcon />,
       title: '多媒体提取',
       onSelect: events.openMediaDialog,
     },
