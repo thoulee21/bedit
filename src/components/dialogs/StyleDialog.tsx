@@ -7,8 +7,8 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  IconButton,
   List,
+  ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -76,30 +76,27 @@ export const StyleDialog: React.FC<StyleDialogProps> = ({
         <List>
           {templates.map((template) => (
             <React.Fragment key={template.id}>
-              <ListItemButton
-                selected={template.id === selectedId}
-                onClick={() => setSelectedId(template.id)}
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <ListItemIcon>
-                  <Style />
-                </ListItemIcon>
-                <ListItemText
-                  primary={template.name}
-                  secondary={
-                    <Typography variant="body2" color="text.secondary">
-                      包含标题、正文等样式
-                    </Typography>
-                  }
-                />
-                {template.id === selectedId && (
-                  <Check sx={{ ml: 1 }} />
-                )}
-              </ListItemButton>
+              <ListItem disablePadding>
+                <ListItemButton
+                  selected={template.id === selectedId}
+                  onClick={() => setSelectedId(template.id)}
+                >
+                  <ListItemIcon>
+                    <Style />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={template.name}
+                    secondary={
+                      <Typography variant="body2" color="text.secondary">
+                        包含标题、正文等样式
+                      </Typography>
+                    }
+                  />
+                  {template.id === selectedId && (
+                    <Check sx={{ ml: 1 }} />
+                  )}
+                </ListItemButton>
+              </ListItem>
               <Divider variant="inset" component="li" />
             </React.Fragment>
           ))}
