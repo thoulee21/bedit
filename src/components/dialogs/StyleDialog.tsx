@@ -9,11 +9,10 @@ import {
   Divider,
   IconButton,
   List,
-  ListItem,
+  ListItemButton,
   ListItemIcon,
-  ListItemSecondaryAction,
   ListItemText,
-  Typography,
+  Typography
 } from '@mui/material';
 import React from 'react';
 
@@ -77,10 +76,14 @@ export const StyleDialog: React.FC<StyleDialogProps> = ({
         <List>
           {templates.map((template) => (
             <React.Fragment key={template.id}>
-              <ListItem
-                button
+              <ListItemButton
                 selected={template.id === selectedId}
                 onClick={() => setSelectedId(template.id)}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
               >
                 <ListItemIcon>
                   <Style />
@@ -94,13 +97,9 @@ export const StyleDialog: React.FC<StyleDialogProps> = ({
                   }
                 />
                 {template.id === selectedId && (
-                  <ListItemSecondaryAction>
-                    <IconButton edge="end" size="small">
-                      <Check />
-                    </IconButton>
-                  </ListItemSecondaryAction>
+                  <Check sx={{ ml: 1 }} />
                 )}
-              </ListItem>
+              </ListItemButton>
               <Divider variant="inset" component="li" />
             </React.Fragment>
           ))}

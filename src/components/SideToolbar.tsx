@@ -132,19 +132,21 @@ export const SideToolbar = () => {
         <Stack direction="row" spacing={0.5}>
           {toolbarItems.map((item) => (
             <Tooltip key={item.key} title={item.title}>
-              <IconButton
-                size="small"
-                onClick={item.onSelect}
-                disabled={item.disabled}
-                sx={{
-                  p: 0.5,
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                  },
-                }}
-              >
-                {item.icon}
-              </IconButton>
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={item.onSelect}
+                  disabled={item.disabled}
+                  sx={{
+                    p: 0.5,
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                    },
+                  }}
+                >
+                  {item.icon}
+                </IconButton>
+              </span>
             </Tooltip>
           ))}
         </Stack>
