@@ -1,7 +1,7 @@
+import { CustomEditor } from '@/types/slate';
+import { Box, Divider, Stack, Typography } from '@mui/material';
 import React from 'react';
-import { Box, Stack, Typography, Divider } from '@mui/material';
-import { Editor, Element as SlateElement, Node } from 'slate';
-import { CustomEditor, CustomElement } from '@/types/slate';
+import { Editor, Node, Element as SlateElement } from 'slate';
 import { ReactEditor } from 'slate-react';
 
 interface StatusBarProps {
