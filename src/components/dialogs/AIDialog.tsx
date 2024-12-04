@@ -1,4 +1,11 @@
-import React from 'react';
+import { AIAction } from '@/types/ai';
+import { processAIRequest } from '@/services/ai-service';
+import {
+  AutoFixHigh,
+  Translate,
+  ContentCopy,
+  Summarize,
+} from '@mui/icons-material';
 import {
   Dialog,
   DialogTitle,
@@ -11,15 +18,9 @@ import {
   ListItemIcon,
   ListItemText,
   CircularProgress,
+  Alert,
 } from '@mui/material';
-import {
-  AutoFixHigh,
-  Translate,
-  ContentCopy,
-  Add,
-  Summarize,
-} from '@mui/icons-material';
-import { mockAICall } from '@/utils/ai-utils';
+import React from 'react';
 
 interface AIDialogProps {
   open: boolean;
@@ -36,37 +37,63 @@ export const AIDialog: React.FC<AIDialogProps> = ({
 }) => {
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState('');
+  const [error, setError] = React.useState<string | null>(null);
 
   const aiFeatures = [
-    { icon: <AutoFixHigh />, title: '润色优化', action: 'polish' },
-    { icon: <Translate />, title: '中英互译', action: 'translate' },
-    { icon: <ContentCopy />, title: '续写内容', action: 'continue' },
-    { icon: <Summarize />, title: '生成摘要', action: 'summarize' },
+    { icon: <AutoFixHigh />, title: '润色优化', action: 'polish' as AIAction },
+    { icon: <Translate />, title: '中英互译', action: 'translate' as AIAction },
+    { icon: <ContentCopy />, title: '续写内容', action: 'continue' as AIAction },
+    { icon: <Summarize />, title: '生成摘要', action: 'summarize' as AIAction },
   ];
 
-  const handleAIAction = async (action: string) => {
+  const handleAIAction = async (action: AIAction) => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: 调用文心大模型API
-      const result = await mockAICall(action, selectedText);
+      const result = await processAIRequest(action, selectedText);
       setResult(result);
     } catch (error) {
-      console.error('AI处理失败:', error);
+      setError(error instanceof Error ? error.message : '处理失败');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleClose = () => {
+    setResult('');
+    setError(null);
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>AI 助手</DialogTitle>
       <DialogContent>
         {loading ? (
-          <CircularProgress />
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <CircularProgress />
+            <div style={{ marginTop: '1rem' }}>正在处理...</div>
+          </div>
+        ) : error ? (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
         ) : result ? (
           <div>
-            <pre>{result}</pre>
-            <Button onClick={() => onApplyAIResult(result)}>
+            <pre style={{ 
+              whiteSpace: 'pre-wrap', 
+              wordBreak: 'break-word',
+              backgroundColor: 'rgba(0,0,0,0.03)',
+              padding: '1rem',
+              borderRadius: '4px'
+            }}>
+              {result}
+            </pre>
+            <Button 
+              variant="contained" 
+              onClick={() => onApplyAIResult(result)}
+              sx={{ mt: 2 }}
+            >
               应用修改
             </Button>
           </div>
@@ -84,7 +111,7 @@ export const AIDialog: React.FC<AIDialogProps> = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>关闭</Button>
+        <Button onClick={handleClose}>关闭</Button>
       </DialogActions>
     </Dialog>
   );

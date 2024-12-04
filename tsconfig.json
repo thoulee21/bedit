@@ -19,12 +19,14 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/types/*": ["src/types/*"]
     },
     "types": [
       "jest",
       "@testing-library/jest-dom"
-    ]
+    ],
+    "baseUrl": "."
   },
   "include": [
     "next-env.d.ts",
