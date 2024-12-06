@@ -21,13 +21,13 @@ jobs:
       - name: Setup modern yarn
         run: |
           corepack enable
-          yarn set version stable
+          yarn set version 4.5.0
       
       - name: Install Dependencies Using yarn
         run: yarn install
       - name: Build
         run: yarn build
-        
+
       - name: Push File to Server
         uses: wlixcc/SFTP-Deploy-Action@v1.0
         with:  
