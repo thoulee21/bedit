@@ -111,7 +111,15 @@ const HomeContent = dynamic(() => Promise.resolve(function HomeContent() {
               justifyContent: 'space-between',
             }}
           >
-            <Box {...stylex.props(styles.sidePanel)} sx={{ width: '280px', flexShrink: 0 }}>
+            <Box
+              {...stylex.props(styles.sidePanel)}
+              sx={{
+                width: '280px',
+                flexShrink: 0,
+                paddingLeft: '12px',
+                paddingRight: '12px',
+              }}
+            >
               <DocumentOutline editor={editor} />
             </Box>
 
