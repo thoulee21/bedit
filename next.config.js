@@ -4,6 +4,7 @@ const StylexPlugin = require('@stylexjs/webpack-plugin');
 const nextConfig = {
   output: "export",
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -19,7 +20,7 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     // StyleX plugin
     config.plugins.push(
       new StylexPlugin({
