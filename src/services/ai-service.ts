@@ -14,7 +14,7 @@ export async function processAIRequest(action: AIAction, text: string): Promise<
         text,
       }),
     });
-    console.log(API_ENDPOINT);
+
     if (!response.ok) {
       throw new Error('AI 处理失败');
     }
